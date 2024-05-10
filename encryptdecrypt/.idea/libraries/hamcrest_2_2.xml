@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="hamcrest-2.2">
+    <CLASSES>
+      <root url="jar://D:/external_jar/junit/hamcrest-2.2.jar!/" />
+      <root url="jar://D:/external_jar/junit/junit-4.12.jar!/" />
+      <root url="jar://D:/external_jar/junit/mockito-core-4.11.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

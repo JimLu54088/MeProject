@@ -1,0 +1,3 @@
+module encryptdecrypt {
+    requires junit;
+}

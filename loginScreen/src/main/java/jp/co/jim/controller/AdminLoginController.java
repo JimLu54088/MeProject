@@ -2,6 +2,7 @@ package jp.co.jim.controller;
 
 import com.google.gson.Gson;
 import jp.co.jim.service.AdminLoginService;
+import jp.co.jim.service.UserActionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,9 @@ public class AdminLoginController {
 
     @Autowired
     private AdminLoginService loginService;
+
+    @Autowired
+    private UserActionService userActionService;
 
     private static final Logger logger = LogManager.getLogger(AdminLoginController.class);
     private static final String LOG_HEADER = "[" + AdminLoginController.class.getSimpleName() + "] :: ";
@@ -38,11 +42,15 @@ public class AdminLoginController {
         // Validate the credentials
 
         if (loginService.checkAdminLogin(username, password) == 1) {
+            // Record successful login action
+            userActionService.saveUserAction(username, "Admin Login successful");
+
             return ResponseEntity.ok("Login successful!");
         } else {
-            logger.info(LOG_HEADER + "received username : " + username + " received password : " + password);
+            // Record successful login action
+            userActionService.saveUserAction(username, "Login failed!");
 
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Admin Login failed!");
         }
     }
 }

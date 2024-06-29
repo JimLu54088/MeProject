@@ -1,0 +1,108 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<title>社内統合管理システム</title>
+
+<script>
+    function displayCurrentTime() {
+        var now = new Date();
+        var options = {
+            hour12: false,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        };
+        var year = now.toLocaleDateString(undefined, { year: 'numeric' });
+        var month = now.toLocaleDateString(undefined, { month: '2-digit' });
+        var day = now.toLocaleDateString(undefined, { day: '2-digit' });
+        var hour = now.toLocaleTimeString(undefined, { hour: '2-digit', hour12: false });
+        var minute = now.toLocaleTimeString(undefined, { minute: '2-digit' });
+        var second = now.toLocaleTimeString(undefined, { second: '2-digit' });
+        var currentTime = year + month + day + hour + minute + "分" + second + "秒";
+
+        var elements = document.getElementsByClassName("date-time");
+        for (var i = 0; i < elements.length; i++) {
+            elements[i].textContent = currentTime;
+        }
+    }
+
+    var timerId = setInterval(displayCurrentTime, 1000);
+    setTimeout(function() {
+        clearInterval(timerId);
+    }, 1000);
+</script>
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css">
+</head>
+
+<body>
+	<div class="img">
+
+		<div class="titlearea">
+			<div class="titlearea2">
+
+				<div class="title2">CSII</div>
+
+				<div class="title3">
+					<div class="aa">株式会社シエス情報</div>
+				</div>
+
+				<h1 class="title">社内統合管理システム</h1>
+
+
+
+				<div class="centerarea">
+
+					<div class="h1">
+                      登録日時：<span class="date-time"></span>
+                    </div>
+					<div class="url1">
+						<a href="/DGlogin.html">ログイン</a> <a href="/Adminlogin.html">利用者新規登録</a>
+					</div>
+				</div>
+
+ 				<div class="marquee">
+                    <span>&#x1F43D;	社内通知:辛苦大家了!!&#x1F43D;	</span>
+                </div>
+
+
+
+
+
+
+				<div>
+					<img src="./img/torihiki.png" alt="" class="text1">
+					<img src="./img/torihikisaki.jpg" alt="" class="img1 slide-in">
+
+					<a href="/getsubject" class="kensaku">
+					  <img src="./img/kanri.png" alt="" class="text2">
+					</a>
+
+
+					<img src="./img/sixyainntouroku.jpg" alt="" class="img2 slide-in">
+					<img src="./img/seikixyu.png" alt="" class="text3">
+					<img src="./img/seikixyukannri.jpg" alt="" class="img3 slide-in">
+					<img src="./img/mitumi.png" alt="" class="text4">
+					<img src="./img/mizumori.jpg" alt="" class="img4 slide-in">
+					<img src="./img/sugezixyuru.png" alt="" class="text5">
+					<img src="./img/sukezixyuuru.jpg" alt="" class="img5 slide-in">
+
+
+
+
+
+
+
+
+
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

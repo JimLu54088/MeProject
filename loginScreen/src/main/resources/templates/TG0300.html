@@ -1,0 +1,332 @@
+﻿<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="utf-8">
+	<title>社員管理</title>
+	<style>
+		.pagination-header{
+			display: flex;
+			justify-content: space-between;
+			margin-top: 25px;
+		}
+		
+		#table-size{
+			width: 50px;
+			height: 30px;
+		}
+
+		#table-size option{
+			text-align: center;
+		}
+
+		#syozokuKaisyaSelect option{
+			text-align:left;
+		}
+		
+		
+		.container {
+			display: flex;
+			justify-content: center;
+		}
+
+		.flex {
+			text-align: center;
+			/* div中の（aとform）ものを横並びにする */
+			display: flex;
+			/* それぞれを左端と右端に寄らすことができる */
+			justify-content: space-around;
+			/* 横幅が狭すぎるの場合、勝手に改行される */
+			flex-wrap: wrap;
+			/* 上下置中 */
+			align-items: center;
+		}
+
+		.title {
+			padding: 5px;
+			border-radius: 8px;
+			background-color: #808080;
+			border: dashed #bbb;
+			box-shadow: 0 0 0 4px #808080;
+		}
+
+		.btn {
+			display: block;
+			width: 80px;
+			height: 40px;
+			line-height: 20px;
+			text-align: center;
+			margin-left: 10px;
+			background: #338DC9;
+			color: white;
+			text-decoration: none;
+			border-radius: 10px;
+			font-size: larger;
+		}
+
+		.btn_shinki {
+			display: block;
+			width: 100px;
+			height: 40px;
+			line-height: 20px;
+			text-align: center;
+			margin-left: 10px;
+			background: #338DC9;
+			color: white;
+			text-decoration: none;
+			border-radius: 10px;
+			font-size: larger;
+		}
+
+		.tb1 {
+			text-align: center;
+			border-collapse: collapse;
+			/* width: auto; */
+			width: 100%;
+			word-break: break-word;
+		}
+
+		tbody tr:hover {
+			box-shadow: 0px 0px 5px 0px black;
+		}
+
+		th {
+			padding: 10px;
+			background: #86a2bb;
+			border: solid 1.5px #302a27;
+			/* width: calc(100% - 30px); */
+		}
+
+		.tr {
+			padding: 10px;
+			border: solid 1.5px #302a27;
+		}
+
+		.pagination-footer {
+			margin-top: 50px;
+			margin-bottom: 50px;
+			display: flex;
+			justify-content: space-between;
+		}
+
+		.pagination-buttons {
+			display: inline-block;
+		}
+
+		.pagination-buttons a {
+			color: black;
+			border: 1px solid #add;
+			padding: 8px 16px;
+			margin: 0px 4px;
+			text-decoration: none;
+		}
+
+		.pagination-buttons a.active {
+			background: linear-gradient(to bottom, white 0%, #dcdcdc 100%);
+			color: #333 !important;
+			border: 1px solid #979797;
+		}
+
+		.pagination-buttons a:hover {
+			color: white !important;
+			background: linear-gradient(to bottom, #000 0%, rgb(87, 87, 87) 100%);
+		}
+	</style>
+	<script>
+		function displayCurrentTime() {
+			var now = new Date();
+			var options = {
+				hour12: false,
+				year: 'numeric',
+				month: '2-digit',
+				day: '2-digit',
+				hour: '2-digit',
+				minute: '2-digit',
+				second: '2-digit'
+			};
+			var year = now.toLocaleDateString(undefined, {
+				year: 'numeric'
+			});
+			var month = now.toLocaleDateString(undefined, {
+				month: '2-digit'
+			});
+			var day = now.toLocaleDateString(undefined, {
+				day: '2-digit'
+			});
+			var hour = now.toLocaleTimeString(undefined, {
+				hour: '2-digit',
+				hour12: false
+			});
+			var minute = now.toLocaleTimeString(undefined, {
+				minute: '2-digit'
+			});
+			var second = now.toLocaleTimeString(undefined, {
+				second: '2-digit'
+			});
+			var currentTime = year + month + day + hour + minute + "分" + second
+				+ "秒";
+
+			var elements = document.getElementsByClassName("date-time");
+			for (var i = 0; i < elements.length; i++) {
+				elements[i].textContent = currentTime;
+			}
+		}
+
+		var timerId = setInterval(displayCurrentTime, 1000);
+		setTimeout(function () {
+			clearInterval(timerId);
+		}, 1000);
+	</script>
+	<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+	<script type="text/javascript" src="js/syainkanri.js"></script>
+
+
+
+
+	<!-- <link rel="stylesheet" href="style_kanri.css">-->
+	<!-- <script>
+    function validateCheckbox() {
+      var checkbox1 = document.getElementById("checkbox1");
+      var checkbox2 = document.getElementById("checkbox2");
+
+      if (!checkbox1.checked && !checkbox2.checked) {
+        alert("在籍と非在籍がいずれにしても、１つのチェックが必須です。");
+        return false;
+      }
+
+      return true;
+    }
+  </script> -->
+
+
+
+</head>
+
+<body>
+	<header>
+		<h1 class="container">社内統合管理システム</h1>
+	</header>
+	<main>
+		<h2 class="title">&#x2660;社員管理</h2>
+
+		<dl>
+			<h3>&#x25A0;検索条件</h3>
+			<td>所属会社&nbsp;&nbsp;&nbsp;
+				<select id="syozokuKaisyaSelect" name="intSYOZOKU_KAISYA">
+					<option value="0">全て</option>
+				</select>
+			</td>
+
+			<td><span class="mgr-10">社員名&nbsp;&nbsp;&nbsp;</span>
+				<input type="text" id="shainName" name="shainName">
+			</td>
+
+
+			職業種類&nbsp;&nbsp;&nbsp;
+			<select name="Syokugyo_kind" id="syokugyoKindSelect">
+
+			</select>
+
+
+			<td>在籍<input type="checkbox" id="ZAISEKI" name="ZAISEKI" checked='checked'></td>
+			<td>非在籍<input type="checkbox" id="HIZAISEKI" name="HIZAISEKI"></td>
+			<input type="button" id="syainkanrisearch" name="syainkanrisearch" value="検&nbsp;索" class="btn">
+		</dl>
+	</main>
+	<h3>&#x25A0;社員一覧</h3>
+	<div class="h1">
+		登録日時：<span class="date-time"></span>
+		<p id="cnt" style="text-align: right"></p>
+	</div>
+
+	<!-- <div class="pagination-header">
+		<div class="dropdown-container">
+			<select name = "" id="table-size">
+			<option value="5">5</option>
+			<option value="10">10</option>
+			<option value="30">30</option>
+			<option value="100">100</option>
+		</select>
+
+		</div> -->
+
+
+
+
+	</div>
+
+
+
+
+
+	<div class="flex">
+
+		<!-- <a href="/getsubjectforSyinkiToroku">&plus;新規登録</a> -->
+		<input type="button" id="idBtnTG0400Addnew" name="btnTG0400Addnew" value="新規登録" class="btn_shinki">
+	</div>
+
+
+
+	<table id="tb1" width="100%" border="1" cellspacing="1" cellpadding="4">
+		<thead>
+			<tr>
+				<th class="aaa">所属会社</th>
+				<th class="bbb">社員名</th>
+				<th class="ccc">性別</th>
+				<th class="ddd">職業種類</th>
+				<th class="eee">入社日</th>
+				<th class="fff">退社日</th>
+				<th class="ggg">編集</th>
+			</tr>
+
+		</thead>
+		<tbody>
+
+		</tbody>
+
+
+	</table>
+
+	<div class="pagination-footer">
+		<span class="pagination-details"></span>
+		<div class="pagination-buttons">
+			<a href="#">&laquo;</a>
+			<a href="#">1</a>
+			<a href="#">2</a>
+			<a href="#">3</a>
+			<a href="#">&raquo;</a>
+
+
+
+
+
+
+
+		</div>
+
+
+
+
+	</div>
+
+
+
+
+
+
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+	'use strict'
+	$('#new-user-form').submit(function (e) {
+
+		let roleChecked = $("input[type='checkbox']:checked").length;
+
+		if (!roleChecked) {
+			alert("在籍と非在籍がいずれにしても、１つのチェックが必須です。");
+			e.preventDefault();
+			return false;
+		}
+	});
+</script>
+
+</html>

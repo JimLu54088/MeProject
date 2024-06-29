@@ -1,0 +1,345 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>社内統合管理システム</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+	<link rel="stylesheet" type="text/css" href="css/style_shinki.css">
+	<link rel="stylesheet" type="text/css" href="css/validationEngine.jquery.css" />
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+
+
+	<script type="text/javascript" src="js/TG0402.js"></script>
+	<script type="text/javascript" src="js/moment.js"></script>
+	
+	<script>
+		function displayCurrentTime() {
+			var now = new Date();
+			var options = {
+				hour12: false,
+				year: 'numeric',
+				month: '2-digit',
+				day: '2-digit',
+				hour: '2-digit',
+				minute: '2-digit',
+				second: '2-digit'
+			};
+			var year = now.toLocaleDateString(undefined, { year: 'numeric' });
+			var month = now.toLocaleDateString(undefined, { month: '2-digit' });
+			var day = now.toLocaleDateString(undefined, { day: '2-digit' });
+			var hour = now.toLocaleTimeString(undefined, { hour: '2-digit', hour12: false });
+			var minute = now.toLocaleTimeString(undefined, { minute: '2-digit' });
+			var second = now.toLocaleTimeString(undefined, { second: '2-digit' });
+			var currentTime = year + month + day + hour + minute + "分" + second + "秒";
+
+			var elements = document.getElementsByClassName("date-time");
+			for (var i = 0; i < elements.length; i++) {
+				elements[i].textContent = currentTime;
+			}
+		}
+
+		var timerId = setInterval(displayCurrentTime, 1000);
+		setTimeout(function () {
+			clearInterval(timerId);
+		}, 1000);
+	</script>
+
+	<!-- jquery validation engine -->
+	<script src="js/jquery.validationEngine.js"></script>
+	<script src="js/jquery.validationEngine-ja.js"></script>
+
+	<script>
+		jQuery(document).ready(function () {
+			jQuery("#register").validationEngine({
+				promptPosition: "inline"
+			});
+
+			$("td input").each(
+				function () {
+					$(this).closest('td').prepend(
+						'<div class="error-message" id="error-'
+						+ $(this)[0].name + '"></div>');
+
+					$(this).attr('data-prompt-target',
+						'error-' + $(this)[0].name);
+
+					console.log($(this));
+					console.log($(this)[0].name);
+				});
+		});
+	</script>
+</head>
+
+<body>
+	<h1 class="container">社内統合管理システム</h1>
+	<p class="chan"><a href="/getsubject">社員管理画面へ</a></p>
+
+	<div class="h1">
+		登録日時：<span class="date-time"></span>
+	</div>
+	<main>
+		<h2>
+			<h2 class="title">&#x2660;社員更新</h2>
+		</h2>
+	</main>
+
+
+
+
+	<!-- ここにheader.htmlが読み込まれる -->
+
+
+
+	<form id="register">
+		<input type="hidden" name="SYAIN_ID" >
+		<table>
+
+
+
+			<tr>
+				<td>社員名（漢字）</td>
+				<td>姓&nbsp;&nbsp;&nbsp;<input type="text" name="FIRST_NAME_KANJI" value="" id="idFIRST_NAME_KANJI" class="validate[required] text-input">
+				</td>
+				<td>名&nbsp;&nbsp;&nbsp;<input type="text" name="LAST_NAME_KANJI" id="idLAST_NAME_KANJI"
+						class="validate[required] text-input">&nbsp;&nbsp;&nbsp;&nbsp;必須</td>
+			</tr>
+			<tr>
+				<td>社員名（カタカナ）</td>
+				<td>ｾｲ&nbsp;&nbsp;&nbsp;<input type="text" name="FIRST_NAME_KANA"><label
+						class="validate[required] text-input">&nbsp;</label>
+				</td>
+				<td>ﾒｲ&nbsp;&nbsp;&nbsp;<input type="text" name="LAST_NAME_KANA"><label
+						class="validate[required] text-input">&nbsp;&nbsp;&nbsp;&nbsp;必須</label></td>
+			</tr>
+			<tr>
+				<td>社員名（英語）&nbsp;</td>
+				<td>first name&nbsp;&nbsp;<input type="text" name="FIRST_NAME_EIGO"><label
+						class="validate[required] text-input">&nbsp;</label></td>
+				<td>last name&nbsp;&nbsp;<input type="text" name="LAST_NAME_EIGO"><label
+						class="validate[required] text-input">&nbsp;&nbsp;&nbsp;&nbsp;必須</label></td>
+			</tr>
+			<tr>
+				<td>性別</td>
+				<td><input type="radio" name="SEIBETU" id="idSEIBETU" value="1" >男&nbsp;
+					<input type="radio" name="SEIBETU" id="idSEIBETU" value="2">女
+				</td>
+			</tr>
+			<tr>
+				<td>誕生日</td>
+				<td><input type="date" id="idTANJYOBI" name="TANJYOBI" ></td>
+			</tr>
+			<tr>
+				<td>国籍</td>
+				<td><select name="KOKUSEKI" id="idKOKUSEKI">
+
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>出身地</td>
+				<td><input type="text" name="SYUSSINN"></td>
+			</tr>
+			<tr>
+				<td>配偶者有り無し</td>
+				<td><input type="radio" name="HAIGUSYA" id="idHAIGUSYA" value="1">有&nbsp;
+					<input type="radio" name="HAIGUSYA" id="idHAIGUSYA" value="2">無
+				</td>
+			</tr>
+		</table>
+		<h2 class="personal">個人証明情報</h2>
+		<table>
+			<tr>
+				<td>パスポート番号</td>
+				<td><input type="text" name="PASSPORT_NUM" size="40"></td>
+
+			</tr>
+			<tr>
+				<td>パスポート有効日</td>
+				<td><input type="date" id="idPASSPORT_END_DATE" name="PASSPORT_END_DATE" value="2023-07-22"></td>
+
+			</tr>
+			<tr>
+				<td>ビザ期間</td>
+				<td><select name="VISA_KIKAN" id="idVISA_KIKAN">
+
+					</select>年</td>
+			</tr>
+			<tr>
+				<td>ビザ有効日</td>
+				<td><input type="date" id="idVISA_END_DATE" name="VISA_END_DATE" value="2024-04-01" min="2023-01-01"
+						max="2050-12-31"></td>
+			</tr>
+			<tr>
+
+				<td>在留資格名称</td>
+				<td><select name="ZAIRYU_SIKAKU" id="idZAIRYU_SIKAKU">
+
+					</select></td>
+			</tr>
+			<tr>
+				<td>マイナンバー</td>
+				<td><input type="text" name="KOJIN_NUM" size="40"></td>
+			</tr>
+			<tr>
+				<td>在留番号</td>
+				<td><input type="text" name="ZAIRYU_NUM" size="40"></td>
+			</tr>
+		</table>
+
+		<h2 class="personal-career">会社関連情報</h2>
+		<table>
+			<tr>
+
+				<td>所属会社</td>
+				<td><select name="SYOZOKU_KAISYA" id="idSYOZOKU_KAISYA">
+
+					</select></td>
+			</tr>
+			<tr>
+				<td>入社日</td>
+				<td><input type="date" name="NYUUSYA_DATE" value="2010-04-01" id="idNYUUSYA_DATE">
+				</td>
+			</tr>
+			<tr>
+				<td>退社日</td>
+				<td><input type="text" name="TAISYA_DATE" id="idTAISYA_DATE" >※YYYY-MM-DD</td>
+			</tr>
+			<tr>
+
+				<td>職業種類</td>
+				<td><select name="SYOKUGYO_KIND" id="idSYOKUGYO_KIND">
+
+					</select></td>
+			</tr>
+			<tr>
+				<td>来日時期</td>
+				<td><input type="date" name="RAINITI_DATE" value="2018-07-22" id="idRAINITI_DATE">
+				</td>
+			</tr>
+			<tr>
+				<td>備考</td>
+				<td><textarea name="BIKOU" cols="150" rows="5"></textarea></td>
+			</tr>
+		</table>
+
+		<h2 class="personal-information">連絡先</h2>
+		<table>
+			<tr>
+				<td>住所</td>
+				<td>〒<input type="text" id="zipcode" name="YUUBIN"></td>
+				<td><button type="button" id="searchBtn" class="zipcodesearch">檢索</button></td>
+
+			<tr>
+				<td></td>
+				<td><input type="text" id="address_1" name="JYUSYO_1" size="50">番地まで</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><input type="text" id="address_2" name="JYUSYO_2" size="50">マンション・号室など</td>
+			</tr>
+			<tr>
+				<td>最寄駅</td>
+				<td><input type="tel" name="MOYORI_EKI" id="idMOYORI_EKI"></td>
+
+			</tr>
+			<tr>
+				<td>携帯電話</td>
+				<td><input type="tel" name="TEL" class="validate[custom[phone]]"></td>
+
+			</tr>
+			<tr>
+				<td>メールアドレス</td>
+				<td><input type="text" name="EMAIL" size="50"></td>
+			</tr>
+			<tr>
+				<td>WechatID</td>
+				<td><input type="text" name="WECHAT"></td>
+			</tr>
+			<tr>
+				<td>LineID</td>
+				<td><input type="text" name="LINE"></td>
+			</tr>
+		</table>
+
+		<h2 class="personal-country">母国関連</h2>
+		<table>
+			<tr>
+				<td>住所</td>
+				<td><textarea cols="100" rows="3" name="BOKOKU_JYUSYO"></textarea></td>
+			</tr>
+			<tr>
+				<td>緊急連絡先</td>
+				<td><textarea cols="100" rows="3" name="BOKOKU_KINNKYUU_RENNRAKU"></textarea></td>
+			</tr>
+		</table>
+
+		<h2 class="school">学歴情報</h2>
+		<table>
+			<tr>
+
+				<td>最終学歴</td>
+				<td><select name="SAISYUU_GAKUREKI" id="idSAISYUU_GAKUREKI">
+
+					</select></td>
+			</tr>
+			<tr>
+				<td>学校名</td>
+				<td><input type="text" name="GAKKOU_NAME" size="50"></td>
+			</tr>
+			<tr>
+				<td>専門</td>
+				<td><input type="text" name="SENNMOM_NAME" size="50"></td>
+			</tr>
+			<tr>
+				<td>卒業年月日</td>
+				<td><input type="date" id="idSOTUGYO_DATE" name="SOTUGYO_DATE" value="2018-07-22">
+				</td>
+			</tr>
+
+
+		</table>
+
+
+		<p style="text-align: center;">
+			<input type="submit" value="登録" class="done">
+		</p>
+	</form>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			var zipcodeInput = document.getElementById('zipcode');
+			var address1Input = document.getElementById('address_1');
+			var address2Input = document.getElementById('address_2');
+			var searchBtn = document.getElementById('searchBtn');
+
+			searchBtn.addEventListener('click', function () {
+				var zipcode = zipcodeInput.value;
+
+				if (zipcode.length === 8 && /^\d{3}-\d{4}$/.test(zipcode)) {
+					fetch('https://api.zipaddress.net/?zipcode=' + zipcode)
+						.then(function (response) {
+							return response.json();
+						})
+						.then(function (data) {
+							if (data.code === 200) {
+								address1Input.value = data.data.fullAddress;
+							} else {
+								address1Input.value = '';
+							}
+						})
+						.catch(function (error) {
+							console.error('Error:', error);
+						});
+				} else {
+					address1Input.value = '';
+				}
+			});
+		});
+	</script>
+</body>
+
+</html>

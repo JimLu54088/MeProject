@@ -1,0 +1,244 @@
+@charset "UTF-8";
+/* 添加动画属性到图片 */
+.img1,
+.img2,
+.img3,
+.img4,
+.img5 {
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  transform: translateX(0%); /* 起始位置在视口右侧 */
+  opacity: 0; /* 起始透明度为0 */
+}
+
+/* 定义关键帧动画 */
+@keyframes slideAndFadeIn {
+  0% {
+    transform: translateX(-100%); /* 起始位置在视口右侧 */
+    opacity: 0; /* 起始透明度为0 */
+  }
+  100% {
+    transform: translateX(0%); /* 结束位置在原始位置 */
+    opacity: 1; /* 结束透明度为1 */
+  }
+}
+
+/* 应用动画到图片 */
+.img1.slide-in,
+.img2.slide-in,
+.img3.slide-in,
+.img4.slide-in,
+.img5.slide-in {
+  animation: slideAndFadeIn 1s ease-in-out;
+}
+
+body {
+	margin: 0 auto;
+}
+
+.titlearea {
+	margin: 0 auto;
+	width: 1000px;
+	height: 100px;
+	border: 2px solid black;
+	padding: 10px;
+	position: relative; /* 添加相对定位 */
+}
+.titlearea2{
+	border: 2px solid black;
+	width: 1020px;
+	height: 700px;
+	margin: -13px;
+	
+}
+
+.title2 {
+	background-color: red;
+	color: white;
+	font-size: 25px;
+	height: 30px;
+	width: 50px;
+	align-items: center;
+	position: absolute; /* 添加绝对定位 */
+	left: 0; /* 相对于父元素左侧对齐 */
+	top: 0; /* 相对于父元素顶部对齐 */
+}
+.aa{
+	position: absolute; /* 添加绝对定位 */
+	left: 2%;
+	top: 7%;
+}
+.title3 {
+	text-decoration-color: white;
+	background-color: black;
+	font-size: 16px;
+	width: 150px;
+	height: 30px;
+	color: white;
+	position: absolute; /* 添加绝对定位 */
+	left: 50px; /* 相对于父元素左侧偏移50px */
+	top: 0; /* 相对于父元素顶部对齐 */
+}
+
+
+.title {
+	margin: 0; /* 清除默认的标题间距 */
+	position: absolute; /* 添加绝对定位 */
+	top: 35%; /* 相对于父元素垂直居中对齐 */
+	left: 35%; /* 相对于父元素水平居中对齐 */
+	
+}
+.h1{
+	font-size:25px;
+	position: absolute; /* 添加绝对定位 */
+	top: 100%; /* 相对于父元素垂直居中对齐 */
+	left: 1%; 
+}
+.date-time{
+	width: 1000%;
+	position: absolute; /* 添加绝对定位 */
+	top: 3%; /* 相对于父元素垂直居中对齐 */
+	left: 98%; 
+}
+
+.url1{
+	position: absolute; /* 添加绝对定位 */
+	top: 106%; /* 相对于父元素垂直居中对齐 */
+	right: 1%; 
+}
+.text1{
+	width: 60px;
+	height: 120px;
+	writing-mode: vertical-rl;
+	background-color: white;
+	position: absolute; /* 添加绝对定位 */
+	left: 30px; /* 相对于父元素左侧偏移50px */
+	top: 412px; /* 相对于父元素顶部对齐 */
+	z-index: 50;
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+	
+}
+.img1{
+	width: 150px;
+	height: 253px;
+	position: absolute; /* 添加绝对定位 */
+	left: 50px; /* 相对于父元素左侧偏移50px */
+	top: 285px; /* 相对于父元素顶部对齐 */
+	opacity: 0.9;
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+
+.text2{
+	width: 60px;
+	height: 120px;
+	writing-mode: vertical-rl;
+	background-color: white;
+	position: absolute; /* 添加绝对定位 */
+	left: 218px; /* 相对于父元素左侧偏移50px */
+	top: 412px; /* 相对于父元素顶部对齐 */
+	z-index: 50;
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+	
+}
+
+
+.img2{
+	width: 150px;
+	height: 253px;
+	position: absolute; /* 添加绝对定位 */
+	left: 242px; /* 相对于父元素左侧偏移50px */
+	top: 285px; /* 相对于父元素顶部对齐 */
+	opacity: 0.9;
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+.text3{
+	width: 60px;
+	height: 120px;
+	writing-mode: vertical-rl;
+	background-color: white;
+	position: absolute; /* 添加绝对定位 */
+	left: 419px; /* 相对于父元素左侧偏移50px */
+	top: 412px; /* 相对于父元素顶部对齐 */
+	z-index: 50;
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+	
+}
+.img3{
+	width: 150px;
+	height: 253px;
+	position: absolute; /* 添加绝对定位 */
+	left: 446px; /* 相对于父元素左侧偏移50px */
+	top: 285px; /* 相对于父元素顶部对齐 */
+	opacity: 0.9;
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+.text4{
+	width: 60px;
+	height: 120px;
+	writing-mode: vertical-rl;
+	background-color: white;
+	position: absolute; /* 添加绝对定位 */
+	left: 612px; /* 相对于父元素左侧偏移50px */
+	top: 412px; /* 相对于父元素顶部对齐 */
+	z-index: 50;
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+	
+}
+.img4{
+	width: 150px;
+	height: 253px;
+	position: absolute; /* 添加绝对定位 */
+	left: 637px; /* 相对于父元素左侧偏移50px */
+	top: 285px; /* 相对于父元素顶部对齐 */
+	opacity: 0.9;
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+.text5{
+width: 60px;
+	height: 120px;
+	writing-mode: vertical-rl;
+	background-color: white;
+	position: absolute; /* 添加绝对定位 */
+	left: 800px; /* 相对于父元素左侧偏移50px */
+	top: 412px; /* 相对于父元素顶部对齐 */
+	z-index: 50;
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+	
+}
+.img5{
+	width: 150px;
+	height: 253px;
+	position: absolute; /* 添加绝对定位 */
+	left: 824px; /* 相对于父元素左侧偏移50px */
+	top: 285px; /* 相对于父元素顶部对齐 */
+	opacity: 0.9;
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+
+  .marquee {
+	  font-size: 30px;
+        width: 60%;
+        height: 40px;
+        overflow: hidden;
+        white-space: nowrap;
+        position: absolute; /* 添加绝对定位 */
+		border: 1px solid red;
+		left: 20%;
+		top: 180%; 
+		box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+		color: darkred;
+    }
+
+    .marquee span {	
+        display: inline-block;
+        padding-left: 100%;
+       animation: marquee 10s linear infinite;
+    }
+
+    @keyframes marquee {
+       0% { transform: translate(0, 0); }
+    25% { transform: translate(-50%, 0); } /* 增加停顿的关键帧 */
+    75% { transform: translate(-50%, 0); } /* 继续滚动 */
+    100% { transform: translate(-100%, 0); }
+    }

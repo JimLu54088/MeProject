@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.csii.repository.TG0400Repository">
+
+	<select id="getAllSubject" resultType="String">
+		select value1 from
+		tg_setting where (category1=1 and
+		category3 =1) or (category1=3 and
+		category2 =1) or (category1=3 and
+		category2 =3) or (category1=3 and
+		category2 =4) or (category1=3 and
+		category2 =5) OR (category1=3 and
+		category2 =2)
+	</select>
+	<select id="selectShainMain"
+		resultType="jp.co.csii.entity.SyainkanriEntity">
+		SELECT t1.syain_id, t3.value1 KAISHANAME,
+		CONCAT(t1.first_name_kanji,t1.last_name_kanji)
+		NAMEAll,t2.sname,t4.value1
+		GYOMUKIND,t1.NYUUSYA_DATE,t1.TAISYA_DATE,t1.first_name_kanji,t1.last_name_kanji
+		from
+		(SELECT * FROM syain_main WHERE
+		CONCAT(first_name_kanji,last_name_kanji) LIKE
+		'%${strSyinName}%' AND
+		SYOZOKU_KAISYA LIKE '%${strSyozoku_kaisya2}%' AND SYOKUGYO_KIND =
+		${strSyokugyo_kind}${strushiro}) t1
+		JOIN
+		(SELECT * FROM sex) t2
+		ON
+		t1.SEIBETU = t2.sid
+		JOIN
+		(SELECT * FROM tg_setting WHERE category1 = 1
+		AND category3 = 1) t3
+		ON t1.SYOZOKU_KAISYA = t3.category2
+		JOIN
+		(SELECT *
+		FROM tg_setting WHERE category1 = 3 AND category2 = 4) t4
+		ON
+		t1.SYOKUGYO_KIND = t4.category3 ORDER BY first_name_kanji
+	</select>
+
+
+	<select id="selectOptionDaoForPaging" resultType="String">
+		select value1
+		from tg_setting where (category1 = 5 and category2 = 3 and category3
+		=4 )
+
+	</select>
+	<delete id="deleteShainMain" parameterType="int">
+		DELETE FROM
+		syain_main WHERE syain_id = '${SYAIN_ID}'
+	</delete>
+	<select id="selectShainMainId"
+		resultType="jp.co.csii.entity.SyainkanriEntity">
+		SELECT * FROM syain_main t1 WHERE t1.SYAIN_ID =
+		'${SYAIN_ID}'
+	</select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

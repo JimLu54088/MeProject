@@ -5,13 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
     <link rel="stylesheet" href="/css/AdminaddNewUser.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+	<script type="text/javascript" src="js/AdminaddNewUser.js"></script>
 </head>
 <body>
     <div class="login-container">
-        <h2>Login</h2>
-        <form>
+        <h2>Insert User</h2>
+        <form id="adminInsertUser">
+            <div id="message" class="message"></div>
             <input type="text" id="username" name="username" placeholder="ID" required>
             <input type="password" id="password" name="password" placeholder="Password" required>
+            <input type="reEnteredpassword" id="reEnteredpassword" name="reEnteredpassword" placeholder="reEnteredpassword" required>
             <div>
                 <button type="submit">Confirm</button><button type="reset">Clear</button>
                 

@@ -16,7 +16,8 @@ $(document).ready(function() {
             contentType: "application/json",
             data: JSON.stringify({ username: username, password: password, reEnteredpassword: reEnteredpassword }),
             success: function(response) {
-                window.location.href = "/AdminaddNewUser.html";  
+                alert("Insert successfully");
+                window.location.href = "/main.html";  
             },
             error: function(xhr, status, error) {
 

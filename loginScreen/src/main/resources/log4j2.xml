@@ -2,7 +2,7 @@
 <Configuration status="INFO" name="server-login">
     <Properties>
         <Property name="log-path">D:/java_log</Property>
-        <Property name="file-size">500 MB</Property>
+        <Property name="file-size">20 KB</Property>
         <Property name="file-interval">1</Property>
     </Properties>
     <Appenders>
@@ -16,9 +16,9 @@
                 <TimeBasedTriggeringPolicy interval="${file-interval}" modulate="true"/>
             </Policies>
             <DefaultRolloverStrategy>
-                <Delete basePath="${log-path}">
+                <!-- <Delete basePath="${log-path}">
                     <IfFileName glob="server.log-*.log.gz"/>
-                </Delete>
+                </Delete> -->
             </DefaultRolloverStrategy>
         </RollingFile>
         <Console name="Console" target="SYSTEM_OUT">

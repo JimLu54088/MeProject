@@ -1,12 +1,14 @@
 package jp.co.jim.controller;
 
 import com.google.gson.Gson;
+import jp.co.jim.encrypteddecryptedFunction.Decrypt;
 import jp.co.jim.service.AdminAddUserService;
 import jp.co.jim.service.AdminLoginService;
 import jp.co.jim.service.UserActionService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +20,9 @@ import java.util.Map;
 
 @RestController
 public class AdminAddUser {
+
+    @Value("${EncryptedAdminUserName}")
+    private String EncryptedAdminUserName;
 
     @Autowired
     private AdminAddUserService service;
@@ -55,8 +60,13 @@ public class AdminAddUser {
 
         service.insertUser(username, password);
 
+
+        Decrypt decrypt = new Decrypt();
+
+        String decryptedAdminId = decrypt.decrypt(EncryptedAdminUserName);
+
         // Record successful login action
-        userActionService.saveUserAction(username, "Insert New User successful");
+        userActionService.saveUserAction(decryptedAdminId, "Insert New User: " + username + " successful");
         return ResponseEntity.ok("Insert successful!");
     }
 

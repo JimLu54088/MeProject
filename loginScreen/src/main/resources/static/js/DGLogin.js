@@ -20,9 +20,9 @@ $(document).ready(function () {
                     // 登录成功，保存令牌到本地存储
                     sessionStorage.setItem('token', response.token);
                     window.location.href = "/DGOperationScreen.html";
-                } else if (response.status === "SUCCESS") {
-                    alert("Insert successfully");
-                    window.location.href = "/main.html";
+                } else if (response.status === "DGRP002") {
+                    alert(response.message);
+                    window.location.href = "/DGChangePasswordScreen.html";
                 }
             },
             error: function (error) {

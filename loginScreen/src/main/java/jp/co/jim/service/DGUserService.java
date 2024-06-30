@@ -34,7 +34,7 @@ public class DGUserService {
         long daysSinceUpdate = ChronoUnit.DAYS.between(updateDate, LocalDateTime.now());
        int intDaysSinceUpdateSetting = Integer.valueOf(daysSinceUpdateSetting);
         if (daysSinceUpdate > intDaysSinceUpdateSetting) {
-            return "Login successful! Please update your password within 7 days.";
+            return "DGRP003";
         } else {
             return "DGRP000";
         }

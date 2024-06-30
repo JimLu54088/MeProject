@@ -3,7 +3,6 @@ package jp.co.jim.common;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import jp.co.jim.controller.AdminLoginController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -17,9 +16,9 @@ import java.util.Date;
 @Service
 public class JwtTokenUtil {
 
-    private static final Logger logger = LogManager.getLogger(AdminLoginController.class);
-    private static final String LOG_HEADER = "[" + AdminLoginController.class.getSimpleName() + "] :: ";
-    private static final String ERROR_LOG_HEADER = "[" + AdminLoginController.class.getName() + "] :: ";
+    private static final Logger logger = LogManager.getLogger(JwtTokenUtil.class);
+    private static final String LOG_HEADER = "[" + JwtTokenUtil.class.getSimpleName() + "] :: ";
+    private static final String ERROR_LOG_HEADER = "[" + JwtTokenUtil.class.getName() + "] :: ";
 
     private static final String SECRET_KEY = "3eafd25832b93e9d679a5fb7c0725tyua80c38a6a5ee11ec9388e5ef288f26d5";
     private static final long VALIDITY_DURATION_MIN = 30; // 30 minutes

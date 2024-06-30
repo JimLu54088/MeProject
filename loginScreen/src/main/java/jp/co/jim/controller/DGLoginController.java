@@ -37,6 +37,7 @@ public class DGLoginController {
     public ResponseEntity<?> dglogin(@RequestBody Map<String, String> loginData) {
         String username = loginData.get("username");
         String password = loginData.get("password");
+        String token = "";
 
         String result = userService.handleLogin(username, password);
 
@@ -44,20 +45,20 @@ public class DGLoginController {
 
         // 验证通过，生成JWT
         try {
-            String token = jwtTokenUtil.generateToken(username);
 
 
             if (result.equals(Constants.DGRP001)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Admin Login failed!");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User Login failed!");
 
-            } else if (result.equals("First time login, please update your password!")) {
-                response = new DGLoginResponse(Constants.DGRP002, "LoginSuccess");
+            } else if (result.equals(Constants.DGRP002)) {
+                response = new DGLoginResponse(Constants.DGRP002, "First time login. Please change password.");
 
                 // Record successful login action
                 userActionService.saveUserAction(username, "User Login successful");
                 return ResponseEntity.ok(response);
 
-            } else if (result.equals("Login successful! Please update your password within 7 days.")) {
+            } else if (result.equals(Constants.DGRP003)) {
+                token = jwtTokenUtil.generateToken(username);
                 response = new DGLoginResponse(Constants.DGRP003, "LoginFailed", token);
                 // Record successful login action
                 userActionService.saveUserAction(username, "User Login successful");
@@ -65,6 +66,7 @@ public class DGLoginController {
             } else {
                 // Record successful login action
                 userActionService.saveUserAction(username, "User Login successful");
+                token = jwtTokenUtil.generateToken(username);
 
                 response = new DGLoginResponse(Constants.DGRP000, "Login Successful", token);
                 return ResponseEntity.ok(response);

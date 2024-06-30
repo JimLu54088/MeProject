@@ -20,4 +20,7 @@ public interface UserActionMapper {
 
     List<DGMainEntity> selectAll();
 
+
+    void updateDGUserPassword(UserEntity user);
+
 }

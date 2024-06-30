@@ -1,9 +1,9 @@
-$(document).ready(function() {
+$(document).ready(function () {
     var maxAttempts = 3;  // 最大嘗試次數
     var attemptCount = 0;  // 目前嘗試次數
     var countdownTimeout;  // 倒計時計時器
 
-    $("#DGloginForm").on("submit", function(event) {
+    $("#DGloginForm").on("submit", function (event) {
         event.preventDefault();  // Prevent the form from submitting via the browser
 
         var username = $("#username").val();
@@ -14,16 +14,18 @@ $(document).ready(function() {
             url: "/DGlogin",
             contentType: "application/json",
             data: JSON.stringify({ username: username, password: password }),
-            success: function(response) {
-                   if (response.status === "DGRP000") {
+            success: function (response) {
+                if (response.status === "DGRP000") {
                     alert(response.message);
+                    // 登录成功，保存令牌到本地存储
+                    sessionStorage.setItem('token', response.token);
                     window.location.href = "/DGOperationScreen.html";
                 } else if (response.status === "SUCCESS") {
                     alert("Insert successfully");
                     window.location.href = "/main.html";
                 }
             },
-            error: function(error) {
+            error: function (error) {
                 alert("Login failed!");
                 attemptCount++;
                 var remainingAttempts = maxAttempts - attemptCount;
@@ -59,7 +61,7 @@ $(document).ready(function() {
         // 更新倒計時消息
         updateMessage(timer);
 
-        countdownTimeout = setInterval(function() {
+        countdownTimeout = setInterval(function () {
             timer--;
 
             // 更新倒計時消息

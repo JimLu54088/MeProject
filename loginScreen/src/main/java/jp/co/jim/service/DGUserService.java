@@ -41,6 +41,9 @@ public class DGUserService {
 
 
     }
+    public void updateDGUserPassword(UserEntity user){
+        uerActionMapper.updateDGUserPassword(user);
+    }
 
 
 }

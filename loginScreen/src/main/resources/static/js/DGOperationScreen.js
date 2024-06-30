@@ -1,10 +1,10 @@
 $(document).ready(function() {
     // 在页面加载时检查是否存在令牌
-    let admintoken = sessionStorage.getItem('admintoken');
-    if (admintoken) {
-        console.log("admintoken : " + admintoken)
+    let token = sessionStorage.getItem('token');
+    if (token) {
+        console.log("token : " + token)
          // 解析JWT获取payload部分
-    let payload = JSON.parse(atob(admintoken.split('.')[1]));
+    let payload = JSON.parse(atob(token.split('.')[1]));
 
         // 提取过期时间（exp），JWT中的时间是以秒为单位的，需要转换为毫秒
         let tokenExp = payload.exp * 1000; // 转换为毫秒
@@ -20,7 +20,7 @@ $(document).ready(function() {
         }
     } else {
         // 如果没有令牌，重定向到登录页面
-        window.location.href = '/Adminlogin.html';
+        window.location.href = '/DGLogin.html';
     }
 
     $("#adminInsertUser").on("submit", function(event) {

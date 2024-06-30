@@ -15,5 +15,10 @@
         select * from `test01`.`drop_down_for_dgmain`
     </select>
 
+    <update id="updateDGUserPassword"
+            parameterType="jp.co.jim.entity.UserEntity">
+        UPDATE `test01`.`idpassword` SET user_password = '${new_password}', upd_dt =NOW(), upd_by ='DGPasswordChangeScreen' WHERE user_id = '${user_id}' AND role_type = 2 AND role_flag= 0
+    </update>
+
 
 </mapper>

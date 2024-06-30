@@ -10,6 +10,7 @@ public class UserEntity {
     private Long ID;
     private String user_id;
     private String user_password;
+    private String new_password;
     private int role_type;
     private int role_flag;
     private LocalDateTime ins_dt;

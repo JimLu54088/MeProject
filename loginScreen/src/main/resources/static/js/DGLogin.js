@@ -15,12 +15,9 @@ $(document).ready(function() {
             contentType: "application/json",
             data: JSON.stringify({ username: username, password: password }),
             success: function(response) {
-                if (response.status === "DGRP001") {
+                   if (response.status === "DGRP000") {
                     alert(response.message);
-                    window.location.href = "/main.html";
-                } else if (response.status === "UPDATE_SOON") {
-                    alert(response.message);
-                    window.location.href = "/main.html";
+                    window.location.href = "/DGOperationScreen.html";
                 } else if (response.status === "SUCCESS") {
                     alert("Insert successfully");
                     window.location.href = "/main.html";
@@ -44,7 +41,7 @@ $(document).ready(function() {
     // 開始倒計時並禁用表單
     function startCountdownAndDisableForm(seconds) {
         // 禁用表單中的所有輸入字段和按鈕
-        $("#adminloginForm input, #adminloginForm button").prop("disabled", true);
+        $("#DGloginForm input, #DGloginForm button").prop("disabled", true);
 
         startCountdown(seconds);
     }
@@ -52,7 +49,7 @@ $(document).ready(function() {
     // 倒計時結束後啟用表單
     function enableFormAfterCountdown() {
         // 啟用表單中的所有輸入字段和按鈕
-        $("#adminloginForm input, #adminloginForm button").prop("disabled", false);
+        $("#DGloginForm input, #DGloginForm button").prop("disabled", false);
     }
 
     // 倒計時函數

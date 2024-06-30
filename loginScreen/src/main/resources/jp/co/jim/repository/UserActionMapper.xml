@@ -5,10 +5,14 @@
 <mapper namespace="jp.co.jim.repository.UserActionMapper">
 
     <insert id="insertUserAction" parameterType="jp.co.jim.entity.HisUserOperation">
-        insert into `test01`.`t_hist_operation` values (0,#{USER_ID}, #{USER_OPERATION_DETAILS}, 'UserActionMonitor',NOW())
+        insert into `test01`.`t_hist_operation` values (0,#{USER_ID}, #{USER_OPERATION_DETAILS},
+        'UserActionMonitor',NOW())
     </insert>
     <select id="findByUsername">
-        select * from `test01`.`idpassword` where user_id = '${username}'
+        select * from `test01`.`idpassword` where user_id = '${username}' and role_type =2 and role_flag =0
+    </select>
+    <select id="selectAll" resultType="jp.co.jim.entity.DGMainEntity">
+        select * from `test01`.`drop_down_for_dgmain`
     </select>
 
 

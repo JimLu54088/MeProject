@@ -64,7 +64,7 @@ public class AdminLoginController {
             }
 
         } else {
-            // Record successful login action
+            // Record unsuccessful login action
             userActionService.saveUserAction(username, "Login failed!");
 
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Admin Login failed!");

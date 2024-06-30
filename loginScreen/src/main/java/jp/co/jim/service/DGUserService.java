@@ -3,6 +3,7 @@ package jp.co.jim.service;
 import jp.co.jim.entity.UserEntity;
 import jp.co.jim.repository.UserActionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,6 +15,9 @@ public class DGUserService {
     @Autowired
     private UserActionMapper uerActionMapper;
 
+    @Value("${daysSinceUpdateSetting}")
+    private String daysSinceUpdateSetting;
+
     public String handleLogin(String username, String password) {
         UserEntity user = uerActionMapper.findByUsername(username);
 
@@ -24,14 +28,15 @@ public class DGUserService {
         LocalDateTime updateDate = user.getUpd_dt();
         if (updateDate == null) {
             // First time login, force password update
-            return "First time login, please update your password!";
+            return "DGRP002";
         }
 
         long daysSinceUpdate = ChronoUnit.DAYS.between(updateDate, LocalDateTime.now());
-        if (daysSinceUpdate < 7) {
+       int intDaysSinceUpdateSetting = Integer.valueOf(daysSinceUpdateSetting);
+        if (daysSinceUpdate > intDaysSinceUpdateSetting) {
             return "Login successful! Please update your password within 7 days.";
         } else {
-            return "Login successful!";
+            return "DGRP000";
         }
 
 

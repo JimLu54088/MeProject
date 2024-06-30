@@ -17,21 +17,29 @@ public class DGLoginController {
 
     @Autowired
     private DGUserService userService;
+
     @PostMapping("/DGlogin")
-    public DGLoginResponse dglogin(@RequestBody Map<String, String> loginData) {
+    public ResponseEntity<?> dglogin(@RequestBody Map<String, String> loginData) {
         String username = loginData.get("username");
         String password = loginData.get("password");
 
         String result = userService.handleLogin(username, password);
 
+        DGLoginResponse response;
+
         if (result.equals(Constants.DGRP001)) {
-            return new DGLoginResponse(Constants.DGRP001,"LoginFailed");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Admin Login failed!");
+
         } else if (result.equals("First time login, please update your password!")) {
-            return new DGLoginResponse(Constants.DGRP001,"LoginFailed");
+            response = new DGLoginResponse(Constants.DGRP002, "LoginSuccess");
+            return ResponseEntity.ok(response);
+
         } else if (result.equals("Login successful! Please update your password within 7 days.")) {
-            return new DGLoginResponse(Constants.DGRP001,"LoginFailed");
+            response = new DGLoginResponse(Constants.DGRP003, "LoginFailed");
+            return ResponseEntity.ok(response);
         } else {
-            return new DGLoginResponse(Constants.DGRP001,"LoginFailed");
+            response = new DGLoginResponse(Constants.DGRP000, "Login Successful");
+            return ResponseEntity.ok(response);
         }
     }
 

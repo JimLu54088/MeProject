@@ -1,10 +1,13 @@
 package jp.co.jim.service;
 
+import jp.co.jim.entity.DGMainEntity;
 import jp.co.jim.entity.HisUserOperation;
 import jp.co.jim.entity.UserEntity;
 import jp.co.jim.repository.UserActionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserActionService {
@@ -24,6 +27,10 @@ public class UserActionService {
 //    }
      public UserEntity findByUsername(String username){
         return userActionMapper.findByUsername(username);
+     }
+
+     public List<DGMainEntity> selectAll(){
+         return userActionMapper.selectAll();
      }
 
 

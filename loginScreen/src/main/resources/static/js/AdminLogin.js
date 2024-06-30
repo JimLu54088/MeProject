@@ -15,6 +15,8 @@ $(document).ready(function() {
             contentType: "application/json",
             data: JSON.stringify({ username: username, password: password }),
             success: function(response) {
+                 // 登录成功，保存令牌到本地存储
+                 sessionStorage.setItem('admintoken', response.admintoken);
                 window.location.href = "/AdminaddNewUser.html";  // Redirect to B.html
             },
             error: function(error) {

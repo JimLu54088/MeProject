@@ -8,7 +8,7 @@
         insert into `test01`.`t_hist_operation` values (0,#{USER_ID}, #{USER_OPERATION_DETAILS}, 'UserActionMonitor',NOW())
     </insert>
     <select id="findByUsername">
-        select * from `test01`.`idpassword` where user_id = '${username}' and role_type =2
+        select * from `test01`.`idpassword` where user_id = '${username}'
     </select>
 
 

@@ -3,6 +3,7 @@ package jp.co.jim.controller;
 import com.google.gson.Gson;
 import jp.co.jim.service.AdminAddUserService;
 import jp.co.jim.service.AdminLoginService;
+import jp.co.jim.service.UserActionService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class AdminAddUser {
 
     @Autowired
     private AdminAddUserService service;
+
+    @Autowired
+    private UserActionService userActionService;
 
     private static final Logger logger = LogManager.getLogger(AdminAddUser.class);
     private static final String LOG_HEADER = "[" + AdminAddUser.class.getSimpleName() + "] :: ";
@@ -50,6 +54,9 @@ public class AdminAddUser {
         }
 
         service.insertUser(username, password);
+
+        // Record successful login action
+        userActionService.saveUserAction(username, "Insert New User successful");
         return ResponseEntity.ok("Insert successful!");
     }
 

@@ -1,6 +1,7 @@
 package jp.co.jim.controller;
 
 import com.google.gson.Gson;
+import jp.co.jim.common.JwtTokenUtil;
 import jp.co.jim.service.AdminLoginService;
 import jp.co.jim.service.UserActionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+
 import java.util.Map;
 
 @RestController
@@ -21,6 +23,9 @@ public class AdminLoginController {
     private AdminLoginService loginService;
 
     @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
     private UserActionService userActionService;
 
     private static final Logger logger = LogManager.getLogger(AdminLoginController.class);
@@ -28,7 +33,7 @@ public class AdminLoginController {
     private static final String ERROR_LOG_HEADER = "[" + AdminLoginController.class.getName() + "] :: ";
 
     @PostMapping("/Adminlogin")
-    public ResponseEntity<String> adminLogin(@RequestBody Map<String, String> loginData) {
+    public ResponseEntity<?> adminLogin(@RequestBody Map<String, String> loginData) {
 
         String username = loginData.get("username");
         String password = loginData.get("password");
@@ -45,7 +50,19 @@ public class AdminLoginController {
             // Record successful login action
             userActionService.saveUserAction(username, "Admin Login successful");
 
-            return ResponseEntity.ok("Login successful!");
+
+            // 验证通过，生成JWT
+            try {
+                String token = jwtTokenUtil.generateToken(username);
+
+                // 返回JWT给客户端
+                return ResponseEntity.ok(Map.of("admintoken", token));
+            } catch (Exception e) {
+                logger.error(ERROR_LOG_HEADER + "Token getting failed." + e);
+                throw new RuntimeException("Token getting failed.");
+
+            }
+
         } else {
             // Record successful login action
             userActionService.saveUserAction(username, "Login failed!");

@@ -1,15 +1,15 @@
-$(document).ready(function() {
+$(document).ready(function () {
     // 在页面加载时检查是否存在令牌
     let admintoken = sessionStorage.getItem('admintoken');
     if (admintoken) {
         console.log("admintoken : " + admintoken)
-         // 解析JWT获取payload部分
-    let payload = JSON.parse(atob(admintoken.split('.')[1]));
+        // 解析JWT获取payload部分
+        let payload = JSON.parse(atob(admintoken.split('.')[1]));
 
         // 提取过期时间（exp），JWT中的时间是以秒为单位的，需要转换为毫秒
         let tokenExp = payload.exp * 1000; // 转换为毫秒
         let currentTimestamp = Date.now();
-    
+
         // 检查是否过期
         if (currentTimestamp > tokenExp) {
             // 令牌已过期，重定向到登录页面或执行其他逻辑
@@ -23,7 +23,7 @@ $(document).ready(function() {
         window.location.href = '/Adminlogin.html';
     }
 
-    $("#adminInsertUser").on("submit", function(event) {
+    $("#adminInsertUser").on("submit", function (event) {
         event.preventDefault();  // Prevent the form from submitting via the browser
 
         var username = $("#username").val();
@@ -35,18 +35,48 @@ $(document).ready(function() {
             url: "/AdminAddNewUser",
             contentType: "application/json",
             data: JSON.stringify({ username: username, password: password, reEnteredpassword: reEnteredpassword }),
-            success: function(response) {
+            success: function (response) {
                 alert("Insert successfully");
-                window.location.href = "/main.html";  
+                window.location.href = "/main.html";
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
 
-                        // 获取后端返回的错误消息
-                        var errorMessage = xhr.responseText;
-                        $("#message").text(errorMessage).css("color", "red");;
+                // 获取后端返回的错误消息
+                var errorMessage = xhr.responseText;
+                $("#message").text(errorMessage).css("color", "red");;
 
             }
         });
     });
+
+    $('#uploadUsersFileButton').click(function () {
+        $('#uploadUsersFileInput').click();  // 触发文件输入框的点击事件
+    });
+
+    $('#uploadUsersFileInput').change(function () {
+        var file = this.files[0];  // 获取选定的文件
+        if (file) {
+            var formData = new FormData();
+            formData.append('file', file);
+
+            $.ajax({
+                url: '/uploadUsersInOneFile',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    alert("File uploaded successfully");
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("Failed to upload file: " + jqXHR.responseText);
+                }
+            });
+        }
+    });
+
+
+
+
 
 });

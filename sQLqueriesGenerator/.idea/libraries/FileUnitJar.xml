@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="FileUnitJar">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../../workspace_backup/workspace2/deleteFilesInFolder/FileUnitJar" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+    <jarDirectory url="file://$PROJECT_DIR$/../../workspace_backup/workspace2/deleteFilesInFolder/FileUnitJar" recursive="false" />
+  </library>
+</component>

@@ -7,8 +7,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.google.gson.Gson;
 import jp.co.jim.common.Constants;
 import jp.co.jim.controller.SendRSDRequestController;
+import jp.co.jim.entity.responseEntity.Jim5PResponseEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -58,7 +60,7 @@ public class AppUtils {
             mapper.readTree(requestBodyJSON);
             return true;
         } catch (IOException e) {
-            logger.error(ERROR_LOG_HEADER  + e);
+            logger.error(ERROR_LOG_HEADER + e);
             return false;
         }
     }
@@ -78,7 +80,7 @@ public class AppUtils {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(ERROR_LOG_HEADER  + e);
+            logger.error(ERROR_LOG_HEADER + e);
         }
         return requestType;
     }
@@ -97,7 +99,7 @@ public class AppUtils {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(ERROR_LOG_HEADER  + e);
+            logger.error(ERROR_LOG_HEADER + e);
         }
         return requestFrom;
 
@@ -138,7 +140,7 @@ public class AppUtils {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(ERROR_LOG_HEADER  + e);
+            logger.error(ERROR_LOG_HEADER + e);
         }
         return updatedJson;
     }
@@ -157,7 +159,7 @@ public class AppUtils {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(ERROR_LOG_HEADER  + e);
+            logger.error(ERROR_LOG_HEADER + e);
         }
         return fin_number;
 
@@ -178,10 +180,46 @@ public class AppUtils {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(ERROR_LOG_HEADER  + e);
+            logger.error(ERROR_LOG_HEADER + e);
         }
         return api_type;
 
 
     }
+
+    public static String addResponseIntoRequestResponseJSON(String requstBodyJSON, Jim5PResponseEntity responseentity) throws Exception {
+        String updatedJson = "";
+        try {
+
+            //Get responsedetail
+
+            //Output received reuqestBody
+            Gson gson = new Gson();
+            String strResponseDetail = gson.toJson(responseentity.getResponseDetails());
+            logger.debug(LOG_HEADER + "response details : " + strResponseDetail);
+
+
+            JsonNode rootNode = mapper.readTree(requstBodyJSON);
+
+
+            // 更新 response 字段
+            ((ObjectNode) rootNode.path("REQUESTRESPONSE")
+            )
+                    .put("RESPONSE", strResponseDetail);
+//
+//            // 打印更新后的 JSON (Pretty version)
+//            updatedJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode);
+//            // 打印更新后的 JSON (Normal version)
+            updatedJson = mapper.writeValueAsString(rootNode);
+
+            logger.debug(LOG_HEADER + "updatedJson : " + updatedJson);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(ERROR_LOG_HEADER + e);
+        }
+        return updatedJson;
+    }
+
+
 }

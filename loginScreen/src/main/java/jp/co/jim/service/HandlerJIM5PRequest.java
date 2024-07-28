@@ -45,17 +45,17 @@ public class HandlerJIM5PRequest {
 
             logger.info(LOG_HEADER + "The FIN:" + fin_number + " is not in DataBase.");
 
-            contents.setField1("");
-            contents.setField2("M777"); // 如果这个字段有固定值，可以在这里设置
-            contents.setField3("The FIN:" + fin_number + " is not in DataBase.");
+            contents.setFILED1("");
+            contents.setFIELD2("M777"); // 如果这个字段有固定值，可以在这里设置
+            contents.setFIELD3("The FIN:" + fin_number + " is not in DataBase.");
 
-            error.setReturnCode("55");
-            error.setReasonCode("ABCE008");
-            errors.setError(new Jim5PResponseEntity.Error[]{error});
-            header.setErrors(errors);
+            error.setRETURN_CODE("55");
+            error.setREASON_CODE("ABCE008");
+            errors.setERROR(new Jim5PResponseEntity.Error[]{error});
+            header.setERRORS(errors);
 
-            responseDetails.setContents(contents);
-            responseDetails.setHeader(header);
+            responseDetails.setCONTENTS(contents);
+            responseDetails.setHEADER(header);
             responseEntity.setResponseDetails(responseDetails);
 
             // 使用Gson将响应实体转换为JSON字符串
@@ -64,23 +64,20 @@ public class HandlerJIM5PRequest {
             logger.info(LOG_HEADER + "Response of Jim5PResponseEntity : " + jsonResponse);
 
 
-            return jsonResponse;
-
-
         } else {
 
 
-            contents.setField1(entity.getCDU_CMNMN_VAL());
-            contents.setField2("M000"); // 如果这个字段有固定值，可以在这里设置
-            contents.setField3("The " + apiType + " process is successfully.");
+            contents.setFILED1(entity.getCDU_CMNMN_VAL());
+            contents.setFIELD2("M000"); // 如果这个字段有固定值，可以在这里设置
+            contents.setFIELD3("The " + apiType + " process is successfully.");
 
-            error.setReturnCode("00");
-            error.setReasonCode("DDDFFF000");
-            errors.setError(new Jim5PResponseEntity.Error[]{error});
-            header.setErrors(errors);
+            error.setRETURN_CODE("00");
+            error.setREASON_CODE("DDDFFF000");
+            errors.setERROR(new Jim5PResponseEntity.Error[]{error});
+            header.setERRORS(errors);
 
-            responseDetails.setContents(contents);
-            responseDetails.setHeader(header);
+            responseDetails.setCONTENTS(contents);
+            responseDetails.setHEADER(header);
             responseEntity.setResponseDetails(responseDetails);
 
             // 使用Gson将响应实体转换为JSON字符串
@@ -92,10 +89,9 @@ public class HandlerJIM5PRequest {
             logger.debug(LOG_HEADER + "Response of T_basic_kuruma_info_entity : " + jsonLoginData);
 
 
-            return jsonResponse;
-
         }
 
+        return AppUtils.addResponseIntoRequestResponseJSON(requestBody, responseEntity);
 
     }
 

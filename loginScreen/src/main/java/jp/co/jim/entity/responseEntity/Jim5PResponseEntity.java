@@ -14,10 +14,10 @@ public class Jim5PResponseEntity {
     public static class ResponseDetails {
 
         @JsonProperty("CONTENTS")
-        private Contents contents;
+        private Contents CONTENTS;
 
         @JsonProperty("HEADER")
-        private Header header;
+        private Header HEADER;
 
         // Getters and setters
     }
@@ -26,13 +26,13 @@ public class Jim5PResponseEntity {
     public static class Contents {
 
         @JsonProperty("FILED1")
-        private String field1;
+        private String FILED1;
 
         @JsonProperty("FIELD2")
-        private String field2;
+        private String FIELD2;
 
         @JsonProperty("FIELD3")
-        private String field3;
+        private String FIELD3;
 
         // Getters and setters
     }
@@ -41,7 +41,7 @@ public class Jim5PResponseEntity {
     public static class Header {
 
         @JsonProperty("ERRORS")
-        private Errors errors;
+        private Errors ERRORS;
 
         // Getters and setters
     }
@@ -50,7 +50,7 @@ public class Jim5PResponseEntity {
     public static class Errors {
 
         @JsonProperty("ERROR")
-        private Error[] error;
+        private Error[] ERROR;
 
         // Getters and setters
     }
@@ -59,10 +59,10 @@ public class Jim5PResponseEntity {
     public static class Error {
 
         @JsonProperty("RETURN_CODE")
-        private String returnCode;
+        private String RETURN_CODE;
 
         @JsonProperty("REASON_CODE")
-        private String reasonCode;
+        private String REASON_CODE;
 
         // Getters and setters
     }

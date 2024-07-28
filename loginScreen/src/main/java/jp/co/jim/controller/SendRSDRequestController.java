@@ -53,44 +53,9 @@ public class SendRSDRequestController {
 
         boolean isRequestBodyAJSONFormat = AppUtils.checkRequstBodyJsonValidation(requestJSONData);
 
-//        //check if the inputed user_id existed in DB or not.
-//        UserEntity user = userActionMapper.findByUsername(username);
-//
-//        if (user == null) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User not in DB");
-//        }
-//
-//        //check if oldPassowrd is correct or not
-//        if (!password.equals(user.getUser_password())) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Old password is not correct. Please re-try");
-//        }
-//
-//
-//        //check if password and re-entered pass is same or not
-//        if (!newpassword.equals(reEntereNewdpassword)) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("First password and second password is not the same. Please re-try");
-//        }
-//
-//        //check if old password is same as new one
-//        if (newpassword.equals(user.getUser_password())) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Input password is same as previous one. Please re-try");
-//        }
-//
-//
-////        //check if insert user is already in db or not
-////        int countOfChecking = service.checkinsertingExisting(username);
-////
-////        if (service.checkinsertingExisting(username) >= 1) {
-////            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This user is already registered. Please use others");
-////        }
-//        user.setNew_password(newpassword);
-//
-//        dGUserService.updateDGUserPassword(user);
-//
-//        // Record successful login action
-//        userActionService.saveUserAction(username, "User changed password successfully.");
 
-        String responseJSONBoey = "{\"REQUESTRESPONSE\": {\"REQUEST\": {\"HEADER\": {\"REQ_TO\": \"JIMSYSTEM\",\"REQ_ID\": \"JIM_TEST\",\"REQ_SYS_SPECIFIC\": {\"CAM_SR_ID\": \"JIM_TEST\",\"REQUEST_TYPE\": \"JIM3REST\"},\"ERRORS\": {},\"REQ_FROM\": \"JIM5P\"},\"CONTENTS\": {\"KURUMA\": \"TTTMM0001\",\"API_TYPE\": \"getCConfiGurationData\",\"IDTRANS\": \"JIM5P20145894\",\"REQ_JSON\": \"{\\\"transactionID\\\":\\\"JIM5P20145894\\\",\\\"FINFamily\\\":\\\"TTT\\\",\\\"client_req_time\\\":\\\"\\\",\\\"CEUDATA\\\":[{\\\"CEUProptType\\\":\\\"UUUSD\\\",\\\"CEU_ADDRESS\\\":\\\"2324D\\\",\\\"CEU_configurationLink\\\":\\\"478544TY7B\\\"}]}\"}},\"RESPONSE\": {\"CONTENTS\": {\"FILED1\":\"4564564AAA\",\"FIELD2\":\"M000\",\"FIELD3\":\"The JIM3REST request process is successfully.\"},\"HEADER\": {\"ERRORS\": {\"ERROR\":[{\"RETURN_CODE\":\"00\",\"REASON_CODE\":\"DDDFFF000\"}]}}}}}";
+
+        String responseJSONBoey = "";
 
         if (isRequestBodyAJSONFormat) {
 

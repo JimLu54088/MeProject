@@ -1,0 +1,67 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.request-container,
+.response-container {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+h2 {
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+textarea {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none;
+    display: block;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    background-color: #007BFF;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* 專門針對 #cleartextareaButton 的樣式 */
+#cleartextareaButton {
+    background-color: #6c757d; /* 灰色背景 */
+    color: white; /* 白色文字 */
+}
+
+#cleartextareaButton:hover {
+    background-color: #5a6268; /* 變暗的灰色背景 */
+}

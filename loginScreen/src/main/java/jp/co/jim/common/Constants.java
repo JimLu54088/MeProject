@@ -1,5 +1,6 @@
 package jp.co.jim.common;
 
+import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 
 public class Constants {
@@ -13,5 +14,7 @@ public class Constants {
     public static final String DGRP002 = "DGRP002";
     //Expired date less than 7 days
     public static final String DGRP003 = "DGRP003";
+
+    public static final SimpleDateFormat dateTimeFormatyyyyMMdd_HHmmss = new SimpleDateFormat("yyyyMMdd_HHmmss");
 
 }

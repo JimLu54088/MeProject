@@ -13,7 +13,7 @@ $(document).ready(function() {
         // 检查是否过期
         if (currentTimestamp > tokenExp) {
             // 令牌已过期，重定向到登录页面或执行其他逻辑
-            window.location.href = '/Adminlogin.html';
+            window.location.href = '/DGLogin.html';
         } else {
             // 令牌未过期，可以将其用于后续请求的身份验证
             // 例如设置请求头： headers: { 'Authorization': 'Bearer ' + token }

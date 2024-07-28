@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request and Response Interface</title>
+    <link rel="stylesheet" href="/css/SendRSDRequestCSS.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script type="text/javascript" src="js/SendRSDRequestJS.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="request-container">
+        <h2>Request JSON</h2>
+        <textarea id="requestJson" rows="10" placeholder="Enter your JSON request here"></textarea>
+        <button id="sendRequestBtn">Send Request</button>
+        <button id="cleartextareaButton">Clear</button>
+    </div>
+    <div class="response-container">
+        <h2>Response JSON</h2>
+        <textarea id="responseJson" rows="10" readonly placeholder="Response will appear here"></textarea>
+    </div>
+</div>
+
+</body>
+</html>

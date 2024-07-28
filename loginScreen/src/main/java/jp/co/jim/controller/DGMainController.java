@@ -29,14 +29,14 @@ public class DGMainController {
     @GetMapping("/getdropDownSelect")
     public ResponseEntity<?> getDropdownDGMainOptions() {
 
-        logger.info(LOG_HEADER + "=========================Starting retriving selecting of DGMain.=========================");
+        logger.debug(LOG_HEADER + "=========================Starting retriving selecting of DGMain.=========================");
 
         List<DGMainEntity> list = userActionService.selectAll();
 
         //Output received reuqestBody
         Gson gson = new Gson();
         String jsonList = gson.toJson(list);
-        logger.info(LOG_HEADER + "Json list of DGMain dropdown options : " + jsonList);
+        logger.debug(LOG_HEADER + "Json list of DGMain dropdown options : " + jsonList);
 
 
         // Validate the credentials

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.jim.repository.HandlerJIM5PRequestRepository">
+
+    <select id="getAllByFin" resultType="jp.co.jim.entity.T_basic_kuruma_info_entity">
+        select * from t_basic_kuruma_info where FIN = '${fin_number}'
+
+
+    </select>
+
+
+</mapper>

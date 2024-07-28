@@ -58,7 +58,7 @@ public class AdminAddUser {
         //check if insert user is already in db or not
         int countOfChecking = service.checkinsertingExisting(username);
 
-        if (service.checkinsertingExisting(username) >= 1) {
+        if (countOfChecking >= 1) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This user is already registered. Please use others");
         }
 

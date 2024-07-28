@@ -1,5 +1,6 @@
 package jp.co.jim.service;
 
+import jakarta.annotation.PostConstruct;
 import jp.co.jim.bean.utils.AppUtils;
 import jp.co.jim.controller.SendRSDRequestController;
 import org.apache.logging.log4j.LogManager;
@@ -16,19 +17,24 @@ public class RSDRequestHandler {
 
     private static final Map<String, Consumer<String>> handlerMap = new HashMap<>();
 
-    static {
-        handlerMap.put("JIM5P-JIM3REST", RSDRequestHandler::handleJIM5P_JIM3REST);
-        handlerMap.put("JIM5P-SecurityAccess", RSDRequestHandler::handleJIM5P_SecurityAccess);
-        handlerMap.put("JIMATTN-JIM3REST", RSDRequestHandler::handleJIMATTN_JIM3REST);
-        handlerMap.put("JIMATTN-SecurityAccess", RSDRequestHandler::handleJIMATTN_SecurityAccess);
+    @PostConstruct
+    public void init() {
+        handlerMap.put("JIM5P-JIM3REST", this::handleJIM5P_JIM3REST);
+        handlerMap.put("JIM5P-SecurityAccess", this::handleJIM5P_SecurityAccess);
+        handlerMap.put("JIMATTN-JIM3REST", this::handleJIMATTN_JIM3REST);
+        handlerMap.put("JIMATTN-SecurityAccess", this::handleJIMATTN_SecurityAccess);
     }
+
+    @Autowired
+    private HandlerJIM5PRequest handlerJIM5PRequest;
 
 
     private static final Logger logger = LogManager.getLogger(RSDRequestHandler.class);
     private static final String LOG_HEADER = "[" + RSDRequestHandler.class.getSimpleName() + "] :: ";
     private static final String ERROR_LOG_HEADER = "[" + RSDRequestHandler.class.getName() + "] :: ";
 
-    private static String responseJSon = "";
+
+    private String responseJSon = "";
 
     public String rsdRequestHandler(String requestBody) throws Exception {
 
@@ -54,30 +60,28 @@ public class RSDRequestHandler {
     }
 
 
-    private static void handleJIM5P_JIM3REST(String requestBody) {
-        // 处理 JIM5P-JIM3REST 的逻辑
-        System.out.println("went into case 1 :");
+    private void handleJIM5P_JIM3REST(String requestBody) {
 
-        HandlerJIM5PRequest handlerJIM5PRequest = new HandlerJIM5PRequest();
 
-        try{
-            responseJSon =   handlerJIM5PRequest.handler(requestBody);
-        }catch (Exception ex){
+
+        try {
+            responseJSon = handlerJIM5PRequest.handler(requestBody);
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    private static void handleJIM5P_SecurityAccess(String requestBody) {
+    private void handleJIM5P_SecurityAccess(String requestBody) {
         // 处理 JIM5P-SecurityAccess 的逻辑
         System.out.println("went into case 2 :");
     }
 
-    private static void handleJIMATTN_JIM3REST(String requestBody) {
+    private void handleJIMATTN_JIM3REST(String requestBody) {
         // 处理 JIMATTN-JIM3REST 的逻辑
         System.out.println("went into case 3 :");
     }
 
-    private static void handleJIMATTN_SecurityAccess(String requestBody) {
+    private void handleJIMATTN_SecurityAccess(String requestBody) {
         // 处理 JIMATTN-SecurityAccess 的逻辑
         System.out.println("went into case 4 :");
     }

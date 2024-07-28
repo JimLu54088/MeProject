@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import jp.co.jim.common.Constants;
+import jp.co.jim.controller.SendRSDRequestController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,7 +23,10 @@ public class AppUtils {
 
     private static ObjectMapper mapper = null;
 
-    private static final Logger logger = (Logger) LogManager.getLogger(AppUtils.class);
+
+    private static final Logger logger = LogManager.getLogger(AppUtils.class);
+    private static final String LOG_HEADER = "[" + AppUtils.class.getSimpleName() + "] :: ";
+    private static final String ERROR_LOG_HEADER = "[" + AppUtils.class.getName() + "] :: ";
 
     static {
         if (mapper == null) {
@@ -54,6 +58,7 @@ public class AppUtils {
             mapper.readTree(requestBodyJSON);
             return true;
         } catch (IOException e) {
+            logger.error(ERROR_LOG_HEADER  + e);
             return false;
         }
     }
@@ -73,6 +78,7 @@ public class AppUtils {
 
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error(ERROR_LOG_HEADER  + e);
         }
         return requestType;
     }
@@ -91,6 +97,7 @@ public class AppUtils {
 
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error(ERROR_LOG_HEADER  + e);
         }
         return requestFrom;
 
@@ -128,10 +135,10 @@ public class AppUtils {
 //            updatedJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode);
             // 打印更新后的 JSON (Normal version)
             updatedJson = mapper.writeValueAsString(rootNode);
-            System.out.println("updatedJson: " + updatedJson);
 
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error(ERROR_LOG_HEADER  + e);
         }
         return updatedJson;
     }
@@ -150,8 +157,30 @@ public class AppUtils {
 
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error(ERROR_LOG_HEADER  + e);
         }
         return fin_number;
+
+
+    }
+
+    public static String getAPIType(String requestBodyJSON) throws Exception {
+
+        String api_type = "";
+        try {
+
+            JsonNode rootNode = mapper.readTree(requestBodyJSON);
+            JsonNode requestFromNode = rootNode.path("REQUESTRESPONSE")
+                    .path("REQUEST")
+                    .path("CONTENTS")
+                    .path("API_TYPE");
+            api_type = requestFromNode.asText();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(ERROR_LOG_HEADER  + e);
+        }
+        return api_type;
 
 
     }

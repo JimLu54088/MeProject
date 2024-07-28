@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -21,7 +22,8 @@ public class JwtTokenUtil {
     private static final String ERROR_LOG_HEADER = "[" + JwtTokenUtil.class.getName() + "] :: ";
 
     private static final String SECRET_KEY = "3eafd25832b93e9d679a5fb7c0725tyua80c38a6a5ee11ec9388e5ef288f26d5";
-    private static final long VALIDITY_DURATION_MIN = 30; // 30 minutes
+    @Value("${tokenExpiredMin}")
+    private long VALIDITY_DURATION_MIN; // 30 minutes
 
     public String generateToken(String username) {
         LocalDateTime localDateTimeNow = LocalDateTime.now();

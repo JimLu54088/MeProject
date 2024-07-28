@@ -10,7 +10,7 @@ public class Jim5PResponseEntity {
     private ResponseDetails responseDetails;
 
     // Getters and setters
-
+    @Data
     public static class ResponseDetails {
 
         @JsonProperty("CONTENTS")
@@ -22,6 +22,7 @@ public class Jim5PResponseEntity {
         // Getters and setters
     }
 
+    @Data
     public static class Contents {
 
         @JsonProperty("FILED1")
@@ -36,6 +37,7 @@ public class Jim5PResponseEntity {
         // Getters and setters
     }
 
+    @Data
     public static class Header {
 
         @JsonProperty("ERRORS")
@@ -44,6 +46,7 @@ public class Jim5PResponseEntity {
         // Getters and setters
     }
 
+    @Data
     public static class Errors {
 
         @JsonProperty("ERROR")
@@ -52,6 +55,7 @@ public class Jim5PResponseEntity {
         // Getters and setters
     }
 
+    @Data
     public static class Error {
 
         @JsonProperty("RETURN_CODE")

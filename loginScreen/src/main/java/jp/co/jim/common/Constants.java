@@ -16,5 +16,6 @@ public class Constants {
     public static final String DGRP003 = "DGRP003";
 
     public static final SimpleDateFormat dateTimeFormatyyyyMMdd_HHmmss = new SimpleDateFormat("yyyyMMdd_HHmmss");
-
+    //yyyy-MM-dd HH:mm:ss.SSS
+    public static final SimpleDateFormat dateTimeFormatyyyyMMdd_HHmmssSSS = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 }

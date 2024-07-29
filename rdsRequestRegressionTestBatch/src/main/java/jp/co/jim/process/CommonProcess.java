@@ -1,0 +1,354 @@
+package jp.co.jim.process;
+
+import jakarta.annotation.PostConstruct;
+import jp.co.jim.common.Constants;
+import org.apache.poi.openxml4j.util.ZipSecureFile;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.util.unit.DataUnit;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Component("jp.co.jim.process.CommonProcess")
+public class CommonProcess {
+
+    protected WebDriver driver = null;
+
+    protected String post = null;
+
+    protected String app_URL = "";
+
+    protected String test_page_URL = "";
+
+    public String test_cases_sheet_name = "";
+
+    public String evidence_folder_path = "";
+
+    public String test_cases_file_path = "";
+
+    public Map<Integer, Map<String, String>> testCases = new HashMap<>();
+    public Map<String, Integer> columnNos = new HashMap<>();
+
+    public List<Integer> testCaseNo = new ArrayList<>();
+
+
+    @Value("${rootDir}")
+    protected String rootDir;
+
+    @Value("${DG_User_ID}")
+    protected String DG_User_ID;
+
+    @Value("${DG_USER_PASSWORD}")
+    protected String DG_USER_PASSWORD;
+
+    @Value("${SampleExcelFileName}")
+    protected String SampleExcelFileName;
+
+
+    @Value("${pathSuffix}")
+    protected String pathSuffix;
+
+    @Value("${environment}")
+    protected String environment;
+
+    @Value("${executeCounter}")
+    protected String executeCounter;
+    @Value("${beforeAfter}")
+    protected String beforeAfter;
+
+    @Value("${excelNameMiddle}")
+    protected String excelNameMiddle;
+
+    @Value("${isProd}")
+    protected boolean isProd;
+
+    @Value("${isVersion2}")
+    protected boolean isVersion2;
+
+    @Value("${outputFileName}")
+    protected String outputFileName;
+
+    @Value("${test_person_name}")
+    protected String test_person_name;
+
+    @Value("${outputFileName}")
+    protected String test_stub_name;
+
+    @Value("${appURLRDSV02_DEV}")
+    protected String appURLRDSV02_DEV;
+
+    @Value("${appURLRDSV02_PROD}")
+    protected String appURLRDSV02_PROD;
+
+    @Value("${appURLNormal_DEV}")
+    protected String appURLNormal_DEV;
+
+    @Value("${appURLNormal_PROD}")
+    protected String appURLNormal_PROD;
+
+    @Value("${testPageURLDEV}")
+    protected String testPageURLDEV;
+
+    @Value("${testPageURLPROD}")
+    protected String testPageURLPROD;
+
+    @Value("${button_name_SRDV02}")
+    protected String button_name_SRDV02;
+
+    @Value("${button_name_Normal}")
+    protected String button_name_Normal;
+
+    @Value("${headers_row_no}")
+    protected int headers_row_no;
+
+    @Value("${chromeDriverPath}")
+    protected String chromeDriverPath;
+
+    @Value("${threadSleepingWaiting}")
+    protected String threadSleepingWaiting;
+
+    @Value("${waitingForAlertWindowInSecond}")
+    protected int waitingForAlertWindowInSecond;
+
+    @Value("${COL_TC_NO}")
+    protected String COL_TC_NO;
+
+
+    public CommonProcess() {
+        //No action
+    }
+
+    @PostConstruct
+    public void init() {
+        System.setProperty("webdriver.chrome.driver", chromeDriverPath);
+    }
+
+
+    public void createDirIfNotExist(String dirPath) {
+        File directory = new File(dirPath);
+        if (!directory.exists()) {
+            Boolean result = directory.mkdirs();
+            System.out.println("----------" + result);
+        }
+    }
+
+    public void accessApp(String appUrl) {
+        System.out.println("go to accessApp method");
+
+        accessApp(getDriver());
+
+        getCurrentTime();
+
+
+    }
+
+    public void accessApp(WebDriver wd) {
+
+        wd.get(app_URL);
+        wd.manage().window().maximize();
+
+
+    }
+
+    public WebDriver getDriver() {
+        if (null == driver) {
+            ChromeOptions options = new ChromeOptions();
+            options.addArguments("disable-popup-blocking");
+            options.addArguments("ignore-certificate-error");
+            DesiredCapabilities capabilities = new DesiredCapabilities();
+            capabilities.setCapability(CapabilityType.UNHANDLED_PROMPT_BEHAVIOUR, UnexpectedAlertBehaviour.ACCEPT);
+            options.merge(capabilities);
+            try {
+                driver = new ChromeDriver(options);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                throw ex;
+            }
+        }
+        ((JavascriptExecutor) driver).executeScript("document.body.style.zoom='100%';");
+        return driver;
+    }
+
+
+    public void getCurrentTime() {
+
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+        post = Constants.dateFormatYYYYMMDDHHMMSS.format(timestamp);
+
+
+    }
+
+    public void login(String user, String pass) {
+        login(user, pass, getDriver());
+    }
+
+    public void login(String user, String pass, WebDriver driver) {
+
+
+        // 定位並填充用户名和密码字段
+        WebElement loginIdField = driver.findElement(By.name("username"));
+        waitForms(threadSleepingWaiting);
+
+        loginIdField.sendKeys("111");
+
+        WebElement passwordField = driver.findElement(By.name("password"));
+        waitForms(threadSleepingWaiting);
+
+        passwordField.sendKeys("1234");
+
+        // 单击“登录”按钮
+        WebElement loginButton = driver.findElement(By.id("submit"));
+        waitForms(threadSleepingWaiting);
+        loginButton.click();
+        waitForms(threadSleepingWaiting);
+
+        // 等待弹出窗口出现
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(waitingForAlertWindowInSecond));
+        wait.until(ExpectedConditions.alertIsPresent());
+
+        // 切换到警告并接受（即点击“OK”按钮）
+        Alert alert = driver.switchTo().alert();
+        alert.accept();
+
+        waitForms(threadSleepingWaiting);
+    }
+
+    public boolean readTestCases() {
+
+        headers_row_no--;
+        try (FileInputStream fis = new FileInputStream(test_cases_file_path);
+             Workbook workbook = new XSSFWorkbook(fis);
+        ) {
+
+            ZipSecureFile.setMinInflateRatio(-1.0d);
+
+
+            Sheet sheet = workbook.getSheet(test_cases_sheet_name);
+            if (null != sheet) {
+                List<String> headers = new ArrayList<>();
+                List<String> tempList = new ArrayList<>();
+
+                int rowCounter = 0;
+                for (int i = headers_row_no; i < sheet.getLastRowNum() + 1; i++) {
+                    Row row = sheet.getRow(i);
+                    if (null != row) {
+                        int lastCol = row.getLastCellNum();
+                        for (int j = 0; j <= lastCol; j++) {
+                            Cell cell = row.getCell(j);
+                            if (null != cell) {
+                                String value = null;
+                                switch (cell.getCellType()) {
+                                    case STRING:
+                                        value = cell.getRichStringCellValue().getString();
+                                        break;
+
+                                    case NUMERIC:
+                                        if (DateUtil.isCellDateFormatted(cell)) {
+                                            value = "" + cell.getDateCellValue();
+                                        } else {
+                                            value = "" + cell.getNumericCellValue();
+                                        }
+                                        break;
+
+                                    case BOOLEAN:
+                                        value = "" + cell.getBooleanCellValue();
+                                        break;
+                                    case FORMULA:
+                                        value = cell.getStringCellValue();
+                                        break;
+                                    default:
+                                        value = "";
+                                }
+
+                                if (i == headers_row_no) {
+                                    headers.add(value);
+                                    columnNos.put(value, j);
+                                } else if (i > 0) {
+                                    try {
+                                        String listVal = tempList.get(j);
+                                        if ((null == listVal || "".equals(listVal))) {
+                                            tempList.add(j, value);
+                                        }
+                                    } catch (Exception ne) {
+                                        tempList.add(value);
+                                    }
+                                }
+                            } else {
+                                tempList.add(null);
+                            }
+                        }
+                        rowCounter++;
+
+                        if (rowCounter == 1) {
+                            Integer tcNo1 = 0;
+                            rowCounter = 0;
+                            Map<String, String> tcData = new HashMap<>();
+
+                            for (int ii = 0; ii < headers.size(); ii++) {
+                                if (tempList.size() > ii) {
+                                    if (ii == 0 && ("".equals(tempList.get(ii)) || null == tempList.get(ii))) {
+                                        break;
+                                    }
+                                    if (COL_TC_NO.equals(headers.get(ii))) {
+                                        String taiwanIsNotChina = tempList.get(ii);
+                                        tcNo1 = Integer.parseInt(taiwanIsNotChina.replace(".0", ""));
+                                        tcData.put(headers.get(ii), tcNo1 + "");
+                                        testCaseNo.add(tcNo1);
+                                    } else {
+                                        tcData.put(headers.get(ii), tempList.get(ii));
+                                    }
+                                }
+                            }
+                            //-------------------------------------
+                            tcData.put("ROW_NUMBER", i + "");
+                            testCases.put(tcNo1, tcData);
+                            tempList = new ArrayList<>();
+                        }
+
+                    } else {
+                        break;
+                    }
+                }
+
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+
+        return true;
+    }
+
+    public void waitForms(String strms) {
+
+        long ms = Long.parseLong(strms);
+        try {
+            Thread.sleep(ms);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+}

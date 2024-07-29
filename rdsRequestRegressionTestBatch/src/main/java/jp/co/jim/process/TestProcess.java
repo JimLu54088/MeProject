@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
 
-@Component("jp.co.jim.process.RSDRequestTestProcess")
+@Component("jp.co.jim.process.TestProcess")
 public class TestProcess extends CommonProcess {
 
     private String button_name = "";

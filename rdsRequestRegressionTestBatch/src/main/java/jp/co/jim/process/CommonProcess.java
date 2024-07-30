@@ -46,7 +46,9 @@ public class CommonProcess {
     public Map<Integer, Map<String, String>> testCases = new HashMap<>();
     public Map<String, Integer> columnNos = new HashMap<>();
 
-    public List<Integer> testCaseNo = new ArrayList<>();
+    public List<Integer> testCaseNos = new ArrayList<>();
+
+    boolean isJsonInOutput = false;
 
 
     @Value("${rootDir}")
@@ -129,6 +131,60 @@ public class CommonProcess {
 
     @Value("${COL_TC_NO}")
     protected String COL_TC_NO;
+
+    @Value("${COL_SCENARIO}")
+    protected String COL_SCENARIO;
+
+    @Value("${COL_EXECUTION}")
+    protected String COL_EXECUTION;
+
+    @Value("${COL_INPUT_JSON}")
+    protected String COL_INPUT_JSON;
+
+    @Value("${COL_API_NAME}")
+    protected String COL_API_NAME;
+
+    @Value("${COL_EXPECTED_OUTPUT}")
+    protected String COL_EXPECTED_OUTPUT;
+
+    @Value("${COL_ACTUAL_OUTPUT}")
+    protected String COL_ACTUAL_OUTPUT;
+
+    @Value("${COL_RESULT}")
+    protected String COL_RESULT;
+
+    @Value("${COL_EVIDENCE}")
+    protected String COL_EVIDENCE;
+
+    @Value("${COL_USER}")
+    protected String COL_USER;
+
+    @Value("${COL_IS_JSON_STRING_IN_OUTPUT}")
+    protected String COL_IS_JSON_STRING_IN_OUTPUT;
+
+    @Value("${COL_IS_HTTP_REQUEST}")
+    protected String COL_IS_HTTP_REQUEST;
+
+    @Value("${COL_REQUEST_URL}")
+    protected String COL_REQUEST_URL;
+
+    @Value("${COL_AUTHORIZATION}")
+    protected String COL_AUTHORIZATION;
+
+    @Value("${COL_INNER_RETN_CODE_PATH}")
+    protected String COL_INNER_RETN_CODE_PATH;
+
+    @Value("${COL_EXPECTED_CONTENTS}")
+    protected String COL_EXPECTED_CONTENTS;
+
+    @Value("${COL_CALL_METHOD}")
+    protected String COL_CALL_METHOD;
+
+    @Value("${COL_IS_GEEP}")
+    protected String COL_IS_GEEP;
+
+    @Value("${COL_IS_GET}")
+    protected String COL_IS_GET;
 
 
     public CommonProcess() {
@@ -311,7 +367,7 @@ public class CommonProcess {
                                         String taiwanIsNotChina = tempList.get(ii);
                                         tcNo1 = Integer.parseInt(taiwanIsNotChina.replace(".0", ""));
                                         tcData.put(headers.get(ii), tcNo1 + "");
-                                        testCaseNo.add(tcNo1);
+                                        testCaseNos.add(tcNo1);
                                     } else {
                                         tcData.put(headers.get(ii), tempList.get(ii));
                                     }
@@ -338,6 +394,10 @@ public class CommonProcess {
 
 
         return true;
+    }
+
+    public void isJsonInOutput(boolean isJsonInOutput) {
+        this.isJsonInOutput = isJsonInOutput;
     }
 
     public void waitForms(String strms) {

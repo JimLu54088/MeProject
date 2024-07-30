@@ -3,12 +3,15 @@ package jp.co.jim.process;
 import jp.co.jim.common.Constants;
 import org.springframework.stereotype.Component;
 
+import javax.swing.text.html.parser.Entity;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
+import java.util.Map;
+import java.util.Map.Entry;
 
 @Component("jp.co.jim.process.TestProcess")
 public class TestProcess extends CommonProcess {
@@ -138,6 +141,26 @@ public class TestProcess extends CommonProcess {
 
         //Start reading test cases
         boolean readTestCasesResult = readTestCases();
+
+        System.out.println("Starting execution : " + testCases.size());
+        for (Entry<Integer, Map<String, String>> tcDataEntry : testCases.entrySet()) {
+            try {
+                int tcNo = tcDataEntry.getKey();
+                Map<String, String> tcData = tcDataEntry.getValue();
+
+                if (null != tcData.get(COL_INPUT_JSON) && "true".equals(tcData.get(COL_EXECUTION) + "".toLowerCase())
+                        && !"true".equals(tcData.get(COL_IS_HTTP_REQUEST) + "".toLowerCase())) {
+                    System.out.println("===========TC" + tcNo + " START============");
+                    if ("true".equals(tcData.get(COL_IS_JSON_STRING_IN_OUTPUT) + "".toLowerCase())) {
+                        isJsonInOutput(true);
+                    } else {
+                        isJsonInOutput(false);
+                    }
+                }
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        }
 
         System.out.println("readTestCasesResult: " + readTestCasesResult);
 

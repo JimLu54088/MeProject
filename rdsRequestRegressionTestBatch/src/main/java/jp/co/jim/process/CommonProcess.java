@@ -2,6 +2,7 @@ package jp.co.jim.process;
 
 import jakarta.annotation.PostConstruct;
 import jp.co.jim.common.Constants;
+import lombok.Setter;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -49,6 +50,17 @@ public class CommonProcess {
     public List<Integer> testCaseNos = new ArrayList<>();
 
     boolean isJsonInOutput = false;
+
+    @Setter
+    String innerPath = null;
+
+    @Setter
+    String innerExpectedValue = null;
+
+    List<Integer> executedTcNos = new ArrayList<>();
+    List<String> result = new ArrayList<>();
+    List<String> actualResult = new ArrayList<>();
+    List<String> evidences = new ArrayList<>();
 
 
     @Value("${rootDir}")
@@ -399,6 +411,29 @@ public class CommonProcess {
     public void isJsonInOutput(boolean isJsonInOutput) {
         this.isJsonInOutput = isJsonInOutput;
     }
+
+    public void executeTestProcessLoop(String input, String expectedOutPut, String actualOP, int tcNo, boolean checkAssert, String scenario){
+        executedTcNos.add(tcNo);
+        try{
+            setInput(input);
+            execute();
+            if(checkAssert){
+                actualOP = getOutput();
+                processOutput(actualOP, expectedOutPut, tcNo, false, input, scenario);
+            }
+        }catch (Exception e){
+            result.add("Error");
+            actualResult.add(actualOP);
+            evidences.add("");
+
+
+        }
+    }
+
+    public void setInput(String input){
+        setInput(input, getDriver());
+    }
+
 
     public void waitForms(String strms) {
 

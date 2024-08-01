@@ -20,7 +20,7 @@ $(document).ready(function () {
         }
     } else {
         // 如果没有令牌，重定向到登录页面
-        window.location.href = '/DGLogin.html';
+        window.location.href = '/DGlogin.html';
     }
 
     document.getElementById('sendRequestBtn').addEventListener('click', function () {

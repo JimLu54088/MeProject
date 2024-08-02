@@ -142,7 +142,12 @@ public class TestProcess extends CommonProcess {
         //Start reading test cases
         boolean readTestCasesResult = readTestCases();
 
-        System.out.println("Starting execution : " + testCases.size());
+        boolean isCheckAssertBL = Boolean.parseBoolean(is_checkAssert);
+
+        //Transfer to Send request page
+        goToRequstPage();
+
+        System.out.println("Starting execution : " + (testCases.size() - 1));
         for (Entry<Integer, Map<String, String>> tcDataEntry : testCases.entrySet()) {
             try {
                 int tcNo = tcDataEntry.getKey();
@@ -166,8 +171,8 @@ public class TestProcess extends CommonProcess {
                         setInnerPath(null);
                         setInnerExpectedValue(null);
                     }
-                    executeTestProcessLoop(tcData.get(COL_INPUT_JSON), tcData.get(COL_EXPECTED_OUTPUT), tcData.get(COL_ACTUAL_OUTPUT), tcNo, true, tcData.get(COL_SCENARIO));
-                    System.out.println("===========TC" + tcNo + " END============");
+                    executeTestProcessLoop(tcData.get(COL_INPUT_JSON), tcData.get(COL_EXPECTED_OUTPUT), tcData.get(COL_ACTUAL_OUTPUT), tcNo, isCheckAssertBL, tcData.get(COL_SCENARIO));
+                    System.out.println("===========TC" + tcNo + " END============\n");
                 } else if (null != tcData.get(COL_INPUT_JSON) && "true".equals(tcData.get(COL_EXECUTION) + "".toLowerCase()) && "true".equals(tcData.get(COL_IS_HTTP_REQUEST) + "".toLowerCase())) {
                     System.out.println("===========TC" + tcNo + " START============");
                     if ("true".equals(tcData.get(COL_IS_JSON_STRING_IN_OUTPUT) + "".toLowerCase())) {
@@ -187,13 +192,13 @@ public class TestProcess extends CommonProcess {
                     }
                     boolean isGetRequest = Boolean.parseBoolean(tcData.get(COL_IS_GET));
 
-                    if (isGetRequest) {
-                        executeHttpGetRequest(tcData.get(COL_INPUT_JSON), tcData.get(COL_EXPECTED_OUTPUT), tcData.get(COL_ACTUAL_OUTPUT), tcData.get(COL_INPUT_JSON), tcNo, true, tcData.get(COL_SCENARIO));
-                    } else {
-                        executeHttpRequest(tcData.get(COL_INPUT_JSON), tcData.get(COL_EXPECTED_OUTPUT), tcData.get(COL_ACTUAL_OUTPUT), tcData.get(COL_INPUT_JSON), tcNo, true, tcData.get(COL_SCENARIO));
-
-                    }
-                    System.out.println("===========TC" + tcNo + " END============");
+//                    if (isGetRequest) {
+//                        executeHttpGetRequest(tcData.get(COL_INPUT_JSON), tcData.get(COL_EXPECTED_OUTPUT), tcData.get(COL_ACTUAL_OUTPUT), tcData.get(COL_INPUT_JSON), tcNo, true, tcData.get(COL_SCENARIO));
+//                    } else {
+//                        executeHttpRequest(tcData.get(COL_INPUT_JSON), tcData.get(COL_EXPECTED_OUTPUT), tcData.get(COL_ACTUAL_OUTPUT), tcData.get(COL_INPUT_JSON), tcNo, true, tcData.get(COL_SCENARIO));
+//
+//                    }
+                    System.out.println("===========TC" + tcNo + " END============\n");
 
                 }
             } catch (Exception exception) {
@@ -205,7 +210,7 @@ public class TestProcess extends CommonProcess {
 
         waitForms(threadSleepingWaiting);
 
-        writeResponseBackToExcel();
+//        writeResponseBackToExcel();
 
         getDriver().quit();
 

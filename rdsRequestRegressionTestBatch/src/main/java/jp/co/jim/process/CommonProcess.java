@@ -16,16 +16,15 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.unit.DataUnit;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component("jp.co.jim.process.CommonProcess")
 public class CommonProcess {
@@ -197,6 +196,9 @@ public class CommonProcess {
 
     @Value("${COL_IS_GET}")
     protected String COL_IS_GET;
+
+    @Value("${is_checkAssert}")
+    protected String is_checkAssert;
 
 
     public CommonProcess() {
@@ -412,16 +414,22 @@ public class CommonProcess {
         this.isJsonInOutput = isJsonInOutput;
     }
 
-    public void executeTestProcessLoop(String input, String expectedOutPut, String actualOP, int tcNo, boolean checkAssert, String scenario){
+    public void executeTestProcessLoop(String input, String expectedOutPut, String actualOP, int tcNo, boolean checkAssert, String scenario) {
         executedTcNos.add(tcNo);
-        try{
-            setInput(input);
-            execute();
-            if(checkAssert){
+        try {
+//            setInput(input);
+//            execute();
+
+
+            setInputAndExecute(input);
+
+            if (checkAssert) {
                 actualOP = getOutput();
                 processOutput(actualOP, expectedOutPut, tcNo, false, input, scenario);
+
+                System.out.println("actualOP: " + actualOP);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             result.add("Error");
             actualResult.add(actualOP);
             evidences.add("");
@@ -430,8 +438,151 @@ public class CommonProcess {
         }
     }
 
-    public void setInput(String input){
-        setInput(input, getDriver());
+//    public void setInput(String input) {
+//        setInput(input, getDriver());
+//    }
+
+    public void processOutput(String actualOP, String expectedOutput, int tcNo, Boolean isHttp, String input, String scenario) {
+
+
+        try {
+//            ObjectMapper mapper = new ObjectMapper();
+//            JsonNode rootNode = mapper.readTree(actualOP);
+//            JsonNode requestFromNode = rootNode.path("REQUESTRESPONSE")
+//                    .path("RESPONSE")
+//                    .path("HEADER")
+//                    .path("ERRORS")
+//                    .path("ERROR")
+//                    .path("REASON_CODE");
+//            actualOP = requestFromNode.asText();
+
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(actualOP);
+
+            // 打印整个 JSON 结构以确保数据的确存在
+            System.out.println("Full JSON structure: " + rootNode.toString());
+
+            // 检查 REQUESTRESPONSE 节点
+            JsonNode requestResponseNode = rootNode.path("REQUESTRESPONSE");
+            if (requestResponseNode.isMissingNode()) {
+                System.out.println("REQUESTRESPONSE node is missing.");
+                return;
+            }
+            System.out.println("REQUESTRESPONSE node: " + requestResponseNode.toString());
+
+            // 检查 RESPONSE 节点
+            JsonNode responseField = requestResponseNode.path("RESPONSE");
+            if (responseField.isMissingNode()) {
+                System.out.println("RESPONSE node is missing.");
+                return;
+            }
+            System.out.println("RESPONSE node: " + responseField.toString());
+
+            // 提取 RESPONSE 字段中的字符串
+            String responseStr = responseField.asText();
+            System.out.println("Extracted RESPONSE string: " + responseStr);
+
+            // 将字符串解析为 JSON 对象
+            JsonNode responseNode = mapper.readTree(responseStr);
+
+            // 提取 REASON_CODE
+            JsonNode reasonCodeNode = responseNode.path("HEADER").path("ERRORS").path("ERROR").get(0).path("REASON_CODE");
+            String reasonCode = reasonCodeNode.asText();
+
+            System.out.println("REASON_CODE: " + reasonCode);
+
+
+//            System.out.println("REASON_CODE: " + actualOP);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+
+
+    }
+
+    public void goToRequstPage() {
+        try {
+            // 導航到目標頁面
+
+            // 找到連結並點擊（使用完整的連結文字）
+            WebElement link = driver.findElement(By.linkText("RSD Send Request Page"));
+            link.click();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public String getOutput() {
+        try {
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            Object obj = js.executeScript("return document.getElementById('responseJson').value;");
+            return (null == obj) ? "" : obj.toString();
+        } catch (Exception exception) {
+            return getDriver().findElement(By.id("responseJson")).getText();
+        }
+    }
+
+    public void setInputAndExecute(String input) {
+        try {
+            //Clean current page
+            clearInput();
+
+
+            // 找到 id 為 'requestJson' 的輸入框
+            WebElement inputBox = driver.findElement(By.id("requestJson"));
+
+            // 設置要輸入的字符串
+            String inputString = input;
+            inputBox.sendKeys(inputString);
+
+            // 找到 id 為 'sendRequestBtn' 的按鈕
+            WebElement sendButton = driver.findElement(By.id("sendRequestBtn"));
+
+            // 點擊按鈕
+            sendButton.click();
+
+            waitForResponse();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void waitForResponse() {
+        try {
+            Date start = new Date();
+            Boolean isNext = true;
+            while (isNext) {
+                if (null != getOutput() && getOutput().length() > 1) {
+                    isNext = false;
+                } else {
+                    try {
+                        Date end = new Date();
+                        long seconds = (end.getTime() - start.getTime()) / 1000;
+                        if (seconds > 120) {
+                            isNext = false;
+                        }
+                        Thread.sleep(10);
+                    } catch (Exception ee) {
+                        ee.printStackTrace();
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void clearInput() {
+        // 单击“登录”按钮
+        WebElement clearButton = getDriver().findElement(By.id("cleartextareaButton"));
+        clearButton.click();
     }
 
 

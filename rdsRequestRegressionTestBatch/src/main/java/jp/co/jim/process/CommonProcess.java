@@ -1,8 +1,13 @@
 package jp.co.jim.process;
 
+import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.reflect.TypeToken;
 import jakarta.annotation.PostConstruct;
 import jp.co.jim.common.Constants;
+import jp.co.jim.model.RequestResponseModel;
 import lombok.Setter;
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -21,10 +26,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Component("jp.co.jim.process.CommonProcess")
 public class CommonProcess {
@@ -60,6 +68,10 @@ public class CommonProcess {
     List<String> result = new ArrayList<>();
     List<String> actualResult = new ArrayList<>();
     List<String> evidences = new ArrayList<>();
+
+    String evidencefileName = null;
+
+    String responseTime = null;
 
 
     @Value("${rootDir}")
@@ -199,6 +211,30 @@ public class CommonProcess {
 
     @Value("${is_checkAssert}")
     protected String is_checkAssert;
+
+    @Value("${txt_REQUESTRESPONSE}")
+    public String txt_REQUESTRESPONSE;
+
+    @Value("${txt_RESPONSE}")
+    public String txt_RESPONSE;
+
+    @Value("${txt_CONTENTS}")
+    public String txt_CONTENTS;
+
+    @Value("${txt_HEADER}")
+    public String txt_HEADER;
+
+    @Value("${txt_ERRORS}")
+    public String txt_ERRORS;
+
+    @Value("${txt_ERROR}")
+    public String txt_ERROR;
+
+    @Value("${txt_RETURN_CODE}")
+    public String txt_RETURN_CODE;
+
+    @Value("${txt_REASON_CODE}")
+    public String txt_REASON_CODE;
 
 
     public CommonProcess() {
@@ -444,62 +480,121 @@ public class CommonProcess {
 
     public void processOutput(String actualOP, String expectedOutput, int tcNo, Boolean isHttp, String input, String scenario) {
 
+        responseTime = Constants.dateFormatYYYYMMDDHHMMSS.format(new Date());
 
-        try {
-//            ObjectMapper mapper = new ObjectMapper();
-//            JsonNode rootNode = mapper.readTree(actualOP);
-//            JsonNode requestFromNode = rootNode.path("REQUESTRESPONSE")
-//                    .path("RESPONSE")
-//                    .path("HEADER")
-//                    .path("ERRORS")
-//                    .path("ERROR")
-//                    .path("REASON_CODE");
-//            actualOP = requestFromNode.asText();
+        String finalReasonCode = "";
 
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode rootNode = mapper.readTree(actualOP);
+        if (null != actualOP && actualOP.startsWith("\"") && !isJsonInOutput) {
+            actualOP = actualOP.replaceAll("\\\\", "");
+            actualOP = actualOP.substring(1, actualOP.length() - 1);
+        } else if (null != actualOP && actualOP.startsWith("\"") && isJsonInOutput) {
+            actualOP = actualOP.replaceAll("\\\\\"", "\\\"");
+            actualOP = actualOP.replaceAll("\\\\\"", "\\\"");
+            actualOP = actualOP.substring(1, actualOP.length() - 1);
 
-            // 打印整个 JSON 结构以确保数据的确存在
-            System.out.println("Full JSON structure: " + rootNode.toString());
 
-            // 检查 REQUESTRESPONSE 节点
-            JsonNode requestResponseNode = rootNode.path("REQUESTRESPONSE");
-            if (requestResponseNode.isMissingNode()) {
-                System.out.println("REQUESTRESPONSE node is missing.");
-                return;
+        } else {
+            actualOP = actualOP.replaceAll("\\\\\"", "\\\"");
+            actualOP = actualOP.replaceAll("\\\\\"", "\\\"");
+            if (actualOP.startsWith("\"")) {
+                actualOP = actualOP.substring(1, actualOP.length() - 1);
             }
-            System.out.println("REQUESTRESPONSE node: " + requestResponseNode.toString());
-
-            // 检查 RESPONSE 节点
-            JsonNode responseField = requestResponseNode.path("RESPONSE");
-            if (responseField.isMissingNode()) {
-                System.out.println("RESPONSE node is missing.");
-                return;
-            }
-            System.out.println("RESPONSE node: " + responseField.toString());
-
-            // 提取 RESPONSE 字段中的字符串
-            String responseStr = responseField.asText();
-            System.out.println("Extracted RESPONSE string: " + responseStr);
-
-            // 将字符串解析为 JSON 对象
-            JsonNode responseNode = mapper.readTree(responseStr);
-
-            // 提取 REASON_CODE
-            JsonNode reasonCodeNode = responseNode.path("HEADER").path("ERRORS").path("ERROR").get(0).path("REASON_CODE");
-            String reasonCode = reasonCodeNode.asText();
-
-            System.out.println("REASON_CODE: " + reasonCode);
-
-
-//            System.out.println("REASON_CODE: " + actualOP);
-
-        } catch (Exception e) {
-            e.printStackTrace();
 
         }
 
 
+        String respJson = actualOP;
+        Gson gson = new Gson();
+
+        RequestResponseModel gObject = gson.fromJson(actualOP, RequestResponseModel.class);
+
+        LinkedTreeMap<String, Object> res = null;
+        ArrayList<LinkedTreeMap> error = new ArrayList<>();
+
+        LinkedTreeMap<String, Object> reqRes = (LinkedTreeMap<String, Object>) gObject.get(txt_REQUESTRESPONSE);
+        Type type = new TypeToken<Map<String, Object>>() {
+        }.getType();
+
+        // 解析 JSON 字符串到 Map
+        Map<String, Object> map = gson.fromJson((String) reqRes.get(txt_RESPONSE), type);
+
+        // 获取嵌套的 HEADER -> ERRORS -> ERROR -> 第一个元素 -> REASON_CODE
+        if (map.containsKey("HEADER")) {
+            Map<String, Object> header = (Map<String, Object>) map.get("HEADER");
+            if (header.containsKey("ERRORS")) {
+                Map<String, Object> errors = (Map<String, Object>) header.get("ERRORS");
+                if (errors.containsKey("ERROR")) {
+                    Object errorObj = errors.get("ERROR");
+                    if (errorObj instanceof java.util.List) {
+                        java.util.List<Map<String, Object>> errorList = (java.util.List<Map<String, Object>>) errorObj;
+                        if (!errorList.isEmpty()) {
+                            Map<String, Object> firstError = errorList.get(0);
+                            if (firstError.containsKey("REASON_CODE")) {
+                                finalReasonCode = (String) firstError.get("REASON_CODE");
+//                                System.out.println("REASON_CODE: " + finalReasonCode);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        boolean innerResult = true;
+        if (null != innerPath && null != innerExpectedValue) {
+            LinkedTreeMap<String, Object> contents = (LinkedTreeMap<String, Object>) res.get(txt_CONTENTS);
+            String innverVal = contents.get(innerPath) + "";
+            if (innverVal.contains(innerExpectedValue)) {
+                innerResult = true;
+            } else {
+                innerResult = false;
+            }
+
+        }
+
+        actualOP = finalReasonCode;
+        System.out.println("REASON_CODE: " + actualOP);
+        String evidenceFile = "";
+
+        if (!isHttp) {
+            evidenceFile = getScreenShot(tcNo + "");
+        } else {
+            evidenceFile = outputFileName;
+        }
+        boolean isSuccess = actualOP.equals(expectedOutput);
+//        Boolean isSuccess = compareResult(actualOP, expectedOutput);
+        isSuccess = isSuccess && innerResult;
+
+        System.out.println("isSuccess : " + isSuccess);
+
+        result.add((isSuccess) ? "OK" : "NG");
+        actualResult.add(actualOP);
+        evidences.add(evidenceFile);
+        writeIntoFile(input, expectedOutput, actualOP, tcNo + "", isSuccess, respJson, scenario);
+
+
+    }
+
+
+    public String getScreenShot(String tcNo) {
+        getDriver().manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
+        File src = ((TakesScreenshot) getDriver()).getScreenshotAs(OutputType.FILE);
+        try {
+            evidencefileName = tcNo + "_" + Constants.dateFormatYYYYMMDDHHMMSS.format(new Date()) + ".png";
+            String EVIDENCE_filePath = evidence_folder_path + "\\" + evidencefileName;
+            System.out.println("File: " + EVIDENCE_filePath);
+            FileUtils.copyFile(src, new File(EVIDENCE_filePath));
+
+
+        } catch (IOException ioe) {
+            System.out.println(ioe.getMessage());
+        }
+        return evidencefileName;
+
+    }
+
+    public boolean compareResult(String actualOutput, String expectedOutput) {
+        return actualOutput.equals(expectedOutput);
     }
 
     public void goToRequstPage() {
@@ -552,6 +647,65 @@ public class CommonProcess {
         }
 
     }
+
+
+    public void writeIntoFile(String input, String expectedOuput, String output, String TC, boolean isOK, String respJSON, String scenario) {
+
+    }
+
+    public void writeResponseBackToExcel() {
+        try (FileInputStream fis = new FileInputStream(test_cases_file_path);
+             Workbook workbook = new XSSFWorkbook(fis);
+             FileOutputStream fileOut = new FileOutputStream(test_cases_file_path);) {
+
+            ZipSecureFile.setMinInflateRatio(-1.0d);
+
+            int actResColNo = columnNos.get(COL_ACTUAL_OUTPUT);
+            int resColNo = columnNos.get(COL_RESULT);
+            int evidenceColNo = columnNos.get(COL_EVIDENCE);
+
+            Sheet sheet = workbook.getSheet(test_cases_sheet_name);
+
+            if (null != sheet) {
+                int ii = 0;
+                for (int tc : executedTcNos) {
+                    Map<String, String> tcData = testCases.get(tc);
+                    int rowNo = Integer.parseInt(tcData.get("ROW_NUMBER"));
+                    Row row = sheet.getRow(rowNo);
+
+                    Cell actResCol = row.getCell(actResColNo);
+                    Cell resCol = row.getCell(resColNo);
+                    Cell evidenceCol = row.getCell(evidenceColNo);
+
+                    if (null == actResCol) {
+                        actResCol = row.createCell(actResColNo);
+                    }
+                    if (null == resCol) {
+                        resCol = row.createCell(resColNo);
+                    }
+                    if (null == evidenceCol) {
+                        evidenceCol = row.createCell(evidenceColNo);
+                    }
+
+                    actResCol.setCellValue(actualResult.get(ii));
+                    resCol.setCellValue(result.get(ii));
+                    evidenceCol.setCellValue(evidences.get(ii));
+
+                    ii++;
+
+
+                }
+            }
+
+            workbook.write(fileOut);
+        } catch (IOException ioe) {
+            System.out.println("Writing to Excel file failed.");
+            ioe.printStackTrace();
+        }
+
+
+    }
+
 
     public void waitForResponse() {
         try {

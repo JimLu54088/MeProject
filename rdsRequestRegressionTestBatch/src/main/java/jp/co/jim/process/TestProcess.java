@@ -210,7 +210,7 @@ public class TestProcess extends CommonProcess {
 
         waitForms(threadSleepingWaiting);
 
-//        writeResponseBackToExcel();
+        writeResponseBackToExcel();
 
         getDriver().quit();
 

@@ -26,14 +26,7 @@ public class RdsRequestRegressionTestBatchApplication {
     @Bean
     public String startProcess() throws IOException {
         System.out.println("================");
-
-//        for (int i = 0; i < 5; i++) {
-//            testProcess.testExecution();
-//        }
-
         testProcess.testExecution();
-
-
         return "";
     }
 

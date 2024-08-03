@@ -24,10 +24,7 @@ import org.springframework.util.unit.DataUnit;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.time.Duration;
@@ -49,7 +46,11 @@ public class CommonProcess {
 
     public String evidence_folder_path = "";
 
+    public String output_file_path = "";
+
     public String test_cases_file_path = "";
+
+    public String user = "";
 
     public Map<Integer, Map<String, String>> testCases = new HashMap<>();
     public Map<String, Integer> columnNos = new HashMap<>();
@@ -72,6 +73,8 @@ public class CommonProcess {
     String evidencefileName = null;
 
     String responseTime = null;
+
+    String requestTime = null;
 
 
     @Value("${rootDir}")
@@ -113,7 +116,7 @@ public class CommonProcess {
     @Value("${test_person_name}")
     protected String test_person_name;
 
-    @Value("${outputFileName}")
+    @Value("${test_stub_name}")
     protected String test_stub_name;
 
     @Value("${appURLRDSV02_DEV}")
@@ -235,6 +238,18 @@ public class CommonProcess {
 
     @Value("${txt_REASON_CODE}")
     public String txt_REASON_CODE;
+
+    @Value("${ROW_TEST_NAME}")
+    public String ROW_TEST_NAME;
+
+    @Value("${ROW_EXECUTOR}")
+    public String ROW_EXECUTOR;
+
+    @Value("${COL_TEST_NAME}")
+    public String COL_TEST_NAME;
+
+    @Value("${COL_EXECUTOR}")
+    public String COL_EXECUTOR;
 
 
     public CommonProcess() {
@@ -640,6 +655,8 @@ public class CommonProcess {
             // 點擊按鈕
             sendButton.click();
 
+            requestTime = Constants.dateFormatYYYYMMDDHHMMSS.format(new Date());
+
             waitForResponse();
 
         } catch (Exception e) {
@@ -651,12 +668,46 @@ public class CommonProcess {
 
     public void writeIntoFile(String input, String expectedOuput, String output, String TC, boolean isOK, String respJSON, String scenario) {
 
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(output_file_path, true))) {
+
+            bw.newLine();
+            bw.append("----------------" + TC + " Start --------------\n")
+                    .append("Scenario : ")
+                    .append(scenario)
+                    .append("\n")
+                    .append("Time ; " + post)
+                    .append("\n")
+                    .append("User : " + user)
+                    .append("\n")
+                    .append("Input : " + input)
+                    .append("\n")
+                    .append("Request Time : " + requestTime)
+                    .append("\n")
+                    .append("Response Time : " + responseTime)
+                    .append("\n")
+                    .append("Expected Output : " + expectedOuput)
+                    .append("\n")
+                    .append("Actual Output : " + output)
+                    .append("\n")
+                    .append("Status : " + ((isOK) ? "Success" : "Failed"))
+                    .append("\n")
+                    .append("Evidence file name : " + evidencefileName)
+                    .append("\n")
+                    .append("----------------" + TC + " End --------------\n");
+
+
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            System.out.println(ioe.getMessage());
+        }
+
+
     }
 
     public void writeResponseBackToExcel() {
         try (FileInputStream fis = new FileInputStream(test_cases_file_path);
              Workbook workbook = new XSSFWorkbook(fis);
-             FileOutputStream fileOut = new FileOutputStream(test_cases_file_path);) {
+             FileOutputStream fileOut = new FileOutputStream(test_cases_file_path)) {
 
             ZipSecureFile.setMinInflateRatio(-1.0d);
 
@@ -695,6 +746,30 @@ public class CommonProcess {
 
 
                 }
+
+                //Write Test Name and Executor
+                int intRow_test_name = Integer.parseInt(ROW_TEST_NAME);
+                int intRow_executor = Integer.parseInt(ROW_EXECUTOR);
+                int intCol_test_name = Integer.parseInt(COL_TEST_NAME);
+                int intCol_Executor = Integer.parseInt(COL_EXECUTOR);
+
+                Row rowTestName = sheet.getRow(intRow_test_name);
+                Row rowExcutor = sheet.getRow(intRow_executor);
+
+                Cell celTestName = rowTestName.getCell(intCol_test_name);
+                Cell celExecutor = rowExcutor.getCell(intCol_Executor);
+
+                if (null == celTestName) {
+                    celTestName = rowTestName.createCell(intCol_test_name);
+                }
+                if (null == celExecutor) {
+                    celExecutor = rowExcutor.createCell(intCol_Executor);
+                }
+
+                celTestName.setCellValue(test_stub_name);
+                celExecutor.setCellValue(test_person_name);
+
+
             }
 
             workbook.write(fileOut);

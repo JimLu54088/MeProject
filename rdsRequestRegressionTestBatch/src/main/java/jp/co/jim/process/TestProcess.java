@@ -30,7 +30,7 @@ public class TestProcess extends CommonProcess {
 
         createDirIfNotExist(evidence_folder_path);
 
-        String output_file_path = rootDir + "\\" + environment + "\\" + todayDate + "\\" + "output_" + executeCounter + pathSuffix + beforeAfter;
+        output_file_path = rootDir + "\\" + environment + "\\" + todayDate + "\\" + "output_" + executeCounter + pathSuffix + beforeAfter;
 
         createDirIfNotExist(output_file_path);
 
@@ -50,7 +50,7 @@ public class TestProcess extends CommonProcess {
         }
 
 
-        output_file_path = output_file_path + outputFileName;
+        output_file_path = output_file_path + "\\" + outputFileName;
 
         if (isVersion2) {
             button_name = button_name_SRDV02;
@@ -172,7 +172,7 @@ public class TestProcess extends CommonProcess {
                         setInnerExpectedValue(null);
                     }
                     executeTestProcessLoop(tcData.get(COL_INPUT_JSON), tcData.get(COL_EXPECTED_OUTPUT), tcData.get(COL_ACTUAL_OUTPUT), tcNo, isCheckAssertBL, tcData.get(COL_SCENARIO));
-                    System.out.println("===========TC" + tcNo + " END============\n");
+                    System.out.println("===========TC" + tcNo + " END============");
                 } else if (null != tcData.get(COL_INPUT_JSON) && "true".equals(tcData.get(COL_EXECUTION) + "".toLowerCase()) && "true".equals(tcData.get(COL_IS_HTTP_REQUEST) + "".toLowerCase())) {
                     System.out.println("===========TC" + tcNo + " START============");
                     if ("true".equals(tcData.get(COL_IS_JSON_STRING_IN_OUTPUT) + "".toLowerCase())) {
@@ -198,7 +198,7 @@ public class TestProcess extends CommonProcess {
 //                        executeHttpRequest(tcData.get(COL_INPUT_JSON), tcData.get(COL_EXPECTED_OUTPUT), tcData.get(COL_ACTUAL_OUTPUT), tcData.get(COL_INPUT_JSON), tcNo, true, tcData.get(COL_SCENARIO));
 //
 //                    }
-                    System.out.println("===========TC" + tcNo + " END============\n");
+                    System.out.println("===========TC" + tcNo + " END============");
 
                 }
             } catch (Exception exception) {

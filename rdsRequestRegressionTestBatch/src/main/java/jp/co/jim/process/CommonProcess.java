@@ -329,12 +329,12 @@ public class CommonProcess {
         WebElement loginIdField = driver.findElement(By.name("username"));
         waitForms(threadSleepingWaiting);
 
-        loginIdField.sendKeys("111");
+        loginIdField.sendKeys(user);
 
         WebElement passwordField = driver.findElement(By.name("password"));
         waitForms(threadSleepingWaiting);
 
-        passwordField.sendKeys("1234");
+        passwordField.sendKeys(pass);
 
         // 单击“登录”按钮
         WebElement loginButton = driver.findElement(By.id("submit"));

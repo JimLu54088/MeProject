@@ -54,8 +54,14 @@ class CommonProcessTest {
 
     @AfterEach
     public void tearDown() throws Exception {
-//        commonProcess.driver.quit();
-        testProcess.driver.quit();
+        if (testProcess.driver != null) {
+            testProcess.driver.quit();
+        }
+
+        if ( commonProcess.driver != null) {
+            commonProcess.driver.quit();
+        }
+
         mockClose.close();
 
     }

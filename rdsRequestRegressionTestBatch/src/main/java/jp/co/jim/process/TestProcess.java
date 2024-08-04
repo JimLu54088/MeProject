@@ -24,8 +24,6 @@ public class TestProcess extends CommonProcess {
 
         String todayDate = Constants.dateFormatYYYYMMDD.format(new Date());
 
-        System.out.println("todayDate: " + todayDate);
-
         evidence_folder_path = rootDir + "\\" + environment + "\\" + todayDate + "\\" + "evidence_" + executeCounter + pathSuffix + beforeAfter;
 
         createDirIfNotExist(evidence_folder_path);

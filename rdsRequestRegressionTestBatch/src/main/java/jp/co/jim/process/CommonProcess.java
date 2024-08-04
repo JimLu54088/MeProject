@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import jakarta.annotation.PostConstruct;
+import jdk.jshell.spi.ExecutionControlProvider;
 import jp.co.jim.common.Constants;
 import jp.co.jim.model.RequestResponseModel;
 import lombok.Setter;
@@ -29,6 +30,7 @@ import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @Component("jp.co.jim.process.CommonProcess")
@@ -266,7 +268,6 @@ public class CommonProcess {
         File directory = new File(dirPath);
         if (!directory.exists()) {
             Boolean result = directory.mkdirs();
-            System.out.println("----------" + result);
         }
     }
 
@@ -468,11 +469,11 @@ public class CommonProcess {
     public void executeTestProcessLoop(String input, String expectedOutPut, String actualOP, int tcNo, boolean checkAssert, String scenario) {
         executedTcNos.add(tcNo);
         try {
-//            setInput(input);
-//            execute();
+            setInput(input);
+            execute();
 
 
-            setInputAndExecute(input);
+//            setInputAndExecute(input);
 
             if (checkAssert) {
                 actualOP = getOutput();
@@ -489,9 +490,46 @@ public class CommonProcess {
         }
     }
 
-//    public void setInput(String input) {
-//        setInput(input, getDriver());
-//    }
+    public void setInput(String input) {
+        setInput(input, getDriver());
+    }
+
+    public void setInput(String input, WebDriver wd) {
+        clearInput();
+
+        try {
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            try {
+                //No need to change textera size
+//                js.executeScript("document.getElementById('requestJson').setAttribute('cols','180');");
+//                js.executeScript("document.getElementById('requestJson').setAttribute('rows','8');");
+//                waitForms("3000");
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            js.executeScript("arguments[0].value = arguments[1];", getDriver().findElement(By.id("requestJson")), input);
+
+
+        } catch (Exception ee) {
+            clearInput();
+            wd.findElement(By.id("requestJson")).getText();
+        }
+
+    }
+
+    public void execute() {
+        //sendRequestBtn
+
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", getDriver().findElement(By.id("sendRequestBtn")));
+
+        waitForResponse();
+
+
+    }
+
 
     public void processOutput(String actualOP, String expectedOutput, int tcNo, Boolean isHttp, String input, String scenario) {
 
@@ -636,34 +674,34 @@ public class CommonProcess {
         }
     }
 
-    public void setInputAndExecute(String input) {
-        try {
-            //Clean current page
-            clearInput();
-
-
-            // 找到 id 為 'requestJson' 的輸入框
-            WebElement inputBox = driver.findElement(By.id("requestJson"));
-
-            // 設置要輸入的字符串
-            String inputString = input;
-            inputBox.sendKeys(inputString);
-
-            // 找到 id 為 'sendRequestBtn' 的按鈕
-            WebElement sendButton = driver.findElement(By.id("sendRequestBtn"));
-
-            // 點擊按鈕
-            sendButton.click();
-
-            requestTime = Constants.dateFormatYYYYMMDDHHMMSS.format(new Date());
-
-            waitForResponse();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
+//    public void setInputAndExecute(String input) {
+//        try {
+//            //Clean current page
+//            clearInput();
+//
+//
+//            // 找到 id 為 'requestJson' 的輸入框
+//            WebElement inputBox = driver.findElement(By.id("requestJson"));
+//
+//            // 設置要輸入的字符串
+//            String inputString = input;
+//            inputBox.sendKeys(inputString);
+//
+//            // 找到 id 為 'sendRequestBtn' 的按鈕
+//            WebElement sendButton = driver.findElement(By.id("sendRequestBtn"));
+//
+//            // 點擊按鈕
+//            sendButton.click();
+//
+//            requestTime = Constants.dateFormatYYYYMMDDHHMMSS.format(new Date());
+//
+//            waitForResponse();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
 
 
     public void writeIntoFile(String input, String expectedOuput, String output, String TC, boolean isOK, String respJSON, String scenario) {

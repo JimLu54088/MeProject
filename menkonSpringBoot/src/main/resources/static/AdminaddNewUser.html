@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New User Page</title>
+    <link rel="stylesheet" href="/css/AdminaddNewUser.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+	<script type="text/javascript" src="js/AdminaddNewUser.js"></script>
+</head>
+<body>
+    <div class="upload-usersfile-container">
+        <button type="button" id="uploadUsersFileButton">Upload User File</button>
+        <input type="file" id="uploadUsersFileInput" style="display: none;">
+    </div>
+    <div class="login-container">
+        <h2>Add New User</h2>
+        <form id="adminInsertUser">
+            <div id="message" class="message"></div>
+            <input type="text" id="username" name="username" placeholder="ID" required>
+            <input type="password" id="password" name="password" placeholder="Password" required>
+            <input type="password" id="reEnteredpassword" name="reEnteredpassword" placeholder="reEnteredpassword" required>
+            <div>
+                <button type="submit">Confirm</button><button type="reset">Clear</button>
+                
+            </div>
+            <button type="button" class="reset-button">Reset Password</button>
+        </form>
+    </div>
+
+
+    </div>
+</body>
+</html>

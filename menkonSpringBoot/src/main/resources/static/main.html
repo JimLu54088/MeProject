@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Service</title>
+
+<link rel="stylesheet" type="text/css" href="/css/main.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Upload a File</h1>
+        <form class="upload-form" id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="fileInput" name="file" required>
+            <button type="submit">Upload</button>
+        </form>
+        <div class="link-container" id="linkContainer">
+            <p>Download your file using the link below:</p>
+            <a href="" id="downloadLink" target="_blank">Download File</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const fileInput = document.getElementById('fileInput');
+            formData.append('file', fileInput.files[0]);
+
+            fetch('/files/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+
+            // Add logging to see the status code
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                if (response.status === 413) {
+                    throw new Error('File too large');
+                } else {
+                    throw new Error('Upload failed');
+                }
+            }
+            return response.text();
+        })
+            .then(downloadUrl => {
+                const linkContainer = document.getElementById('linkContainer');
+                const downloadLink = document.getElementById('downloadLink');
+                downloadLink.href = downloadUrl;
+                linkContainer.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            if (error.message === 'File too large') {
+                alert('File too large. Please select a smaller file.');
+            } else {
+                alert('File upload failed. Please try again.');
+            }
+            });
+        });
+    </script>
+</body>
+</html>

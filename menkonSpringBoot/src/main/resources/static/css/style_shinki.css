@@ -1,0 +1,100 @@
+﻿@charset "utf-8";
+
+
+
+/* 共通で使う部分 */
+.container {
+    display: flex;
+    justify-content: center;
+}
+.chan{
+    text-align: right;
+}
+.flex {
+    text-align: center;
+    /* div中の（aとform）ものを横並びにする */
+    display: flex;
+    /* それぞれを左端と右端に寄らすことができる */
+    justify-content: space-around;
+    /* 横幅が狭すぎるの場合、勝手に改行される */
+    flex-wrap: wrap;
+    /* 上下置中 */
+    align-items: center;
+}
+.iit{
+	font-size: 20px;
+}
+.title {
+    padding: 5px;
+    border-radius: 8px;
+    background-color: #808080;
+    border: dashed #bbb;
+    box-shadow: 0 0 0 4px #808080;
+}
+/*上部分*/
+.require{
+    color: red;
+}
+table{
+    border-collapse: 100px;
+}
+tr {
+    padding: 10px;
+   }
+td {
+    padding: 10px;
+   }
+.kihon{
+    border-bottom:2px solid rgb(22, 188, 239);
+    padding: 5px;
+}
+
+
+.personal-career{
+    border-bottom:2px solid rgb(22, 188, 239);
+    padding: 5px;
+}
+
+.personal-information{
+    border-bottom:2px solid rgb(22, 188, 239);
+    padding: 5px;
+}
+
+.kihon{
+    border-bottom:2px solid rgb(22, 188, 239);
+    padding: 5px;
+}
+
+.personal-information{
+    border-bottom:2px solid rgb(22, 188, 239);
+    padding: 5px;
+}
+
+.school{
+    border-bottom:2px solid rgb(22, 188, 239);
+    padding: 5px;
+}
+
+input.done{
+	background-color: rgb(179, 179, 237);
+	font-size: 100%;
+	border: 1px solid rgb(179, 179, 237);;
+	top: 290%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+    display: inline-block;
+    position: relative;
+}
+
+.zipcodesearch{
+	background-color: rgb(179, 179, 237);
+	font-size: 100%;
+	border: 1px solid rgb(179, 179, 237);;
+	top: 290%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+    display: inline-block;
+    position: relative;
+}
+
+

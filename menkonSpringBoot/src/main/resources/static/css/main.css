@@ -1,0 +1,23 @@
+body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+        }
+        .upload-form {
+            margin-bottom: 20px;
+        }
+        .upload-form input[type="file"] {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .link-container {
+            display: none;
+            margin-top: 20px;
+        }
+        .link-container a {
+            color: blue;
+            text-decoration: underline;
+        }

@@ -44,6 +44,14 @@ class CommonProcessTest {
 
         mockClose = MockitoAnnotations.openMocks(this);
 //        mockWebDriver = Mockito.mock(WebDriver.class);
+        ReflectionTestUtils.setField(testProcess, "rootDir", "D:\\test_files\\regression_test");
+        ReflectionTestUtils.setField(testProcess, "executeCounter", "Regression_test");
+        ReflectionTestUtils.setField(testProcess, "environment", "TEST");
+        ReflectionTestUtils.setField(testProcess, "pathSuffix", "_AWSCPRDSREQ_");
+        ReflectionTestUtils.setField(testProcess, "beforeAfter", "after");
+        ReflectionTestUtils.setField(testProcess, "evidence_folder_path", "D:\\test_files\\regression_test\\TEST\\20240804\\evidence_Regression_test_AWSCPRDSREQ_after");
+
+
         ReflectionTestUtils.setField(testProcess, "txt_REQUESTRESPONSE", "REQUESTRESPONSE");
         ReflectionTestUtils.setField(testProcess, "txt_RESPONSE", "RESPONSE");
         ReflectionTestUtils.setField(testProcess, "txt_CONTENTS", "CONTENTS");
@@ -51,6 +59,8 @@ class CommonProcessTest {
         ReflectionTestUtils.setField(testProcess, "txt_ERRORS", "ERRORS");
         ReflectionTestUtils.setField(testProcess, "txt_ERROR", "ERROR");
         ReflectionTestUtils.setField(testProcess, "txt_REASON_CODE", "REASON_CODE");
+        ReflectionTestUtils.setField(testProcess, "app_URL", "http://localhost:8081/DGlogin.html");
+        ReflectionTestUtils.setField(testProcess, "threadSleepingWaiting", "100");
 //        ReflectionTestUtils.setField(testProcess, "driver",mockWebDriver);
 
         doNothing().when(testProcess).testExecution();
@@ -65,7 +75,7 @@ class CommonProcessTest {
             testProcess.driver.quit();
         }
 
-        if ( commonProcess.driver != null) {
+        if (commonProcess.driver != null) {
             commonProcess.driver.quit();
         }
 
@@ -91,24 +101,23 @@ class CommonProcessTest {
     @Test
     public void testAccessAppSuccess() {
 
-    	String testURL = "http://localhost:8081/DGlogin.html";
-    	testProcess.app_URL = testURL;
-
-    	testProcess.accessApp(testURL);
+        testProcess.accessApp(testProcess.app_URL);
 
 
     }
 
-//    @Test
-//    public void logInSuccess() {
-//
-//    	String testURL = "http://localhost:8081/DGlogin.html";
-//    	testProcess.app_URL = testURL;
-//
-//    	testProcess.login("111", "1234");
-//
-//
-//    }
+    @Test
+    public void logInSuccess() {
+
+//        testProcess.driver = new ChromeDriver();
+
+
+        testProcess.accessApp(testProcess.app_URL);
+
+        testProcess.login("111", "1234");
+
+
+    }
 
 
 }

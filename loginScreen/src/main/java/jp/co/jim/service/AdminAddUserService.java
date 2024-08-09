@@ -27,6 +27,8 @@ public class AdminAddUserService {
     private static final Logger logger = LogManager.getLogger(AdminAddUserService.class);
     private static final String LOG_HEADER = "[" + AdminAddUserService.class.getSimpleName() + "] :: ";
 
+    private static final String ERROR_LOG_HEADER = "[" + AdminAddUserService.class.getName() + "] :: ";
+
     @Autowired
     private AdminAddUserRepository adminAddUserRepository;
 
@@ -76,34 +78,39 @@ public class AdminAddUserService {
         }
 
 
-        for (UserEntity user : users) {
-            adminAddUserRepository.insertUser(user.getUser_id(), user.getUser_password());
-        }
     }
 
-    private List<UserEntity> parseExcelFile(MultipartFile file) throws IOException {
+    private List<UserEntity> parseExcelFile(MultipartFile file) {
         List<UserEntity> users = new ArrayList<>();
-        Workbook workbook = new XSSFWorkbook(file.getInputStream());
-        Sheet sheet = workbook.getSheetAt(0);
 
-        for (Row row : sheet) {
-            if (row.getRowNum() == 0) {
-                continue; // Skip header row
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+
+
+            Sheet sheet = workbook.getSheetAt(0);
+
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0) {
+                    continue; // Skip header row
+                }
+
+                Cell userIdCell = row.getCell(0);
+                if (userIdCell == null || userIdCell.getCellType() == CellType.BLANK) {
+                    break; // Stop reading if the A column is empty
+                }
+
+                UserEntity userEntity = new UserEntity();
+                userEntity.setUser_id(getCellValueAsString(row.getCell(0)));
+                userEntity.setUser_password(getCellValueAsString(row.getCell(1)));
+
+                users.add(userEntity);
             }
 
-            Cell userIdCell = row.getCell(0);
-            if (userIdCell == null || userIdCell.getCellType() == CellType.BLANK) {
-                break; // Stop reading if the A column is empty
-            }
 
-            UserEntity userEntity = new UserEntity();
-            userEntity.setUser_id(row.getCell(0).getStringCellValue());
-            userEntity.setUser_password(row.getCell(1).getStringCellValue());
-
-            users.add(userEntity);
+        } catch (IOException ioe) {
+            logger.error(ERROR_LOG_HEADER + "Failed to parseExcel file " + ioe.getMessage());
         }
-        workbook.close();
         return users;
+
     }
 
     private boolean checkUserIdDuplicateInExcel(List<UserEntity> users) {
@@ -116,6 +123,40 @@ public class AdminAddUserService {
             }
         }
         return isUserIdDuplicatedInExcel;
+    }
+
+    // 這個方法確保無論單元格類型是什麼，都會轉換為字符串
+    private String getCellValueAsString(Cell cell) {
+        if (cell == null) {
+            return "";
+        }
+
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    return cell.getDateCellValue().toString();
+                } else {
+
+                    double numericValue = cell.getNumericCellValue();
+                    if (numericValue == (long) numericValue) {
+                        return String.valueOf((long) numericValue); // 返回整数部分
+                    } else {
+                        return String.valueOf(numericValue); // 返回完整的小数值
+                    }
+
+
+                }
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                return cell.getCellFormula();
+            case BLANK:
+                return "";
+            default:
+                return cell.toString();
+        }
     }
 
 

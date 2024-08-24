@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/external_jar/junit/hamcrest-2.2.jar"/>
+	<classpathentry kind="lib" path="D:/external_jar/junit/junit-4.12.jar"/>
+	<classpathentry kind="lib" path="D:/external_jar/junit/mockito-core-4.11.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="D:/workspace_backup/workspace2/deleteFilesInFolder/FileUnitJar/ant-1.6.5.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_backup/workspace2/deleteFilesInFolder/FileUnitJar/commons-collections-3.2.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_backup/workspace2/deleteFilesInFolder/FileUnitJar/commons-dbcp-1.2.2.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_backup/workspace2/deleteFilesInFolder/FileUnitJar/commons-lang-2.3.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_backup/workspace2/deleteFilesInFolder/FileUnitJar/commons-logging-1.1.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_backup/workspace2/deleteFilesInFolder/FileUnitJar/commons-pool-1.3.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_backup/workspace2/deleteFilesInFolder/FileUnitJar/ognl-2.6.9.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_backup/workspace2/deleteFilesInFolder/FileUnitJar/unitils-2.4.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

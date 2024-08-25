@@ -92,7 +92,7 @@ public class CompatibilityCalculatorTest {
 			CompatibilityCalculator.main(args);
 
 			// 斷言標準輸出是否符合預期
-			assertEquals("10000,1001,1002,10,40" + System.lineSeparator(), outputStream.toString());
+			assertEquals("10000,1001,1002,10,40", outputStream.toString());
 		} finally {
 			// 還原標準輸出
 			System.setOut(originalOut);
@@ -121,7 +121,7 @@ public class CompatibilityCalculatorTest {
 			CompatibilityCalculator.main(args);
 
 			// 斷言標準輸出是否符合預期
-			assertEquals("10000,1001,1002,10,40" + System.lineSeparator() + "10000,30,20,0,20" + System.lineSeparator(),
+			assertEquals("10000,1001,1002,10,40" + System.lineSeparator() + "10000,30,20,0,20",
 					outputStream.toString());
 
 		} finally {
@@ -152,8 +152,36 @@ public class CompatibilityCalculatorTest {
 			CompatibilityCalculator.main(args);
 
 			// 斷言標準輸出是否符合預期
-			assertEquals("The first line of test01.txt is not a integer." + System.lineSeparator() + "10000,30,20,0,20"
-					+ System.lineSeparator(), outputStream.toString());
+			assertEquals("The first line of test01.txt is not a integer." + System.lineSeparator() + "10000,30,20,0,20", outputStream.toString());
+
+		} finally {
+			// 還原標準輸出
+			System.setOut(originalOut);
+		}
+
+	}
+
+	@Test
+	public void test_firstFileNormal_SecondFile_first_line_is_not_int() throws Exception {
+
+		// 保存原本的標準輸出
+		PrintStream originalOut = System.out;
+
+		try {
+			// 創建一個 ByteArray 來接收輸出
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			System.setOut(new PrintStream(outputStream));
+
+			// Create test file
+			createTest01Normal();
+			createTest02FirstLineNotInt();
+			// 呼叫被測試的方法
+			String[] args = { LOCAL_TEST_FOLDER };
+
+			CompatibilityCalculator.main(args);
+
+			// 斷言標準輸出是否符合預期
+			assertEquals("10000,1001,1002,10,40" + System.lineSeparator() + "The first line of test02.txt is not a integer.", outputStream.toString());
 
 		} finally {
 			// 還原標準輸出
@@ -200,7 +228,8 @@ public class CompatibilityCalculatorTest {
 			String[] args = {};
 
 			CompatibilityCalculator.processFile(LOCAL_TEST_FOLDER + "\\ttt003.txt");
-		} finally {
+		}
+		finally {
 			// 還原標準輸出
 			System.setOut(originalOut);
 		}
@@ -285,6 +314,43 @@ public class CompatibilityCalculatorTest {
 			Files.deleteIfExists(localTestFileDirPath.resolve("test01.txt"));
 
 			Path test01Normal = Files.createFile(localTestFileDirPath.resolve("test01.txt"));
+
+			try (BufferedWriter br = new BufferedWriter(
+					new FileWriter(test01Normal.toString(), StandardCharsets.UTF_8))) {
+
+				br.write("kk");
+				br.newLine(); // 換行
+
+				br.write("This is");
+				br.newLine(); // 換行
+				br.write("This is an apple");
+				br.newLine(); // 換行
+				br.write("This is an apple. This is not a book.");
+				br.newLine(); // 換行
+				br.write("Oh yeah!!!!");
+				br.newLine(); // 換行
+				br.write("Today is his birthday");
+				br.newLine(); // 換行
+				br.write("This is");
+
+			}
+
+		}
+
+		catch (Exception e) {
+			e.printStackTrace();
+
+		}
+	}
+
+	public void createTest02FirstLineNotInt() {
+
+		try {
+
+			// Create test sql file
+			Files.deleteIfExists(localTestFileDirPath.resolve("test02.txt"));
+
+			Path test01Normal = Files.createFile(localTestFileDirPath.resolve("test02.txt"));
 
 			try (BufferedWriter br = new BufferedWriter(
 					new FileWriter(test01Normal.toString(), StandardCharsets.UTF_8))) {

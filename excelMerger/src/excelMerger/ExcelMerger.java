@@ -1,10 +1,17 @@
 package excelMerger;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOCase;
+import org.apache.commons.io.comparator.LastModifiedFileComparator;
+import org.apache.commons.io.comparator.NameFileComparator;
+import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -17,19 +24,36 @@ public class ExcelMerger {
     public static void main(String[] args) {
 
 
-        process(Arrays.asList("D:\\test_files\\excel_combined\\work\\SDR1.xlsx", "D:\\test_files\\excel_combined\\work\\SDR2.xlsx", "D:\\test_files\\excel_combined\\work\\SDR3.xlsx"), "D:\\test_files\\excel_combined\\output\\merged.xlsx");
+//        process(Arrays.asList("D:\\test_files\\excel_combined\\work\\SDR1.xlsx", "D:\\test_files\\excel_combined\\work\\SDR2.xlsx", "D:\\test_files\\excel_combined\\work\\SDR3.xlsx"), "D:\\test_files\\excel_combined\\output\\merged.xlsx");
+
+        if (args.length != 2) {
+            System.out.println("Input parameter not match.");
+            return;
+        }
+
+
+        String workfolder = args[0];
+
+        String outputFileLocation = args[1];
+
+        System.out.println("workfolder : " + workfolder);
+        System.out.println("outputFileLocation : " + outputFileLocation);
+
+        List<File> files = getFilteredFilesList(workfolder, "SDR*.xlsx", true, true);
+
+        process(files, outputFileLocation);
 
 
     }
 
 
-    public static void process(List<String> inputFiles, String outputFile) {
+    public static void process(List<File> inputFiles, String outputFile) {
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
 
             Workbook mergedWorkbook = new XSSFWorkbook();
 
             //Retrive all sheets names
-            for (String inputFile : inputFiles) {
+            for (File inputFile : inputFiles) {
                 try (FileInputStream fis = new FileInputStream(inputFile)) {
                     Workbook workbook = new XSSFWorkbook(fis);
                     getAllSheetsNames(workbook);
@@ -45,8 +69,9 @@ public class ExcelMerger {
             System.out.println("Retrived sheet names all : ");
 
             while (itr.hasNext()) {
-                System.out.println(itr.next());
+                System.out.print(itr.next() + " ");
             }
+            System.out.println(System.lineSeparator());
 
 
             //Create all sheets in target excel file
@@ -74,7 +99,7 @@ public class ExcelMerger {
             }
 
 
-            for (String inputFile : inputFiles) {
+            for (File inputFile : inputFiles) {
                 try (FileInputStream fis = new FileInputStream(inputFile)) {
                     Workbook workbook = new XSSFWorkbook(fis);
                     mergeSheets(workbook, mergedWorkbook);
@@ -224,6 +249,36 @@ public class ExcelMerger {
             }
         }
         return false;
+    }
+
+    public static List<File> getFilteredFilesList(String baseDir, String fileFilterString, boolean searchSubDirs, boolean sortFiles) {
+        List<File> filesList = null;
+
+        WildcardFileFilter fileFilter = new WildcardFileFilter(fileFilterString.split(","), IOCase.INSENSITIVE);
+        if (searchSubDirs) {
+            filesList = new ArrayList<>(FileUtils.listFiles(new File(baseDir), fileFilter, TrueFileFilter.INSTANCE));
+        } else {
+            filesList = new ArrayList<>(FileUtils.listFiles(new File(baseDir), fileFilter, null));
+        }
+
+        if (sortFiles) {
+            //Switch true/false to sort by name or lastModifiedDate
+            String sortByFileName = "true";
+
+            if ("true".equals(sortByFileName.toLowerCase())) {
+                ((NameFileComparator) NameFileComparator.NAME_INSENSITIVE_COMPARATOR).sort(filesList);
+            } else {
+                ((LastModifiedFileComparator) LastModifiedFileComparator.LASTMODIFIED_COMPARATOR).sort(filesList);
+            }
+
+
+        }
+
+//        System.out.println("filesList : " + filesList);
+
+        return filesList;
+
+
     }
 
 

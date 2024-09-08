@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.jim.repository.LoginRepository">
+
+    <select id="checkLogin" resultType="int">
+        select count(*) from M_USER where user_id = '${username}' and user_pass = '${password}'
+    </select>
+    <insert id="insertSearchCriteriaData">
+        INSERT INTO `vec`.`t_user_search_criteria_` (`S_C_ID`, `USER_ID`, `KUR`, `PROJECT_JYA_CODE`, `MODEL_CODE`,
+        `COLOR`,
+        `MANUFACTER_DATE`, `INS_DT`,`INS_BY`,`UPD_DT`,`UPD_BY`) VALUES ('${s_c_id}', '${user_id}', '${kur}',
+        '${project_jya_code}','${model_code}', '${color}',
+        '${manufacter_date}', NOW(), 'VECWS01',NULL,NULL);
+
+    </insert>
+    <select id="selectCriteriaDataByID" resultType="jp.co.jim.entity.SearchCriteriaEntity">
+        select * from t_user_search_criteria_ where USER_ID = '${userId}' order by INS_DT DESC
+    </select>
+    <delete id="deleteSavedCriteriaByIDAndName" parameterType="String">
+        DELETE FROM
+        t_user_search_criteria_ WHERE user_id = '${user_id}' AND s_c_id ='${s_c_id}'
+    </delete>
+
+
+</mapper>

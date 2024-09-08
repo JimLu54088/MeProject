@@ -1,0 +1,38 @@
+<div class="search-container">
+    <div class="search-form">
+        <form (ngSubmit)="onSubmit()">
+            <div class="date-group">
+                <div class="input-group">
+                    <label for="kur">KUR No:</label>
+                    <input id="kur" type="text" [(ngModel)]="searchData.kur" name="kur">
+                </div>
+                <div class="input-group">
+                    <label for="project_jya_code">Project JYA Code:</label>
+                    <input id="project_jya_code" type="text" [(ngModel)]="searchData.project_jya_code"
+                        name="project_jya_code">
+                </div>
+            </div>
+            <div class="date-group">
+                <div class="input-group">
+                    <label for="model_code">MODEL CODE:</label>
+                    <input id="model_code" type="text" [(ngModel)]="searchData.model_code" name="model_code">
+                </div>
+                <div class="input-group">
+                    <label for="color">COLOR:</label>
+                    <input id="color" type="text" [(ngModel)]="searchData.color" name="color">
+                </div>
+            </div>
+
+            <div class="date-group">
+                <div class="input-group">
+                    <label for="manufacter_year">MANUFATOR YEAR:</label>
+                    <select id="manufacter_year" [(ngModel)]="searchData.manufacter_date" name="manufacter_year">
+                        <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-group"><button type="submit" class="search-btn">SEARCH</button></div>
+            <button type="button" class="search-btn" (click)="openSaveCriteriaDialog()">Save Search Criteria</button>
+        </form>
+    </div>
+</div>

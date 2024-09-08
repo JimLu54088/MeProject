@@ -1,0 +1,6 @@
+<div class="cen">代辦事項列表</div>
+<div class="mar5" *ngFor="let item of dataList">
+  <a [routerLink]="['../content',item.GroupId]" type="button" class="btn btn-outline-primary">
+    {{item.Name}}
+  </a>
+</div>

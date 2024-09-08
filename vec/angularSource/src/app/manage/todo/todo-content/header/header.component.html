@@ -1,0 +1,8 @@
+<h1>
+    <div>{{title}}</div>
+</h1>
+<input class="new-todo"
+       [(ngModel)]="todoInputModel"
+       (keyup.enter)="add()"
+       placeholder="What needs to be done????"
+       autofocus>

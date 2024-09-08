@@ -1,0 +1,33 @@
+<input id="toggle-all"
+       class="toggle-all"
+       type="checkbox"
+       [checked]="toggleAllBtn"
+       (click)="toggleAll()">
+<label for="toggle-all">Mark all as complete</label>
+<ul class="todo-list">
+       <li *ngFor="let item of nowTodoList; let i=index"
+           [class]="{completed:item.Status,editing:item.Editing}">
+              <div class="view">
+                     <input (click)="clickCheck(item)"
+                            class="toggle"
+                            type="checkbox"
+                            [checked]="item.Status"
+                            *ngIf="item.CanEdit">
+                     <label (dblclick)="edit(item)">{{item.Thing}}</label>
+                     <button *ngIf="item.CanEdit"
+                             class="destroy2"
+                             (click)="modalShow(item)">i</button>
+                     <button (click)="delete(item)"
+                             *ngIf="item.CanEdit"
+                             class="destroy"> </button>
+              </div>
+              <input *ngIf="item.Editing"
+                     #itemInput
+                     [(ngModel)]="item.Thing"
+                     (keyup.enter)="update(item)"
+                     (blur)="update(item)"
+                     (mouseenter)="itemInput.focus()"
+                     class="edit" />
+       </li>
+</ul>
+<app-todo-info-modal #modal [todo]="nowSelectTodo"></app-todo-info-modal>

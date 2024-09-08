@@ -1,0 +1,12 @@
+<h1 mat-dialog-title>Save Search Criteria</h1>
+<div mat-dialog-content>
+    <p>Enter a name for the search criteria:</p>
+    <mat-form-field>
+        <input matInput [(ngModel)]="data.defaultName">
+    </mat-form-field>
+</div>
+<div mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">Cancel</button>
+    <!-- <button mat-button [mat-dialog-close]="data.defaultName">Save</button> -->
+    <button mat-button (click)="saveCriteria()">Save</button>
+</div>

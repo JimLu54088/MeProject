@@ -1,0 +1,77 @@
+.top-navbar {
+    width: 100%;
+    background-color: #343a40;
+    /* 设置背景色 */
+    position: fixed;
+    /* 固定在顶部 */
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.scroll-navbar {
+    overflow-x: auto;
+    /* 如果导航项目较多，可以水平滚动 */
+}
+
+.navbar-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: flex-start;
+    /* 水平方向从左到右排列 */
+    align-items: center;
+}
+
+.nav-item {
+    margin-right: 20px;
+    /* 设置菜单项之间的间距 */
+}
+
+.nav-link {
+    color: #fff;
+    /* 设置字体颜色 */
+    text-decoration: none;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-link i {
+    margin-right: 8px;
+    /* 图标与文字的间距 */
+}
+
+.nav-link:hover {
+    background-color: #495057;
+    /* 悬停时的背景颜色 */
+}
+
+.selected .nav-link {
+    background-color: #007bff;
+    /* 选中项的背景颜色 */
+}
+
+.navbar-nav {
+    width: 100%;
+}
+
+.ml-auto {
+    margin-left: auto;
+    /* 将logout按钮推到最右边 */
+}
+
+.nav-link {
+    padding: 10px 15px;
+}
+
+.nav-item {
+    margin-right: 20px;
+    /* 控制每个按钮之间的间距 */
+}
+
+.nav-item.ml-auto {
+    margin-right: 0;
+    /* 确保logout按钮不会有右边距 */
+}

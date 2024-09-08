@@ -1,0 +1,14 @@
+<div class="login-container">
+  <h2>Login</h2>
+  <form (ngSubmit)="login()">
+    <div id="message" class="message"></div>
+    <input type="text" [(ngModel)]="username" name="username" placeholder="ID" required>
+    <input type="password" [(ngModel)]="password" name="password" placeholder="Password" required>
+    <div>
+      <button class="btn btn-success text-white mm" type="submit">
+        登入
+      </button>
+      <button type="reset">Clear</button>
+    </div>
+  </form>
+</div>

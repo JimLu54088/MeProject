@@ -1,0 +1,11 @@
+<div *ngFor="let criteria of savedCriteriaList; let i = index" class="criteria-row">
+    <span class="criteria-text">{{ criteria.s_c_id }}</span>
+    <div class="criteria-actions">
+        <button (click)="applyCriteria(criteria)">
+            <i class="fa fa-search"></i>
+        </button>
+        <button (click)="deleteCriteria(criteria.s_c_id)">
+            <i class="fa fa-trash"></i>
+        </button>
+    </div>
+</div>

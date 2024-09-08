@@ -1,0 +1,28 @@
+.criteria-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.criteria-text {
+    flex: 1;
+    text-align: left;
+    font-weight: bold;
+    /* 设置文字为粗体 */
+}
+
+.criteria-actions {
+    display: flex;
+    gap: 50px;
+    /* 图标之间的间隔 */
+    margin-right: 830px;
+    /* 给右侧按钮容器添加一些外边距 */
+}
+
+.criteria-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 30px;
+}

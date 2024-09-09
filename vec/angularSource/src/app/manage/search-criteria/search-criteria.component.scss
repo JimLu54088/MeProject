@@ -1,28 +1,43 @@
-.criteria-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+.criteria-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
 }
 
-.criteria-text {
-    flex: 1;
+.criteria-table th,
+.criteria-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
     text-align: left;
+}
+
+.criteria-table th {
     font-weight: bold;
-    /* 设置文字为粗体 */
+    background-color: #f2f2f2;
 }
 
 .criteria-actions {
-    display: flex;
-    gap: 50px;
-    /* 图标之间的间隔 */
-    margin-right: 830px;
-    /* 给右侧按钮容器添加一些外边距 */
+    text-align: right;
+    /* 讓按鈕居中 */
 }
 
 .criteria-actions button {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 30px;
+    font-size: 20px;
+}
+
+
+.record-count {
+    text-align: left;
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+.no-data {
+    text-align: left;
+    padding: 20px;
+    font-style: italic;
+    color: #999;
 }

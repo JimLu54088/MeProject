@@ -1,11 +1,47 @@
-<div *ngFor="let criteria of savedCriteriaList; let i = index" class="criteria-row">
-    <span class="criteria-text">{{ criteria.s_c_id }}</span>
-    <div class="criteria-actions">
-        <button (click)="applyCriteria(criteria)">
-            <i class="fa fa-search"></i>
-        </button>
-        <button (click)="deleteCriteria(criteria.s_c_id)">
-            <i class="fa fa-trash"></i>
-        </button>
-    </div>
+<table class="criteria-table">
+    <!-- Header -->
+    <thead>
+        <tr class="criteria-header">
+            <th class="criteria-no-header">No</th>
+            <th class="criteria-save-date-header">Save Date</th>
+            <th class="criteria-text-header">Search Title</th>
+            <th class="criteria-text-header">Use Saved Search Criteria</th>
+            <th class="criteria-text-header">Record Delete</th>
+        </tr>
+    </thead>
+
+    <!-- Check if there is data -->
+    <tbody *ngIf="savedCriteriaList && savedCriteriaList.length > 0; else noDataTemplate">
+        <tr *ngFor="let criteria of savedCriteriaList; let i = index" class="criteria-row">
+            <td class="criteria-no">{{ i + 1 }}</td>
+            <td class="criteria-save-date">{{ criteria.ins_dt }}</td>
+            <td class="criteria-text">{{ criteria.s_c_id }}</td>
+
+            <!-- 放大鏡按鈕 -->
+            <td class="criteria-actions">
+                <button (click)="applyCriteria(criteria)">
+                    <i class="fa fa-search"></i>
+                </button>
+            </td>
+
+            <!-- 垃圾桶按鈕 -->
+            <td class="criteria-actions">
+                <button (click)="deleteCriteria(criteria.s_c_id)">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Display record count at the bottom -->
+<div class="record-count">
+    {{ savedCriteriaList.length }} records
 </div>
+
+<!-- No data template -->
+<ng-template #noDataTemplate>
+    <div class="no-data">
+        No search criteria to show...
+    </div>
+</ng-template>

@@ -12,6 +12,7 @@ public class SearchCriteriaEntity {
     private String color;
     private String manufacter_date;
     private String s_c_id;
+    private String ins_dt;
 
 
 }

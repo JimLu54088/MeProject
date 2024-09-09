@@ -19,5 +19,7 @@ public interface LoginRepository {
 
     public void deleteSavedCriteriaByIDAndName(String user_id, String s_c_id);
 
+    public int countOfSavedSearchCriteriaByID(String userId);
+
 
 }

@@ -66,7 +66,8 @@ export class HomeComponent implements OnInit {
 
   openSaveCriteriaDialog(): void {
     const currentDate = new Date();
-    const defaultName = currentDate.toISOString().split('.')[0].replace('T', ' ');
+    const currentDateUTCPlus9 = new Date(currentDate.getTime() + 9 * 60 * 60 * 1000);
+    const defaultName = currentDateUTCPlus9.toISOString().split('.')[0].replace('T', ' ');
 
 
 
@@ -106,9 +107,25 @@ export class HomeComponent implements OnInit {
       },
       error => {
         console.error('Error saving criteria:', error);
-        this.snackBar.open('Saved Criteria Error!!', 'Close', {
-          duration: 3000,  // 显示3秒
-        });
+
+        if (error.error && error.error.errorCode) {
+
+          this.snackBar.open(error.error.errorMessage, 'Close', {
+            duration: 5000,  // 显示3秒
+          });
+
+
+        } else {
+
+
+          this.snackBar.open('Unexpected Error Occurred.', 'Close', {
+            duration: 3000,  // 显示3秒
+          });
+
+        }
+
+
+
       }
     );
   }

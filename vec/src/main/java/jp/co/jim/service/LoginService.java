@@ -28,5 +28,9 @@ public class LoginService {
         repository.deleteSavedCriteriaByIDAndName(user_id,s_c_id );
     }
 
+    public int countOfSavedSearchCriteriaByID(String userId){
+       return repository.countOfSavedSearchCriteriaByID(userId);
+    }
+
 
 }

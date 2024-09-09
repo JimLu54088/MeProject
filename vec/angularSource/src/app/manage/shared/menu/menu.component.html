@@ -24,8 +24,13 @@
                             Result</span></a>
                 </li>
 
-                <!-- Space between tttttest and logout button -->
-                <li class="nav-item ml-auto">
+                <li class="nav-item user-info">
+                    <a class="nav-link" (click)="logOut()" href="#" id="navbarDropdown" role="button"
+                        aria-expanded="false">
+                        Login User : {{ userId }}
+                    </a>
+                </li>
+                <li class="nav-item logout-button">
                     <a class="nav-link" (click)="logOut()" href="#" id="navbarDropdown" role="button"
                         aria-expanded="false">
                         登出

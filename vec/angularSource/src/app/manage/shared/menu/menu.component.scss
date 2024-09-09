@@ -75,3 +75,14 @@
     margin-right: 0;
     /* 确保logout按钮不会有右边距 */
 }
+
+.nav-item.user-info {
+    margin-right: 0px;
+    margin-left: 500px;
+    /* Adjust this value to increase or decrease the space */
+}
+
+.nav-item.logout-button {
+    margin-left: 120px;
+    /* This adds a bit of space to the left of the logout button */
+}

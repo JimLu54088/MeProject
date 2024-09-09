@@ -3,14 +3,17 @@ package jp.co.jim.controller;
 import com.google.gson.Gson;
 import jp.co.jim.common.Constants;
 import jp.co.jim.common.JwtTokenUtil;
+import jp.co.jim.entity.ErrorDTO;
 import jp.co.jim.entity.SearchCriteriaEntity;
 import jp.co.jim.service.LoginService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,6 +40,9 @@ public class LoginController {
 
     @Autowired
     private Environment environment;
+
+    @Value("${maximum_save_search_criteria}")
+    private int maximum_save_search_criteria;
 
 
     @PostMapping("/Login")
@@ -120,6 +126,22 @@ public class LoginController {
     @PostMapping("/saveSearchCriteria")
     public ResponseEntity<?> saveSearchCriteria(@RequestBody Map<String, String> criteriaData) {
 
+
+        //check if records exceeds the limit
+        String user_id = criteriaData.get("userId");
+
+        service.countOfSavedSearchCriteriaByID(user_id);
+
+        if (service.countOfSavedSearchCriteriaByID(user_id) == maximum_save_search_criteria) {
+
+            ErrorDTO errorResponse = new ErrorDTO("WSE002", "Touch the limit of criteria saving. Cannot insert record anymore.");
+
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+
+        }
+
+
         SearchCriteriaEntity insertEntity = new SearchCriteriaEntity();
 
         insertEntity.setKur(criteriaData.get("kur"));
@@ -143,7 +165,10 @@ public class LoginController {
         } catch (Exception ex) {
             logger.error(ERROR_LOG_HEADER + "Error while insert Search CriteriaData into DB : " + ex);
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while insert Search CriteriaData into DB!!");
+            ErrorDTO errorResponse = new ErrorDTO("WSE001", ex.getMessage());
+
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
 
 

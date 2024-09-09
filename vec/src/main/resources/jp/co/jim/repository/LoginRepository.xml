@@ -22,6 +22,9 @@
         DELETE FROM
         t_user_search_criteria_ WHERE user_id = '${user_id}' AND s_c_id ='${s_c_id}'
     </delete>
+    <select id="countOfSavedSearchCriteriaByID" resultType="int">
+        select count(*) from t_user_search_criteria_ where USER_ID = '${userId}' order by INS_DT DESC
+    </select>
 
 
 </mapper>

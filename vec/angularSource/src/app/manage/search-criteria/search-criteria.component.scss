@@ -6,19 +6,24 @@
 
 .criteria-table th,
 .criteria-table td {
-    border: 1px solid #ccc;
     padding: 10px;
-    text-align: left;
+    text-align: center;
 }
 
 .criteria-table th {
     font-weight: bold;
     background-color: #f2f2f2;
+    border-bottom: 2px solid #ccc;
+    /* 仅在表头底部添加线 */
+}
+
+.criteria-table td {
+    border: none;
+    /* 移除其他单元格的边框 */
 }
 
 .criteria-actions {
     text-align: right;
-    /* 讓按鈕居中 */
 }
 
 .criteria-actions button {
@@ -27,7 +32,6 @@
     cursor: pointer;
     font-size: 20px;
 }
-
 
 .record-count {
     text-align: left;

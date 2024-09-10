@@ -85,42 +85,49 @@ public class LoginController {
     }
 
     @PostMapping("/searchSingleVec")
-    public ResponseEntity<?> searchSingleVec(@RequestBody Map<String, String> loginData) {
+    public ResponseEntity<?> searchSingleVec(@RequestBody Map<String, String> criteriaData) {
 
-        String username = loginData.get("username");
-        String password = loginData.get("password");
 
         //Output received reuqestBody
         Gson gson = new Gson();
-        String jsonLoginData = gson.toJson(loginData);
-        logger.info(LOG_HEADER + "received requestBody : " + jsonLoginData);
+        String jsonCriteriaData = gson.toJson(criteriaData);
+        logger.debug(LOG_HEADER + "received requestBody : " + jsonCriteriaData);
+
+        SearchCriteriaEntity searchEntity = new SearchCriteriaEntity();
+
+        searchEntity.setKur(criteriaData.get("kur"));
+        searchEntity.setProject_jya_code(criteriaData.get("project_jya_code"));
+        searchEntity.setModel_code(criteriaData.get("model_code"));
+        searchEntity.setColor(criteriaData.get("color"));
+        searchEntity.setManufacter_date(criteriaData.get("manufacter_date"));
+        searchEntity.setS_c_id(criteriaData.get("criteriaName"));
+        searchEntity.setUser_id(criteriaData.get("userId"));
 
 
-        // Validate the credentials
+        try {
+            List<Map<String, Object>> resultList =  service.searchSingleVEC(searchEntity);
 
-        if (service.checkAdminLogin(username, password) == 1) {
-            // Record successful login action
-//            userActionService.saveUserAction(username, "Admin Login successful");
+            String jsonResultList = gson.toJson(resultList);
+            logger.debug(LOG_HEADER + "jsonResultList : " + jsonResultList);
 
 
-            // 验证通过，生成JWT
-            try {
-                String token = jwtTokenUtil.generateToken(username);
 
-                // 返回JWT给客户端
-                return ResponseEntity.ok(Map.of("token", token));
-            } catch (Exception e) {
-                logger.error(ERROR_LOG_HEADER + "Token getting failed." + e);
-                throw new RuntimeException("Token getting failed.");
+            return ResponseEntity.ok(Map.of("token", "kkk"));
 
-            }
+        } catch (Exception ex) {
 
-        } else {
-            // Record unsuccessful login action
-//            userActionService.saveUserAction(username, "Login failed!");
+            ex.printStackTrace();
 
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Admin Login failed!");
+
+            logger.error(ERROR_LOG_HEADER + "Error while insert Search CriteriaData into DB : " + ex);
+
+            ErrorDTO errorResponse = new ErrorDTO("WSE001", ex.getMessage());
+
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
+
+
     }
 
     @PostMapping("/saveSearchCriteria")

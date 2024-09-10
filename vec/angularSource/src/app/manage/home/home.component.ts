@@ -129,4 +129,62 @@ export class HomeComponent implements OnInit {
       }
     );
   }
+
+  callSearchVecAPI() {
+
+    const userId = this.getUserIdFromToken();
+    const payload = {
+      ...this.searchData,   // 展开 searchData
+      userId
+    };
+
+    // 发送 POST 请求到后端
+    this.http.post('/api/searchSingleVec', payload).subscribe(
+      response => {
+        console.log('Criteria saved successfully:', response);
+        // 成功后显示 SnackBar
+        this.snackBar.open('Search Successfully!!', 'Close', {
+          duration: 3000,  // 显示3秒
+        });
+
+      },
+      error => {
+        console.error('Error Search vecData:', error);
+
+        if (error.error && error.error.errorCode) {
+
+          this.snackBar.open(error.error.errorMessage, 'Close', {
+            duration: 5000,  // 显示3秒
+          });
+
+
+        } else {
+
+
+          this.snackBar.open('Unexpected Error Occurred.', 'Close', {
+            duration: 3000,  // 显示3秒
+          });
+
+        }
+
+
+
+      }
+    );
+
+
+
+
+
+
+
+
+
+
+
+
+  }
+
+
+
 }

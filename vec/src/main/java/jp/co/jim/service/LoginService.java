@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class LoginService {
@@ -24,12 +25,24 @@ public class LoginService {
         return repository.selectCriteriaDataByID(userId);
     }
 
-    public void deleteSavedCriteriaByIDAndName(String user_id, String s_c_id){
-        repository.deleteSavedCriteriaByIDAndName(user_id,s_c_id );
+    public void deleteSavedCriteriaByIDAndName(String user_id, String s_c_id) {
+        repository.deleteSavedCriteriaByIDAndName(user_id, s_c_id);
     }
 
-    public int countOfSavedSearchCriteriaByID(String userId){
-       return repository.countOfSavedSearchCriteriaByID(userId);
+    public int countOfSavedSearchCriteriaByID(String userId) {
+        return repository.countOfSavedSearchCriteriaByID(userId);
+    }
+
+
+    public List<Map<String, Object>> searchSingleVEC(SearchCriteriaEntity entity) {
+
+        List<String> cmnmnList = getDistinctCMNMN(); // 先查詢 DISTINCT CMNMN
+
+        return repository.searchSingleVEC(entity, cmnmnList);
+    }
+
+    public List<String> getDistinctCMNMN() {
+        return repository.getDistinctCMNMN();
     }
 
 

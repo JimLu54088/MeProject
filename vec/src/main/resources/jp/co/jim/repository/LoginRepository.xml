@@ -25,6 +25,25 @@
     <select id="countOfSavedSearchCriteriaByID" resultType="int">
         select count(*) from t_user_search_criteria_ where USER_ID = '${userId}' order by INS_DT DESC
     </select>
+    <select id="searchSingleVEC" resultType="Map">
+        SELECT b.KUR, b.PROJ_F_CODE, b.MODEL_CD, b.COLOR, b.MANUF_DATE,
+        <foreach collection="cmnmnList" item="cmnmn" separator=",">
+            MAX(CASE WHEN e.CMNMN = #{cmnmn} THEN e.CMNMN_PL_VAL END) AS `${cmnmn} Plnt`
+        </foreach>
+        FROM t_basic_info b
+        LEFT JOIN t_ecu_info e ON b.KUR = e.KUR
+        WHERE b.KUR LIKE CONCAT('%', #{entity.kur}, '%')
+        AND b.PROJ_F_CODE LIKE CONCAT('%', #{entity.project_jya_code}, '%')
+        AND b.MODEL_CD LIKE CONCAT('%', #{entity.model_code}, '%')
+        AND b.COLOR LIKE CONCAT('%', #{entity.color}, '%')
+        AND YEAR(b.MANUF_DATE) = #{entity.manufacter_date}
+        GROUP BY b.KUR, b.PROJ_F_CODE, b.MODEL_CD, b.COLOR, b.MANUF_DATE
+    </select>
+    <select id="getDistinctCMNMN" resultType="String">
+        SELECT DISTINCT CMNMN FROM t_ecu_info;
+
+
+    </select>
 
 
 </mapper>

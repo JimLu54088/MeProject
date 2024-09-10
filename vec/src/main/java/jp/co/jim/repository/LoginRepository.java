@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 @Repository
@@ -20,6 +21,11 @@ public interface LoginRepository {
     public void deleteSavedCriteriaByIDAndName(String user_id, String s_c_id);
 
     public int countOfSavedSearchCriteriaByID(String userId);
+
+
+    public List<Map<String, Object>> searchSingleVEC(SearchCriteriaEntity entity, List<String> cmnmnList);
+
+    public List<String> getDistinctCMNMN();
 
 
 }

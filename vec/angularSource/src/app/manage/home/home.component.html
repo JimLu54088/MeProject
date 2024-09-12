@@ -33,6 +33,13 @@
             </div>
             <div class="input-group"><button type="button" class="search-btn"
                     (click)="callSearchVecAPI()">SEARCH</button></div>
+
+            <!-- 在畫面中央顯示的進度條 -->
+            <div *ngIf="isLoading" class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-stripes"></div>
+                </div>
+            </div>
             <button type="button" class="search-btn" (click)="openSaveCriteriaDialog()">Save Search Criteria</button>
         </form>
     </div>

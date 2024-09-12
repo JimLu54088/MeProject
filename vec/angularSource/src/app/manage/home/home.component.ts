@@ -4,6 +4,7 @@ import { SaveCriteriaDialogComponent } from '../save-criteria-dialog/save-criter
 import { HttpClient } from '@angular/common/http';  // 导入 HttpClient
 import { MatSnackBar } from '@angular/material/snack-bar';  // 引入 MatSnackBar
 import { ActivatedRoute } from '@angular/router';
+import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
 
 @Component({
   selector: 'app-home',
@@ -130,7 +131,13 @@ export class HomeComponent implements OnInit {
     );
   }
 
+
+  isLoading = false;
+
   callSearchVecAPI() {
+
+    // 開始顯示進度條
+    this.isLoading = true;
 
     const userId = this.getUserIdFromToken();
     const payload = {
@@ -147,40 +154,65 @@ export class HomeComponent implements OnInit {
           duration: 3000,  // 显示3秒
         });
 
+        // 請求完成後，隱藏進度條
+        this.isLoading = false;
+
+
       },
       error => {
         console.error('Error Search vecData:', error);
 
-        if (error.error && error.error.errorCode) {
+        if (error.error && error.error.warningCode) {
 
-          this.snackBar.open(error.error.errorMessage, 'Close', {
-            duration: 5000,  // 显示3秒
-          });
 
+          if (error.error && error.error.warningCode === 'WSW001') {
+            // 彈跳視窗顯示 errorMessage
+            this.dialog.open(ErrorDialogComponent, {
+              data: {
+                message: error.error.warningMessage,
+                poptitle: 'WARN'
+              }
+            });
+          }
 
         } else {
 
+          if (error.error && error.error.errorCode) {
 
-          this.snackBar.open('Unexpected Error Occurred.', 'Close', {
-            duration: 3000,  // 显示3秒
-          });
+
+
+            this.snackBar.open(error.error.errorMessage, 'Close', {
+              duration: 5000,  // 显示3秒
+            });
+
+
+
+
+
+          } else {
+
+
+            this.snackBar.open('Unexpected Error Occurred.', 'Close', {
+              duration: 3000,  // 显示3秒
+            });
+
+          }
+
 
         }
 
 
 
+
+
+
+        // 出現錯誤後也隱藏進度條
+        this.isLoading = false;
+
+
+
       }
     );
-
-
-
-
-
-
-
-
-
-
 
 
   }

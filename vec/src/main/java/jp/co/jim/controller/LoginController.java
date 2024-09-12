@@ -5,6 +5,7 @@ import jp.co.jim.common.Constants;
 import jp.co.jim.common.JwtTokenUtil;
 import jp.co.jim.entity.ErrorDTO;
 import jp.co.jim.entity.SearchCriteriaEntity;
+import jp.co.jim.entity.WarningDTO;
 import jp.co.jim.service.LoginService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,9 +24,7 @@ import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -35,6 +34,8 @@ public class LoginController {
 
     private static final Logger logger = LogManager.getLogger(LoginController.class);
     private static final String LOG_HEADER = "[" + LoginController.class.getSimpleName() + "] :: ";
+
+    private static final String WARN_LOG_HEADER = "[" + LoginController.class.getSimpleName() + "] :: ";
 
     private static final String ERROR_LOG_HEADER = "[" + LoginController.class.getName() + "] :: ";
 
@@ -64,7 +65,7 @@ public class LoginController {
         //Output received reuqestBody
         Gson gson = new Gson();
         String jsonLoginData = gson.toJson(loginData);
-        logger.info(LOG_HEADER + "received requestBody : " + jsonLoginData);
+        logger.info(LOG_HEADER + "received requestBody for Login: " + jsonLoginData);
 
 
         // Validate the credentials
@@ -101,7 +102,7 @@ public class LoginController {
         //Output received reuqestBody
         Gson gson = new Gson();
         String jsonCriteriaData = gson.toJson(criteriaData);
-        logger.debug(LOG_HEADER + "received requestBody : " + jsonCriteriaData);
+        logger.debug(LOG_HEADER + "received requestBody for searchSingleVec: " + jsonCriteriaData);
 
         SearchCriteriaEntity searchEntity = new SearchCriteriaEntity();
 
@@ -117,6 +118,18 @@ public class LoginController {
         try {
             List<Map<String, Object>> resultList = service.searchSingleVEC(searchEntity);
 
+            if (resultList.isEmpty()) {
+
+
+                logger.warn(WARN_LOG_HEADER + "No record found.");
+
+                WarningDTO warningResponse = new WarningDTO("WSW001", "No record found. Please change another criteria.");
+
+
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(warningResponse);
+
+            }
+
             String jsonResultList = gson.toJson(resultList);
             logger.debug(LOG_HEADER + "jsonResultList : " + jsonResultList);
 
@@ -130,35 +143,46 @@ public class LoginController {
             // 生成 CSV 文件
             Path csvFile = Paths.get(csvFileName);
             try (BufferedWriter writer = Files.newBufferedWriter(csvFile)) {
-                // Write CSV header (固定部分在最左邊)
-                writer.write("KUR,PROJ_F_CODE,MODEL_CD,COLOR,MANUF_DATE");
+                // 用於收集所有動態列
+                Set<String> dynamicColumns = new LinkedHashSet<>();
 
-                // 動態欄位部分 (右邊的 DB 動態產生的欄位)
-                if (!resultList.isEmpty()) {
-                    Map<String, Object> firstRow = resultList.get(0);
-                    for (String key : firstRow.keySet()) {
+                // 遍歷所有行，找到所有的動態列
+                for (Map<String, Object> row : resultList) {
+                    for (String key : row.keySet()) {
                         if (!isFixedColumn(key)) {
-                            writer.write("," + key);
+                            dynamicColumns.add(key);
                         }
                     }
+                }
+
+                // 寫入 CSV 表頭 (固定部分在最左邊)
+                writer.write("KUR,PROJ_F_CODE,MODEL_CD,COLOR,MANUF_DATE");
+
+                // 寫入動態欄位部分
+                for (String column : dynamicColumns) {
+                    writer.write("," + column);
                 }
                 writer.newLine();
 
                 // 寫入資料
                 for (Map<String, Object> row : resultList) {
                     // 固定欄位部分
-                    writer.write(row.get("KUR") + "," + row.get("PROJ_F_CODE") + "," + row.get("MODEL_CD") + ","
-                            + row.get("COLOR") + "," + row.get("MANUF_DATE"));
+                    writer.write(
+                            row.getOrDefault("KUR", "") + "," +
+                                    row.getOrDefault("PROJ_F_CODE", "") + "," +
+                                    row.getOrDefault("MODEL_CD", "") + "," +
+                                    row.getOrDefault("COLOR", "") + "," +
+                                    row.getOrDefault("MANUF_DATE", "")
+                    );
 
                     // 動態欄位部分
-                    for (String key : row.keySet()) {
-                        if (!isFixedColumn(key)) {
-                            writer.write("," + row.getOrDefault(key, ""));
-                        }
+                    for (String column : dynamicColumns) {
+                        writer.write("," + row.getOrDefault(column, ""));
                     }
                     writer.newLine();
                 }
             }
+
 
             // 壓縮 CSV 文件為 ZIP
             try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(Paths.get(zipFileName)))) {
@@ -230,7 +254,7 @@ public class LoginController {
         //Output received reuqestBody
         Gson gson = new Gson();
         String strCriteriaData = gson.toJson(criteriaData);
-        logger.debug(LOG_HEADER + "received requestBody : " + strCriteriaData);
+        logger.debug(LOG_HEADER + "received requestBody for saveSearchCriteria: " + strCriteriaData);
 
         try {
             service.insertSearchCriteriaData(insertEntity);
@@ -252,7 +276,7 @@ public class LoginController {
     public ResponseEntity<?> getCriteriaList(@RequestParam String userId) {
 
 
-        logger.debug(LOG_HEADER + "received userId : " + userId);
+        logger.debug(LOG_HEADER + "[getCriteriaList] received userId : " + userId);
 
         try {
             List<SearchCriteriaEntity> criteriaList = service.selectCriteriaDataByID(userId);
@@ -277,7 +301,7 @@ public class LoginController {
     public ResponseEntity<?> deleteSavedCriteria(@RequestParam String user_id, String s_c_id) {
 
 
-        logger.debug(LOG_HEADER + "received userId : " + user_id + " received s_c_id : " + s_c_id);
+        logger.debug(LOG_HEADER + "[deleteSavedCriteria] received userId : " + user_id + " received s_c_id : " + s_c_id);
 
         try {
             service.deleteSavedCriteriaByIDAndName(user_id, s_c_id);

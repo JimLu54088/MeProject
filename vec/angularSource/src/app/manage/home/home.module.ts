@@ -8,11 +8,13 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
 
 
 @NgModule({
   declarations: [
-    SaveCriteriaDialogComponent
+    SaveCriteriaDialogComponent,
+    ErrorDialogComponent
   ],
   imports: [
     CommonModule,

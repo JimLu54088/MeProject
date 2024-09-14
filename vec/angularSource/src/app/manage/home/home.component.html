@@ -5,9 +5,17 @@
     <form (ngSubmit)="onSubmit()">
       <div class="button-group">
         <button type="button" class="search-btn" (click)="callSearchVecAPI()">
-          <i class="fa fa-search"></i> SEARCH
+          <i class="fa fa-search"></i> Search
         </button>
-        <button type="button" class="search-btn" (click)="downloadFile()">
+        <button
+          type="button"
+          class="search-btn"
+          [ngClass]="{
+            'disabled-button': !isDownloadEnabled,
+            'enabled-button': isDownloadEnabled
+          }"
+          (click)="downloadFile()"
+        >
           <i class="fa fa-download"></i> Download
         </button>
         <button

@@ -1,49 +1,64 @@
 <table class="result-table">
-    <!-- Header -->
-    <thead>
-        <tr class="result-header">
-            <th class="result-no-header">No</th>
-            <th class="result-save-date-header">Search Date</th>
-            <th class="result-text-header">Search Title</th>
-            <th class="result-text-header">Status/th>
-            <th class="result-text-header">Download</th>
-            <th class="result-text-header">Record Delete</th>
-            <th class="result-text-header">Error Message</th>
-        </tr>
-    </thead>
+  <!-- Header -->
+  <thead>
+    <tr class="result-header">
+      <th class="result-no-header">No</th>
+      <th class="result-save-date-header">Search Date</th>
+      <th class="result-text-header">Search Title</th>
+      <th class="result-text-header">Status</th>
+      <th class="result-text-header">Download</th>
+      <th class="result-text-header">Record Delete</th>
+      <th class="result-text-header">Error Message</th>
+    </tr>
+  </thead>
 
-    <!-- Check if there is data -->
-    <!-- <tbody *ngIf="savedCriteriaList && savedCriteriaList.length > 0; else noDataTemplate">
-        <tr *ngFor="let criteria of savedCriteriaList; let i = index" class="criteria-row">
-            <td class="criteria-no">{{ i + 1 }}</td>
-            <td class="criteria-save-date">{{ criteria.ins_dt }}</td>
-            <td class="criteria-text">{{ criteria.s_c_id }}</td>
-
-            <!-- 放大鏡按鈕 
-            <td class="criteria-actions">
-                <button (click)="applyCriteria(criteria)">
-                    <i class="fa fa-search"></i>
-                </button>
-            </td>
-
-            <!-- 垃圾桶按鈕 
-            <td class="criteria-actions">
-                <button (click)="deleteCriteria(criteria.s_c_id)">
-                    <i class="fa fa-trash"></i>
-                </button>
-            </td>
-        </tr>
-    </tbody>-->
+  <!-- Check if there is data -->
+  <tbody
+    *ngIf="
+      savedSearchResultList && savedSearchResultList.length > 0;
+      else noDataTemplate
+    "
+  >
+    <tr
+      *ngFor="
+        let savedSearchResultEntity of savedSearchResultList;
+        let i = index
+      "
+      class="criteria-row"
+    >
+      <td class="criteria-no">{{ i + 1 }}</td>
+      <td class="criteria-save-date">{{ savedSearchResultEntity.ins_dt }}</td>
+      <td class="criteria-text">{{ savedSearchResultEntity.s_r_id }}</td>
+      <td class="criteria-text">{{ savedSearchResultEntity.status }}</td>
+      <!-- download按鈕 -->
+      <td class="criteria-actions">
+        <button
+          (click)="
+            deleteSavedSearchResultRecord(savedSearchResultEntity.s_r_id)
+          "
+        >
+          <i class="fa fa-download"></i>
+        </button>
+      </td>
+      <!-- 垃圾桶按鈕 -->
+      <td class="criteria-actions">
+        <button
+          (click)="
+            deleteSavedSearchResultRecord(savedSearchResultEntity.s_r_id)
+          "
+        >
+          <i class="fa fa-trash"></i>
+        </button>
+      </td>
+      <td class="criteria-text">{{ savedSearchResultEntity.err_msg }}</td>
+    </tr>
+  </tbody>
 </table>
 
 <!-- Display record count at the bottom -->
-<!-- <div class="record-count">
-    {{ savedCriteriaList.length }} records
-</div> -->
+<div class="record-count">{{ savedSearchResultList.length }} records</div>
 
 <!-- No data template -->
 <ng-template #noDataTemplate>
-    <div class="no-data">
-        No search criteria to show...
-    </div>
+  <div class="no-data">No search result to show...</div>
 </ng-template>

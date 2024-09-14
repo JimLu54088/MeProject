@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.jim.repository.SearchResultRepository">
+
+
+    <select id="selectSearchResultByID" resultType="jp.co.jim.entity.SearchResultEntity">
+        select * from t_user_search_result where USER_ID = '${userId}' order by INS_DT DESC
+    </select>
+
+    <delete id="deleteSavedsearchResult" parameterType="String">
+        DELETE FROM
+        t_user_search_result WHERE user_id = '${user_id}' AND s_r_id ='${s_r_id}'
+    </delete>
+
+
+</mapper>

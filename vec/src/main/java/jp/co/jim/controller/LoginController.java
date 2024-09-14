@@ -150,12 +150,13 @@ public class LoginController {
             String jsonResultList = gson.toJson(resultList);
             logger.debug(LOG_HEADER + "jsonResultList : " + jsonResultList);
 
-
+            //Create personal folder
+            String resultZipFileLocationWithUser = resultZipFileLocation + criteriaData.get("userId") + "\\";
             // 動態生成當前時間的檔案名
-            Files.createDirectories(Paths.get(resultZipFileLocation));
+            Files.createDirectories(Paths.get(resultZipFileLocationWithUser));
             String timestamp = Constants.dateTimeFormatyyyyMMdd__HHmmss.format(new Date());
-            String csvFileName = resultZipFileLocation + timestamp + ".csv";
-            String zipFileName = resultZipFileLocation + timestamp + ".zip";
+            String csvFileName = resultZipFileLocationWithUser + timestamp + ".csv";
+            String zipFileName = resultZipFileLocationWithUser + timestamp + ".zip";
 
             // 生成 CSV 文件
             Path csvFile = Paths.get(csvFileName);
@@ -218,7 +219,7 @@ public class LoginController {
 
 
             // 返回下載鏈接
-            String fileDownloadUrl = "/api/download?fileName=" + strFileNameOnly;
+            String fileDownloadUrl = "/api/download?fileName=" + strFileNameOnly + "&userId=" + criteriaData.get("userId");
             return ResponseEntity.ok(Collections.singletonMap("downloadUrl", fileDownloadUrl));
 
         } catch (IOException ioe) {
@@ -312,9 +313,9 @@ public class LoginController {
             return ResponseEntity.ok(criteriaList);
 
         } catch (Exception ex) {
-            logger.error(ERROR_LOG_HEADER + "Error while insert Search CriteriaData into DB : " + ex);
+            logger.error(ERROR_LOG_HEADER + "Error while getting saved criteria from DB : " + ex);
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while insert Search CriteriaData into DB!!");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while getting saved criteria from DB!!");
         }
 
 
@@ -332,9 +333,9 @@ public class LoginController {
             return ResponseEntity.ok("{\"status\": \"ok\"}");
 
         } catch (Exception ex) {
-            logger.error(ERROR_LOG_HEADER + "Error while insert delete CriteriaData into DB : " + ex);
+            logger.error(ERROR_LOG_HEADER + "Error while delete CriteriaData from DB : " + ex);
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while delete Search CriteriaData into DB!!");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while delete Search CriteriaData from DB!!");
         }
 
 
@@ -342,9 +343,13 @@ public class LoginController {
 
     //Download zip file
     @GetMapping("/download")
-    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName) {
+    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName, String userId) {
         // 拼接文件路径
-        Path filePath = Paths.get("D:\\test_files\\vecSearchResultFile", fileName);
+        Path filePath = Paths.get(resultZipFileLocation,userId, fileName);
+
+        logger.debug(LOG_HEADER + "download target file location : " + filePath.toString());
+
+
 
         // 确保文件存在
         if (!Files.exists(filePath)) {

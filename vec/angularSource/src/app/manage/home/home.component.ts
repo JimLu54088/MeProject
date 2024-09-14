@@ -127,6 +127,7 @@ export class HomeComponent implements OnInit {
 
   isLoading = false;
   downloadUrl: string | null = null; // 存儲下載鏈接
+  isDownloadEnabled = false;
 
   callSearchVecAPI() {
     // 開始顯示進度條
@@ -160,6 +161,7 @@ export class HomeComponent implements OnInit {
             },
             panelClass: 'custom-dialog-container',
           });
+          this.isDownloadEnabled = false;
         } else {
           //Success Response
           this.dialog.open(ErrorDialogComponent, {
@@ -170,6 +172,8 @@ export class HomeComponent implements OnInit {
             },
             panelClass: 'custom-dialog-container',
           });
+
+          this.isDownloadEnabled = true;
         }
 
         // 請求完成後，隱藏進度條
@@ -202,17 +206,20 @@ export class HomeComponent implements OnInit {
 
         // 出現錯誤後也隱藏進度條
         this.isLoading = false;
+        this.isDownloadEnabled = false;
       }
     );
   }
 
   downloadFile() {
-    if (this.downloadUrl) {
-      window.location.href = this.downloadUrl; // 觸發文件下載
-    } else {
-      this.snackBar.open('No file available for download.', 'Close', {
-        duration: 3000, // 顯示3秒
-      });
+    if (this.isDownloadEnabled) {
+      if (this.downloadUrl) {
+        window.location.href = this.downloadUrl; // 觸發文件下載
+      } else {
+        this.snackBar.open('No file available for download.', 'Close', {
+          duration: 3000, // 顯示3秒
+        });
+      }
     }
   }
 }

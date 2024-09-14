@@ -95,6 +95,15 @@
   background-color: #0056b3;
 }
 
+.enabled-button {
+  background-color: #007bff; /* Blue color or your preferred color */
+}
+
+.disabled-button {
+  background-color: #6c757d; /* Gray color for disabled state */
+  cursor: not-allowed; /* Shows a not-allowed cursor */
+}
+
 /* 設置進度條的樣式 */
 .progress-container {
   position: fixed;

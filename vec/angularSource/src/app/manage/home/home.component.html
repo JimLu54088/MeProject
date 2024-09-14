@@ -1,46 +1,84 @@
 <div class="search-container">
-    <div class="search-form">
-        <form (ngSubmit)="onSubmit()">
-            <div class="date-group">
-                <div class="input-group">
-                    <label for="kur">KUR No:</label>
-                    <input id="kur" type="text" [(ngModel)]="searchData.kur" name="kur">
-                </div>
-                <div class="input-group">
-                    <label for="project_jya_code">Project JYA Code:</label>
-                    <input id="project_jya_code" type="text" [(ngModel)]="searchData.project_jya_code"
-                        name="project_jya_code">
-                </div>
-            </div>
-            <div class="date-group">
-                <div class="input-group">
-                    <label for="model_code">MODEL CODE:</label>
-                    <input id="model_code" type="text" [(ngModel)]="searchData.model_code" name="model_code">
-                </div>
-                <div class="input-group">
-                    <label for="color">COLOR:</label>
-                    <input id="color" type="text" [(ngModel)]="searchData.color" name="color">
-                </div>
-            </div>
+  <div class="input-group"></div>
 
-            <div class="date-group">
-                <div class="input-group">
-                    <label for="manufacter_year">MANUFATOR YEAR:</label>
-                    <select id="manufacter_year" [(ngModel)]="searchData.manufacter_date" name="manufacter_year">
-                        <option *ngFor="let year of years" [value]="year">{{ year }}</option>
-                    </select>
-                </div>
-            </div>
-            <div class="input-group"><button type="button" class="search-btn"
-                    (click)="callSearchVecAPI()">SEARCH</button></div>
+  <div class="search-form">
+    <form (ngSubmit)="onSubmit()">
+      <div class="button-group">
+        <button type="button" class="search-btn" (click)="callSearchVecAPI()">
+          <i class="fa fa-search"></i> SEARCH
+        </button>
+        <button type="button" class="search-btn" (click)="downloadFile()">
+          <i class="fa fa-download"></i> Download
+        </button>
+        <button
+          type="button"
+          class="search-btn2"
+          (click)="openSaveCriteriaDialog()"
+        >
+          <i class="fa fa-save"></i>
+          Save Search Criteria As New
+        </button>
+        <button type="reset" class="search-btn2">Clear Search Criteria</button>
+      </div>
+      <div class="date-group">
+        <div class="input-group">
+          <label for="kur">KUR No:</label>
+          <input id="kur" type="text" [(ngModel)]="searchData.kur" name="kur" />
+        </div>
+        <div class="input-group">
+          <label for="project_jya_code">Project JYA Code:</label>
+          <input
+            id="project_jya_code"
+            type="text"
+            [(ngModel)]="searchData.project_jya_code"
+            name="project_jya_code"
+          />
+        </div>
+      </div>
+      <div class="date-group">
+        <div class="input-group">
+          <label for="model_code">MODEL CODE:</label>
+          <input
+            id="model_code"
+            type="text"
+            [(ngModel)]="searchData.model_code"
+            name="model_code"
+          />
+        </div>
+        <div class="input-group">
+          <label for="color">COLOR:</label>
+          <input
+            id="color"
+            type="text"
+            [(ngModel)]="searchData.color"
+            name="color"
+          />
+        </div>
+      </div>
 
-            <!-- 在畫面中央顯示的進度條 -->
-            <div *ngIf="isLoading" class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-stripes"></div>
-                </div>
-            </div>
-            <button type="button" class="search-btn" (click)="openSaveCriteriaDialog()">Save Search Criteria</button>
-        </form>
-    </div>
+      <div class="date-group">
+        <div class="input-group">
+          <label for="manufacter_year">MANUFATOR YEAR:</label>
+          <select
+            id="manufacter_year"
+            [(ngModel)]="searchData.manufacter_date"
+            name="manufacter_year"
+          >
+            <!-- 添加空白的默认选项 -->
+            <option value="" disabled selected hidden></option>
+            <option *ngFor="let year of years" [value]="year">
+              {{ year }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 在畫面中央顯示的進度條 -->
+      <div *ngIf="isLoading" class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-stripes"></div>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>

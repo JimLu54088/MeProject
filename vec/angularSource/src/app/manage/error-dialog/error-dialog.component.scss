@@ -1,0 +1,40 @@
+.d-flex {
+  font-size: 16px;
+  color: black;
+  padding: 15px;
+}
+
+.bi-exclamation-circle-fill {
+  margin-right: 10px;
+  font-size: 24px;
+}
+
+span {
+  font-weight: bold;
+}
+
+.warn-text {
+  color: #000 !important; /* White text for warning */
+}
+
+.success-text {
+  color: #fff !important; /* Black text for success */
+}
+
+.icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #7db3ed; /* White background */
+  border-radius: 50%; /* Circle shape */
+  width: 2rem; /* Adjust size as needed */
+  height: 2rem; /* Adjust size as needed */
+  margin-right: 0.5rem; /* Spacing */
+}
+
+//circle background
+.icon-wrapper i {
+  color: #fff; /* Icon color */
+  font-size: 2rem; /* Icon size */
+  font-weight: bold; /* Make icon bold */
+}

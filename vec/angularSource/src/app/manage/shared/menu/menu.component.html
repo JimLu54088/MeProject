@@ -1,42 +1,66 @@
 <header class="top-navbar" data-navbarbg="skin5">
-    <!-- Navbar content -->
-    <div class="scroll-navbar">
-        <!-- Navbar navigation-->
-        <nav class="navbar-nav">
-            <ul id="navbarNav" class="d-flex justify-content-start pt-4 w-100">
-                <li class="nav-item" routerLinkActive="selected">
-                    <a class="nav-link waves-effect waves-dark active" [routerLink]="['home']" aria-expanded="false"><i
-                            class="mdi mdi-view-dashboard"></i><span class="hide-menu">KUR Search</span></a>
-                </li>
-                <li class="nav-item" routerLinkActive="selected">
-                    <a class="nav-link waves-effect waves-dark active" routerLink="/manage/search_criteria"
-                        aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span class="hide-menu">Search
-                            Criteria</span></a>
-                </li>
-                <li class="nav-item" routerLinkActive="selected">
-                    <a class="nav-link waves-effect waves-dark active" routerLink="/manage/search_by_excel"
-                        aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span class="hide-menu">Search By
-                            Excel</span></a>
-                </li>
-                <li class="nav-item" routerLinkActive="selected">
-                    <a class="nav-link waves-effect waves-dark active" routerLink="/manage/search_result"
-                        aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span class="hide-menu">Search
-                            Result</span></a>
-                </li>
+  <!-- Navbar content -->
+  <div class="scroll-navbar">
+    <!-- Navbar navigation-->
+    <nav class="navbar-nav">
+      <ul id="navbarNav" class="d-flex justify-content-start pt-4 w-100">
+        <li class="nav-item" routerLinkActive="selected">
+          <a class="nav-link" [routerLink]="['home']" aria-expanded="false"
+            ><i class="mdi mdi-view-dashboard"></i
+            ><span class="hide-menu">KUR Search</span></a
+          >
+        </li>
+        <li class="nav-item" routerLinkActive="selected">
+          <a
+            class="nav-link"
+            routerLink="/manage/search_criteria"
+            aria-expanded="false"
+            ><i class="mdi mdi-view-dashboard"></i
+            ><span class="hide-menu">Search Criteria</span></a
+          >
+        </li>
+        <li class="nav-item" routerLinkActive="selected">
+          <a
+            class="nav-link"
+            routerLink="/manage/search_by_excel"
+            aria-expanded="false"
+            ><i class="mdi mdi-view-dashboard"></i
+            ><span class="hide-menu">Search By Excel</span></a
+          >
+        </li>
+        <li class="nav-item" routerLinkActive="selected">
+          <a
+            class="nav-link"
+            routerLink="/manage/search_result"
+            aria-expanded="false"
+            ><i class="mdi mdi-view-dashboard"></i
+            ><span class="hide-menu">Search Result</span></a
+          >
+        </li>
 
-                <li class="nav-item user-info">
-                    <a class="nav-link" (click)="logOut()" href="#" id="navbarDropdown" role="button"
-                        aria-expanded="false">
-                        Login User : {{ userId }}
-                    </a>
-                </li>
-                <li class="nav-item logout-button">
-                    <a class="nav-link" (click)="logOut()" href="#" id="navbarDropdown" role="button"
-                        aria-expanded="false">
-                        登出
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </div>
+        <li class="nav-item user-info">
+          <a
+            class="nav-link"
+            id="navbarDropdown"
+            role="button"
+            aria-expanded="false"
+          >
+            Login User : {{ userId }}
+          </a>
+        </li>
+        <li class="nav-item logout-button">
+          <a
+            class="nav-link"
+            (click)="logOut()"
+            href="#"
+            id="navbarDropdown"
+            role="button"
+            aria-expanded="false"
+          >
+            登出
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </header>

@@ -12,7 +12,11 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
@@ -104,6 +108,19 @@ public class LoginController {
         String jsonCriteriaData = gson.toJson(criteriaData);
         logger.debug(LOG_HEADER + "received requestBody for searchSingleVec: " + jsonCriteriaData);
 
+
+        if (this.areAllValuesEmpty(criteriaData)) {
+
+            logger.warn(WARN_LOG_HEADER + "No Criteria Specified.");
+
+            WarningDTO warningResponse = new WarningDTO("WSW002", "No Criteria Specified.");
+
+
+            return ResponseEntity.ok(warningResponse);
+
+        }
+
+
         SearchCriteriaEntity searchEntity = new SearchCriteriaEntity();
 
         searchEntity.setKur(criteriaData.get("kur"));
@@ -126,7 +143,7 @@ public class LoginController {
                 WarningDTO warningResponse = new WarningDTO("WSW001", "No record found. Please change another criteria.");
 
 
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(warningResponse);
+                return ResponseEntity.ok(warningResponse);
 
             }
 
@@ -185,7 +202,8 @@ public class LoginController {
 
 
             // 壓縮 CSV 文件為 ZIP
-            try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(Paths.get(zipFileName)))) {
+            Path pathZipFile = Paths.get(zipFileName);
+            try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(pathZipFile))) {
                 ZipEntry zipEntry = new ZipEntry(csvFile.getFileName().toString());
                 zipOut.putNextEntry(zipEntry);
                 Files.copy(csvFile, zipOut);
@@ -195,8 +213,13 @@ public class LoginController {
             // 刪除原始 CSV 文件
             Files.delete(csvFile);
 
+            // 提取文件名
+            String strFileNameOnly = pathZipFile.getFileName().toString();
 
-            return ResponseEntity.ok(resultList);
+
+            // 返回下載鏈接
+            String fileDownloadUrl = "/api/download?fileName=" + strFileNameOnly;
+            return ResponseEntity.ok(Collections.singletonMap("downloadUrl", fileDownloadUrl));
 
         } catch (IOException ioe) {
             logger.error(ERROR_LOG_HEADER + "Error while generate result zip file : " + ioe);
@@ -317,10 +340,42 @@ public class LoginController {
 
     }
 
+    //Download zip file
+    @GetMapping("/download")
+    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName) {
+        // 拼接文件路径
+        Path filePath = Paths.get("D:\\test_files\\vecSearchResultFile", fileName);
+
+        // 确保文件存在
+        if (!Files.exists(filePath)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // 创建 Resource 对象
+        Resource resource = new FileSystemResource(filePath);
+
+        // 返回响应
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .body(resource);
+    }
+
+
+
+
+
     // 判斷是否為固定欄位
     private boolean isFixedColumn(String column) {
         return "KUR".equals(column) || "MODEL_CD".equals(column) || "PROJ_F_CODE".equals(column) ||
                 "COLOR".equals(column) || "MANUF_DATE".equals(column);
+    }
+
+    //verify requestBody is empty for each item or not
+    public boolean areAllValuesEmpty(Map<String, String> criteriaData) {
+        return criteriaData.entrySet().stream()
+                .filter(entry -> !entry.getKey().equals("userId")) // 排除 userId 的檢查
+                .allMatch(entry -> entry.getValue() == null || entry.getValue().trim().isEmpty());
     }
 
 

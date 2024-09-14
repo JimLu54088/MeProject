@@ -36,7 +36,9 @@
         AND b.PROJ_F_CODE LIKE CONCAT('%', #{entity.project_jya_code}, '%')
         AND b.MODEL_CD LIKE CONCAT('%', #{entity.model_code}, '%')
         AND b.COLOR LIKE CONCAT('%', #{entity.color}, '%')
-        AND YEAR(b.MANUF_DATE) = #{entity.manufacter_date}
+        <if test="entity.manufacter_date != ''">
+            AND YEAR(b.MANUF_DATE) = #{entity.manufacter_date}
+        </if>
         GROUP BY b.KUR, b.PROJ_F_CODE, b.MODEL_CD, b.COLOR, b.MANUF_DATE
     </select>
     <select id="getDistinctCMNMN" resultType="String">

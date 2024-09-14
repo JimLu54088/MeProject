@@ -1,20 +1,46 @@
 /* You can add global styles to this file, and also import other style files */
 
 h1 {
-    margin-top: 30px;
-    margin-bottom:  0;
+  margin-top: 30px;
+  margin-bottom: 0;
 }
 
-*{
-    box-sizing: content-box;
+* {
+  box-sizing: content-box;
 }
-body{
-    width: 100% !important;
-    min-width: 100% !important;
-    
-    max-width: 100% !important;
+body {
+  width: 100% !important;
+  min-width: 100% !important;
+
+  max-width: 100% !important;
 }
 .page-wrapper {
-    background: #fff;
-    padding: 30px;
+  background: #fff;
+  padding: 30px;
+}
+
+.custom-dialog-container .mat-dialog-container {
+  box-shadow: none !important; /* Remove shadow */
+  padding: 0 !important; /* Remove padding */
+}
+
+.warn-background {
+  background-color: #ffc107 !important; /* Green for warning */
+}
+
+.success-background {
+  background-color: #7db3ed !important; /* Blue for success */
+}
+
+.custom-dialog-container .mat-dialog-content {
+  padding: 0 !important; /* 去除內邊距 */
+  text-align: center; /* 居中內容 */
+}
+
+.custom-dialog-container .mat-dialog-actions {
+  padding: 0 !important; /* 去除按鈕部分的內邊距 */
+}
+
+.alert {
+  background-color: transparent !important; /* 透明背景，不再需要第二層 alert 顏色 */
 }

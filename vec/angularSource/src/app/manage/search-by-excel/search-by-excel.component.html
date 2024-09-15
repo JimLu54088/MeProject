@@ -1,1 +1,35 @@
-<p>search-by-excel works!</p>
+<h2>Caution Note</h2>
+<p>The maximum number of rows for searches via Excel file is 500.</p>
+
+<div>
+  <label for="search-title">1. Set the Search Title</label><br />
+  <input
+    type="text"
+    id="search-title"
+    [(ngModel)]="searchTitle"
+    placeholder="Enter title"
+  />
+</div>
+
+<div>
+  <br />
+  <label for="file-input">2. Select the Search Criteria Excel File</label>
+</div>
+<div>
+  <input type="file" id="file-input" (change)="onFileSelected($event)" />
+</div>
+
+<a href="/assets/SearchByExcelTemplate/VECSearchByExcelTemplate.xlsx" download
+  >Download Template</a
+>
+<br /><br />
+<div>
+  <label for="search-title">3. Upload and Check the Excel</label><br />
+  <button type="button" class="checkExcel-btn" (click)="onCheckFile()">
+    Check
+  </button>
+</div>
+
+<div>
+  <button (click)="onSearch()" [disabled]="!isFileChecked">Search</button>
+</div>

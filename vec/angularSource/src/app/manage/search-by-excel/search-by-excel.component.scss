@@ -1,0 +1,20 @@
+h2 {
+  color: black;
+}
+
+button:disabled {
+  background-color: lightgray;
+  cursor: not-allowed;
+}
+.checkExcel-btn {
+  background-color: #007bff;
+  color: white;
+  //   padding: 20px;
+  border: none;
+  width: 110px;
+  height: 60;
+  border-radius: 5px;
+  font-size: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}

@@ -6,8 +6,7 @@ import { Header2Component } from './shared/header2/header2.component';
 import { HomeComponent } from './home/home.component';
 import { ManageComponent } from './manage.component';
 import { FormsModule } from '@angular/forms';
-import { SaveCriteriaDialogComponent } from './save-criteria-dialog/save-criteria-dialog.component';
-
+import { ErrorDialogComponent } from './error-dialog/error-dialog.component';
 
 @NgModule({
   declarations: [
@@ -15,11 +14,8 @@ import { SaveCriteriaDialogComponent } from './save-criteria-dialog/save-criteri
     Header2Component,
     HomeComponent,
     ManageComponent,
+    ErrorDialogComponent,
   ],
-  imports: [
-    CommonModule,
-    ManageRoutingModule,
-    FormsModule,
-  ]
+  imports: [CommonModule, ManageRoutingModule, FormsModule],
 })
-export class ManageModule { }
+export class ManageModule {}

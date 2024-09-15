@@ -3,7 +3,8 @@
   [ngClass]="{
     'warn-background': data.poptitle === 'WARN',
     'success-background': data.poptitle === 'SUCCESS',
-    'error-background': data.poptitle === 'ERROR'
+    'error-background': data.poptitle === 'ERROR',
+    'successGreen-background': data.poptitle === 'SUCG'
   }"
 >
   <i *ngIf="data.poptitle === 'WARN'" class="bi bi-exclamation-circle-fill"></i>
@@ -13,11 +14,15 @@
   <div *ngIf="data.poptitle === 'ERROR'" class="icon-wrapper">
     <i class="bi bi-info-circle-fill"></i>
   </div>
+  <div *ngIf="data.poptitle === 'SUCG'" class="icon-wrapper">
+    <i class="bi bi-check-circle-fill"></i>
+  </div>
   <span
     [ngClass]="{
       'warn-text': data.poptitle === 'WARN',
       'success-text': data.poptitle === 'SUCCESS',
-      'error-text': data.poptitle === 'ERROR'
+      'error-text': data.poptitle === 'ERROR',
+      'successGreen-text': data.poptitle === 'SUCG'
     }"
     >{{ data.message }}</span
   >

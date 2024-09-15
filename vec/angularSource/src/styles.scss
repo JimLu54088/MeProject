@@ -25,11 +25,15 @@ body {
 }
 
 .warn-background {
-  background-color: #ffc107 !important; /* Green for warning */
+  background-color: #ffc107 !important;
 }
 
 .success-background {
   background-color: #7db3ed !important; /* Blue for success */
+}
+
+.successGreen-background {
+  background-color: #1c6640 !important; /* Green for success of check excel*/
 }
 
 .error-background {

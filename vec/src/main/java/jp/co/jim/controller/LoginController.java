@@ -67,6 +67,9 @@ public class LoginController {
     @Value("${maximum_result_count}")
     private int maximum_result_count;
 
+    @Value("${searchSingleKURCSVHeader}")
+    private String searchSingleKURCSVHeader;
+
 
     @PostMapping("/Login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
@@ -210,7 +213,7 @@ public class LoginController {
 
                     logger.error(ERROR_LOG_HEADER + "Error while insert search result into DB : ", e);
 
-                    ErrorDTO errorResponse = new ErrorDTO("WSE001", e.getMessage());
+                    ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, e.getMessage());
 
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 
@@ -251,7 +254,7 @@ public class LoginController {
                 }
 
                 // 寫入 CSV 表頭 (固定部分在最左邊)
-                writer.write("KUR,PROJ_F_CODE,MODEL_CD,COLOR,MANUF_DATE");
+                writer.write(searchSingleKURCSVHeader);
 
                 // 寫入動態欄位部分
                 for (String column : dynamicColumns) {
@@ -315,7 +318,7 @@ public class LoginController {
 
                 logger.error(ERROR_LOG_HEADER + "Error while insert search result into DB : ", e);
 
-                ErrorDTO errorResponse = new ErrorDTO("WSE001", e.getMessage());
+                ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, e.toString());
 
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 
@@ -337,7 +340,7 @@ public class LoginController {
 
             logger.error(ERROR_LOG_HEADER + "Error while search single vec data from DB : ", ex);
 
-            ErrorDTO errorResponse = new ErrorDTO("WSE001", ex.toString());
+            ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, ex.toString());
 
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
@@ -388,7 +391,7 @@ public class LoginController {
         } catch (Exception ex) {
             logger.error(ERROR_LOG_HEADER + "Error while insert Search CriteriaData into DB : ", ex);
 
-            ErrorDTO errorResponse = new ErrorDTO("WSE001", ex.toString());
+            ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, ex.toString());
 
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);

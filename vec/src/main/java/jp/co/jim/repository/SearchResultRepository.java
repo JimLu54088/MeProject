@@ -15,4 +15,7 @@ public interface SearchResultRepository {
 
     public void deleteSavedsearchResult(String user_id, String s_r_id);
 
+
+    public void saveSearchResultIntoDB(SearchResultEntity entity);
+
 }

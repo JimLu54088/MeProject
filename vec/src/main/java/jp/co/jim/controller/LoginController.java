@@ -5,8 +5,10 @@ import jp.co.jim.common.Constants;
 import jp.co.jim.common.JwtTokenUtil;
 import jp.co.jim.entity.ErrorDTO;
 import jp.co.jim.entity.SearchCriteriaEntity;
+import jp.co.jim.entity.SearchResultEntity;
 import jp.co.jim.entity.WarningDTO;
 import jp.co.jim.service.LoginService;
+import jp.co.jim.service.SearchResultService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,9 @@ public class LoginController {
     private LoginService service;
 
     @Autowired
+    private SearchResultService searchResultService;
+
+    @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
 
@@ -59,12 +64,17 @@ public class LoginController {
     @Value("${resultZipFileLocation}")
     private String resultZipFileLocation;
 
+    @Value("${maximum_result_count}")
+    private int maximum_result_count;
+
 
     @PostMapping("/Login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
 
         String username = loginData.get("username");
         String password = loginData.get("password");
+
+        int countOfAdminLogin = 0;
 
         //Output received reuqestBody
         Gson gson = new Gson();
@@ -73,8 +83,14 @@ public class LoginController {
 
 
         // Validate the credentials
+        try {
+            countOfAdminLogin = service.checkAdminLogin(username, password);
+        } catch (Exception exWhileCheckingAdminLogin) {
+            logger.error(ERROR_LOG_HEADER + "Error while checking admin login.", exWhileCheckingAdminLogin);
+        }
 
-        if (service.checkAdminLogin(username, password) == 1) {
+
+        if (countOfAdminLogin == 1) {
             // Record successful login action
 //            userActionService.saveUserAction(username, "Admin Login successful");
 
@@ -86,7 +102,7 @@ public class LoginController {
                 // 返回JWT给客户端
                 return ResponseEntity.ok(Map.of("token", token));
             } catch (Exception e) {
-                logger.error(ERROR_LOG_HEADER + "Token getting failed." + e);
+                logger.error(ERROR_LOG_HEADER + "Token getting failed.", e);
                 throw new RuntimeException("Token getting failed.");
 
             }
@@ -106,14 +122,14 @@ public class LoginController {
         //Output received reuqestBody
         Gson gson = new Gson();
         String jsonCriteriaData = gson.toJson(criteriaData);
-        logger.debug(LOG_HEADER + "received requestBody for searchSingleVec: " + jsonCriteriaData);
+        logger.info(LOG_HEADER + "received requestBody for searchSingleVec: " + jsonCriteriaData);
 
 
         if (this.areAllValuesEmpty(criteriaData)) {
 
-            logger.warn(WARN_LOG_HEADER + "No Criteria Specified.");
+            logger.warn(WARN_LOG_HEADER + Constants.noCriteriaSpecified);
 
-            WarningDTO warningResponse = new WarningDTO("WSW002", "No Criteria Specified.");
+            WarningDTO warningResponse = new WarningDTO(Constants.WSW002, Constants.noCriteriaSpecified);
 
 
             return ResponseEntity.ok(warningResponse);
@@ -135,12 +151,73 @@ public class LoginController {
         try {
             List<Map<String, Object>> resultList = service.searchSingleVEC(searchEntity);
 
+            logger.info(LOG_HEADER + "Search result count:: " + resultList.size());
+
             if (resultList.isEmpty()) {
 
 
-                logger.warn(WARN_LOG_HEADER + "No record found.");
+                logger.warn(WARN_LOG_HEADER + Constants.noRecordFound);
 
-                WarningDTO warningResponse = new WarningDTO("WSW001", "No record found. Please change another criteria.");
+
+                SearchResultEntity searchResultEntity = new SearchResultEntity();
+
+                searchResultEntity.setS_r_id(Constants.dateTimeFormatyyyyMMdd__HHmmss.format(new Date()));
+                searchResultEntity.setUser_id(criteriaData.get("userId"));
+                searchResultEntity.setStatus("1");
+                searchResultEntity.setErr_msg(Constants.noRecordFound);
+
+
+                //Insert search result into FB
+                try {
+                    logger.info(LOG_HEADER + "Insert search result into DB.");
+                    searchResultService.saveSearchResultIntoDB(searchResultEntity);
+                } catch (Exception e) {
+
+                    logger.error(ERROR_LOG_HEADER + "Error while insert search result into DB : ", e);
+
+                    ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, e.toString());
+
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+
+                }
+
+
+                WarningDTO warningResponse = new WarningDTO(Constants.WSW001, Constants.noRecordFound_toFrontEnd);
+
+
+                return ResponseEntity.ok(warningResponse);
+
+            }
+
+            if (resultList.size() >= maximum_result_count) {
+
+                logger.warn(WARN_LOG_HEADER + String.format(Constants.searchResultCountExceeds, maximum_result_count));
+
+
+                SearchResultEntity searchResultEntity = new SearchResultEntity();
+
+                searchResultEntity.setS_r_id(Constants.dateTimeFormatyyyyMMdd__HHmmss.format(new Date()));
+                searchResultEntity.setUser_id(criteriaData.get("userId"));
+                searchResultEntity.setStatus("1");
+                searchResultEntity.setErr_msg(String.format(Constants.searchResultCountExceeds, maximum_result_count));
+
+
+                //Insert search result into FB
+                try {
+                    logger.info(WARN_LOG_HEADER + "Insert search result into DB.");
+                    searchResultService.saveSearchResultIntoDB(searchResultEntity);
+                } catch (Exception e) {
+
+                    logger.error(ERROR_LOG_HEADER + "Error while insert search result into DB : ", e);
+
+                    ErrorDTO errorResponse = new ErrorDTO("WSE001", e.getMessage());
+
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+
+                }
+
+
+                WarningDTO warningResponse = new WarningDTO(Constants.WSW003, String.format(Constants.searchResultCountExceeds, maximum_result_count));
 
 
                 return ResponseEntity.ok(warningResponse);
@@ -220,12 +297,37 @@ public class LoginController {
 
             // 返回下載鏈接
             String fileDownloadUrl = "/api/download?fileName=" + strFileNameOnly + "&userId=" + criteriaData.get("userId");
+
+            //Insert search result into FB
+            SearchResultEntity searchResultEntity = new SearchResultEntity();
+
+            searchResultEntity.setS_r_id(Constants.dateTimeFormatyyyyMMdd__HHmmss.format(new Date()));
+            searchResultEntity.setUser_id(criteriaData.get("userId"));
+            searchResultEntity.setStatus("0");
+            searchResultEntity.setDwn_lnk(fileDownloadUrl);
+            searchResultEntity.setErr_msg("");
+
+
+            try {
+                logger.info(WARN_LOG_HEADER + "Insert search result into DB.");
+                searchResultService.saveSearchResultIntoDB(searchResultEntity);
+            } catch (Exception e) {
+
+                logger.error(ERROR_LOG_HEADER + "Error while insert search result into DB : ", e);
+
+                ErrorDTO errorResponse = new ErrorDTO("WSE001", e.getMessage());
+
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+
+            }
+
+
             return ResponseEntity.ok(Collections.singletonMap("downloadUrl", fileDownloadUrl));
 
         } catch (IOException ioe) {
-            logger.error(ERROR_LOG_HEADER + "Error while generate result zip file : " + ioe);
+            logger.error(ERROR_LOG_HEADER + "Error while generate result zip file : ", ioe);
 
-            ErrorDTO errorResponse = new ErrorDTO("WSE004", ioe.getMessage());
+            ErrorDTO errorResponse = new ErrorDTO("WSE004", ioe.toString());
 
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
@@ -233,10 +335,9 @@ public class LoginController {
 
             ex.printStackTrace();
 
+            logger.error(ERROR_LOG_HEADER + "Error while search single vec data from DB : ", ex);
 
-            logger.error(ERROR_LOG_HEADER + "Error while search single vec data from DB : " + ex);
-
-            ErrorDTO errorResponse = new ErrorDTO("WSE001", ex.getMessage());
+            ErrorDTO errorResponse = new ErrorDTO("WSE001", ex.toString());
 
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
@@ -285,9 +386,9 @@ public class LoginController {
             return ResponseEntity.ok(Map.of("token", "kkk"));
 
         } catch (Exception ex) {
-            logger.error(ERROR_LOG_HEADER + "Error while insert Search CriteriaData into DB : " + ex);
+            logger.error(ERROR_LOG_HEADER + "Error while insert Search CriteriaData into DB : ", ex);
 
-            ErrorDTO errorResponse = new ErrorDTO("WSE001", ex.getMessage());
+            ErrorDTO errorResponse = new ErrorDTO("WSE001", ex.toString());
 
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
@@ -313,7 +414,7 @@ public class LoginController {
             return ResponseEntity.ok(criteriaList);
 
         } catch (Exception ex) {
-            logger.error(ERROR_LOG_HEADER + "Error while getting saved criteria from DB : " + ex);
+            logger.error(ERROR_LOG_HEADER + "Error while getting saved criteria from DB : ", ex);
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while getting saved criteria from DB!!");
         }
@@ -333,7 +434,7 @@ public class LoginController {
             return ResponseEntity.ok("{\"status\": \"ok\"}");
 
         } catch (Exception ex) {
-            logger.error(ERROR_LOG_HEADER + "Error while delete CriteriaData from DB : " + ex);
+            logger.error(ERROR_LOG_HEADER + "Error while delete CriteriaData from DB : ", ex);
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while delete Search CriteriaData from DB!!");
         }
@@ -345,10 +446,9 @@ public class LoginController {
     @GetMapping("/download")
     public ResponseEntity<Resource> downloadFile(@RequestParam String fileName, String userId) {
         // 拼接文件路径
-        Path filePath = Paths.get(resultZipFileLocation,userId, fileName);
+        Path filePath = Paths.get(resultZipFileLocation, userId, fileName);
 
         logger.debug(LOG_HEADER + "download target file location : " + filePath.toString());
-
 
 
         // 确保文件存在
@@ -365,9 +465,6 @@ public class LoginController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .body(resource);
     }
-
-
-
 
 
     // 判斷是否為固定欄位

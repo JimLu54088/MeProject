@@ -29,13 +29,22 @@
       <td class="criteria-no">{{ i + 1 }}</td>
       <td class="criteria-save-date">{{ savedSearchResultEntity.ins_dt }}</td>
       <td class="criteria-text">{{ savedSearchResultEntity.s_r_id }}</td>
-      <td class="criteria-text">{{ savedSearchResultEntity.status }}</td>
+      <td class="criteria-text">
+        <span
+          class="status-icon"
+          [ngClass]="{
+            'green-check': savedSearchResultEntity.status === '0',
+            'yellow-exclamation': savedSearchResultEntity.status === '1',
+            'red-exclamation': savedSearchResultEntity.status === '2'
+          }"
+        ></span>
+      </td>
+
       <!-- download按鈕 -->
       <td class="criteria-actions">
         <button
-          (click)="
-            deleteSavedSearchResultRecord(savedSearchResultEntity.s_r_id)
-          "
+          *ngIf="savedSearchResultEntity.status === '0'"
+          (click)="downloadFile(savedSearchResultEntity.dwn_lnk)"
         >
           <i class="fa fa-download"></i>
         </button>

@@ -33,9 +33,15 @@
         FROM t_basic_info b
         LEFT JOIN t_ecu_info e ON b.KUR = e.KUR
         WHERE b.KUR LIKE CONCAT('%', #{entity.kur}, '%')
-        AND b.PROJ_F_CODE LIKE CONCAT('%', #{entity.project_jya_code}, '%')
-        AND b.MODEL_CD LIKE CONCAT('%', #{entity.model_code}, '%')
-        AND b.COLOR LIKE CONCAT('%', #{entity.color}, '%')
+        <if test="entity.project_jya_code != ''">
+            AND b.PROJ_F_CODE LIKE CONCAT('%', #{entity.project_jya_code}, '%')
+        </if>
+        <if test="entity.model_code != ''">
+            AND b.MODEL_CD LIKE CONCAT('%', #{entity.model_code}, '%')
+        </if>
+        <if test="entity.color != ''">
+            AND b.COLOR LIKE CONCAT('%', #{entity.color}, '%')
+        </if>
         <if test="entity.manufacter_date != ''">
             AND YEAR(b.MANUF_DATE) = #{entity.manufacter_date}
         </if>

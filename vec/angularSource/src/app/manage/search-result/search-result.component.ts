@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SearchResultService } from './search-result.service'; // 确保路径正确
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar'; // 引入 MatSnackBar
 
 @Component({
   selector: 'app-search-result',
@@ -60,5 +61,13 @@ export class SearchResultComponent implements OnInit {
         }
       );
     }
+  }
+
+  downloadFile(dwn_lnk: any) {
+    window.location.href = dwn_lnk; // 觸發文件下載
+
+    // this.snackBar.open('No file available for download.', 'Close', {
+    //   duration: 3000, // 顯示3秒
+    // });
   }
 }

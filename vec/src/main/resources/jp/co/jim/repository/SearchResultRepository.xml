@@ -13,6 +13,11 @@
         DELETE FROM
         t_user_search_result WHERE user_id = '${user_id}' AND s_r_id ='${s_r_id}'
     </delete>
+    <insert id="saveSearchResultIntoDB">
+        INSERT INTO `vec`.`t_user_search_result` (`S_R_ID`, `USER_ID`, `STATUS`, `DWN_LNK`, `ERR_MSG`, `INS_DT`,`INS_BY`) VALUES
+        ('${s_r_id}', '${user_id}', '${status}', '${dwn_lnk}', '${err_msg}', NOW(), 'VECWS02');
+
+    </insert>
 
 
 </mapper>

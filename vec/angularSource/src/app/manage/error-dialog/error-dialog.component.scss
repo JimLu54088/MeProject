@@ -2,6 +2,11 @@
   font-size: 16px;
   color: black;
   padding: 15px;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-height: 80vh; /* 設定最大高度 */
+  overflow-y: auto; /* 允許垂直滾動 */
 }
 
 .bi-exclamation-circle-fill {
@@ -11,6 +16,10 @@
 
 span {
   font-weight: bold;
+  display: block;
+  max-width: 90vw; /* 限制文字區域的寬度，防止文字溢出 */
+  overflow: hidden;
+  text-overflow: ellipsis; /* 避免文字超出區域 */
 }
 
 .warn-text {
@@ -19,6 +28,10 @@ span {
 
 .success-text {
   color: #fff !important; /* Black text for success */
+}
+
+.error-text {
+  color: #fff !important; /* White text for error */
 }
 
 .icon-wrapper {
@@ -37,4 +50,10 @@ span {
   color: #fff; /* Icon color */
   font-size: 2rem; /* Icon size */
   font-weight: bold; /* Make icon bold */
+}
+
+.dialog-content {
+  white-space: normal; /* 讓文字正常換行 */
+  word-wrap: break-word; /* 長字串換行 */
+  overflow-wrap: break-word; /* 支持長字串的換行 */
 }

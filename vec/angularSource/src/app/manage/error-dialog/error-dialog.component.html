@@ -2,17 +2,22 @@
   class="d-flex align-items-center justify-content-center"
   [ngClass]="{
     'warn-background': data.poptitle === 'WARN',
-    'success-background': data.poptitle === 'SUCCESS'
+    'success-background': data.poptitle === 'SUCCESS',
+    'error-background': data.poptitle === 'ERROR'
   }"
 >
   <i *ngIf="data.poptitle === 'WARN'" class="bi bi-exclamation-circle-fill"></i>
   <div *ngIf="data.poptitle === 'SUCCESS'" class="icon-wrapper">
     <i class="bi bi-info-circle-fill"></i>
   </div>
+  <div *ngIf="data.poptitle === 'ERROR'" class="icon-wrapper">
+    <i class="bi bi-info-circle-fill"></i>
+  </div>
   <span
     [ngClass]="{
       'warn-text': data.poptitle === 'WARN',
-      'success-text': data.poptitle === 'SUCCESS'
+      'success-text': data.poptitle === 'SUCCESS',
+      'error-text': data.poptitle === 'ERROR'
     }"
     >{{ data.message }}</span
   >

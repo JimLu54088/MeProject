@@ -24,8 +24,9 @@ public class SearchResultService {
         repository.deleteSavedsearchResult(user_id, s_r_id);
     }
 
-
-
+    public void saveSearchResultIntoDB(SearchResultEntity entity) {
+        repository.saveSearchResultIntoDB(entity);
+    }
 
 
 }

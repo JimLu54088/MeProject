@@ -32,6 +32,10 @@ body {
   background-color: #7db3ed !important; /* Blue for success */
 }
 
+.error-background {
+  background-color: #ca2e13 !important; /* Blue for success */
+}
+
 .custom-dialog-container .mat-dialog-content {
   padding: 0 !important; /* 去除內邊距 */
   text-align: center; /* 居中內容 */

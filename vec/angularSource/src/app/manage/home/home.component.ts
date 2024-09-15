@@ -112,13 +112,25 @@ export class HomeComponent implements OnInit {
       (error) => {
         console.error('Error saving criteria:', error);
 
-        if (error.error && error.error.errorCode) {
-          this.snackBar.open(error.error.errorMessage, 'Close', {
-            duration: 5000, // 显示3秒
+        if (error.error.errorCode) {
+          console.log('errror code : ' + error.error.errorCode);
+          console.log('error message : ' + error.error.errorMessage);
+
+          this.dialog.open(ErrorDialogComponent, {
+            data: {
+              message: error.error.errorMessage, // 使用後端返回的 errorMessage
+              poptitle: 'ERROR',
+            },
+            panelClass: 'custom-dialog-container',
           });
         } else {
-          this.snackBar.open('Unexpected Error Occurred.', 'Close', {
-            duration: 3000, // 显示3秒
+          //Unexpeted error
+          this.dialog.open(ErrorDialogComponent, {
+            data: {
+              message: 'Unexpected error.',
+              poptitle: 'ERROR',
+            },
+            panelClass: 'custom-dialog-container',
           });
         }
       }
@@ -182,26 +194,26 @@ export class HomeComponent implements OnInit {
       (error) => {
         console.error('Error Search vecData:', error);
 
-        if (error.error && error.error.warningCode) {
-          if (error.error && error.error.warningCode === 'WSW001') {
-            // 彈跳視窗顯示 errorMessage
-            this.dialog.open(ErrorDialogComponent, {
-              data: {
-                message: error.error.warningMessage,
-                poptitle: 'WARN',
-              },
-            });
-          }
+        if (error.error.errorCode) {
+          console.log('errror code : ' + error.error.errorCode);
+          console.log('error message : ' + error.error.errorMessage);
+
+          this.dialog.open(ErrorDialogComponent, {
+            data: {
+              message: error.error.errorMessage, // 使用後端返回的 errorMessage
+              poptitle: 'ERROR',
+            },
+            panelClass: 'custom-dialog-container',
+          });
         } else {
-          if (error.error && error.error.errorCode) {
-            this.snackBar.open(error.error.errorMessage, 'Close', {
-              duration: 5000, // 显示3秒
-            });
-          } else {
-            this.snackBar.open('Unexpected Error Occurred.', 'Close', {
-              duration: 3000, // 显示3秒
-            });
-          }
+          //Unexpeted error
+          this.dialog.open(ErrorDialogComponent, {
+            data: {
+              message: 'Unexpected error.',
+              poptitle: 'ERROR',
+            },
+            panelClass: 'custom-dialog-container',
+          });
         }
 
         // 出現錯誤後也隱藏進度條

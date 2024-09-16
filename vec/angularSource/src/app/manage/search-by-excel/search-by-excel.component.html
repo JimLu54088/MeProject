@@ -7,7 +7,7 @@
     type="text"
     id="search-title"
     [(ngModel)]="searchTitle"
-    placeholder="Enter title"
+    placeholder=""
   />
 </div>
 
@@ -31,5 +31,16 @@
 </div>
 
 <div>
-  <button (click)="onSearch()" [disabled]="!isFileChecked">Search</button>
+  <label for="search-title">4. Search the Result.</label><br />
+  <button
+    type="button"
+    class="checkExcel-btn"
+    [ngClass]="{
+      'disabled-button': !isSearchEnabled,
+      'enabled-button': isSearchEnabled
+    }"
+    (click)="onSearch()"
+  >
+    Search
+  </button>
 </div>

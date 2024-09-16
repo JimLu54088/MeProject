@@ -23,6 +23,7 @@ export class SearchByExcelComponent implements OnInit {
   file: File | null = null;
   isFileChecked: boolean = false;
   isResultAvailable: boolean = false;
+  userId: any;
 
   private getUserIdFromToken(): string | null {
     const jwt = sessionStorage.getItem('token');
@@ -39,6 +40,8 @@ export class SearchByExcelComponent implements OnInit {
     this.file = selectedFile;
   }
 
+  isSearchEnabled = false;
+
   onCheckFile() {
     if (this.file) {
       this.isFileChecked = true;
@@ -47,82 +50,70 @@ export class SearchByExcelComponent implements OnInit {
       const isExcelFile =
         uploadedFileName.endsWith('.xlsx') || uploadedFileName.endsWith('.xls');
 
-      const userId = this.getUserIdFromToken();
-      const payload = {
-        ...this.file,
-        userId,
-      };
+      this.userId = this.getUserIdFromToken();
+      const formData = new FormData();
+      formData.append('file', this.file); // this.file 是你要上傳的檔案
+      formData.append('userId', this.userId); // 添加 userId 到 FormData
+      formData.append('searchTitle', this.searchTitle); // 添加 searchTitle 到 FormData
 
       if (isExcelFile) {
         // 发送 POST 请求到后端
-        // this.http.post('/api/searchSingleVec', payload).subscribe(
-        //   (response: any) => {
-        //     console.log('Search completed:', response);
-        //     // 成功后显示 SnackBar
-        //     // this.snackBar.open('Search Successfully!!', 'Close', {
-        //     //   duration: 3000,  // 显示3秒
-        //     // });
-        //     if (response.downloadUrl) {
-        //     }
-        //     // 如果後端返回 warningMessage
-        //     if (response.warningMessage) {
-        //       this.dialog.open(ErrorDialogComponent, {
-        //         data: {
-        //           message: response.warningMessage, // 使用後端返回的 warningMessage
-        //           poptitle: 'WARN',
-        //         },
-        //         panelClass: 'custom-dialog-container',
-        //       });
-        //     } else {
-        //       //Success Response
-        //       this.dialog.open(ErrorDialogComponent, {
-        //         data: {
-        //           message:
-        //             'The search is complete. You can download the file from the Download button.', // 使用後端返回的 warningMessage
-        //           poptitle: 'SUCCESS',
-        //         },
-        //         panelClass: 'custom-dialog-container',
-        //       });
-        //     }
-        //   },
-        //   (error) => {
-        //     console.error('Error Search vecData:', error);
-        //     if (error.error.errorCode) {
-        //       console.log('errror code : ' + error.error.errorCode);
-        //       console.log('error message : ' + error.error.errorMessage);
-        //       this.dialog.open(ErrorDialogComponent, {
-        //         data: {
-        //           message: error.error.errorMessage, // 使用後端返回的 errorMessage
-        //           poptitle: 'ERROR',
-        //         },
-        //         panelClass: 'custom-dialog-container',
-        //       });
-        //     } else {
-        //       //Unexpeted error
-        //       this.dialog.open(ErrorDialogComponent, {
-        //         data: {
-        //           message: 'Unexpected error.',
-        //           poptitle: 'ERROR',
-        //         },
-        //         panelClass: 'custom-dialog-container',
-        //       });
-        //     }
-        //   }
-        // );
-
-        this.dialog.open(ErrorDialogComponent, {
-          data: {
-            message:
-              'Excel check was successful. Please click the search button.', // 使用後端返回的 warningMessage
-            poptitle: 'SUCG',
+        this.http.post('/api/uploadAndCheckExcel', formData).subscribe(
+          (response: any) => {
+            console.log('Search completed:', response);
+            // 如果後端返回 warningMessage
+            if (response.warningMessage) {
+              this.dialog.open(ErrorDialogComponent, {
+                data: {
+                  message: response.warningMessage, // 使用後端返回的 warningMessage
+                  poptitle: 'WARN',
+                },
+                panelClass: 'custom-dialog-container',
+              });
+            } else {
+              //Success Response
+              this.dialog.open(ErrorDialogComponent, {
+                data: {
+                  message:
+                    'Excel check was successful. Please click the search button.', // 使用後端返回的 warningMessage
+                  poptitle: 'SUCG',
+                },
+                panelClass: 'custom-dialog-container',
+              });
+              this.isSearchEnabled = true;
+            }
           },
-          panelClass: 'custom-dialog-container',
-        });
+          (error) => {
+            console.error('Error Search vecData:', error);
+            if (error.error.errorCode) {
+              console.log('errror code : ' + error.error.errorCode);
+              console.log('error message : ' + error.error.errorMessage);
+              this.dialog.open(ErrorDialogComponent, {
+                data: {
+                  message: error.error.errorMessage, // 使用後端返回的 errorMessage
+                  poptitle: 'ERROR',
+                },
+                panelClass: 'custom-dialog-container',
+              });
+            } else {
+              //Unexpeted error
+              this.dialog.open(ErrorDialogComponent, {
+                data: {
+                  message: 'Unexpected error.',
+                  poptitle: 'ERROR',
+                },
+                panelClass: 'custom-dialog-container',
+              });
+            }
+
+            this.isSearchEnabled = false;
+          }
+        );
       } else {
         this.dialog.open(ErrorDialogComponent, {
           data: {
-            message: 'Uploaded File is not excel file.', // 使用後端返回的 warningMessage
-            poptitle: 'WARN',
+            message: 'It is not an Excel file.', // 使用後端返回的 warningMessage
+            poptitle: 'ERROR',
           },
           panelClass: 'custom-dialog-container',
         });
@@ -130,8 +121,8 @@ export class SearchByExcelComponent implements OnInit {
     } else {
       this.dialog.open(ErrorDialogComponent, {
         data: {
-          message: 'No file selected, please upload a file.', // 使用後端返回的 warningMessage
-          poptitle: 'WARN',
+          message: 'No file specified.',
+          poptitle: 'ERROR',
         },
         panelClass: 'custom-dialog-container',
       });

@@ -15,6 +15,8 @@ public class Constants {
     //DB Exception
     public static final String WSE001 = "WSE001";
 
+    public static final String WSE007 = "WSE007";
+
     public static final SimpleDateFormat dateTimeFormatyyyyMMdd_HHmmss = new SimpleDateFormat("yyyyMMdd_HHmmss");
 
     //yyyyMMdd-HHmmss

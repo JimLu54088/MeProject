@@ -43,4 +43,11 @@
   >
     Search
   </button>
+
+  <!-- 在畫面中央顯示的進度條 -->
+  <div *ngIf="isLoading" class="progress-container">
+    <div class="progress-bar">
+      <div class="progress-stripes"></div>
+    </div>
+  </div>
 </div>

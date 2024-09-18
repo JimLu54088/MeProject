@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import jp.co.jim.common.Constants;
 import jp.co.jim.common.JwtTokenUtil;
 import jp.co.jim.entity.ErrorDTO;
+import jp.co.jim.entity.SearchCriteriaEntity;
 import jp.co.jim.entity.SearchResultEntity;
+import jp.co.jim.service.LoginService;
 import jp.co.jim.service.SearchResultService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,12 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api")
@@ -38,6 +36,9 @@ public class SearchByExcelController {
 
     @Autowired
     private SearchResultService service;
+
+    @Autowired
+    private LoginService loginService;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -124,9 +125,43 @@ public class SearchByExcelController {
                 }
 
                 logger.info(LOG_HEADER + "Filled cells in B2 to B" + (int) (maxSearchByExcelRows + 1) + " :: " + filledCellCount);
+                List<SearchCriteriaEntity> searchCriteriaList = readSearchCriteriaFromExcel(String.valueOf(targetExcelFile));
+
+
+                List<Map<String, Object>> resultList = new ArrayList<>();
+
+                for (SearchCriteriaEntity entity : searchCriteriaList) {
+                    // 將 searchMapper.search(entity) 的結果查詢出來
+                    List<Map<String, Object>> result = loginService.searchSingleVEC(entity);
+
+                    // 將每行結果添加到 resultList 中
+                    for (Map<String, Object> row : result) {
+                        // 創建一個新的 Map 來存儲當前行的數據
+                        Map<String, Object> rowData = new HashMap<>();
+
+                        // 將需要的欄位從原始結果中取出來，並放到新的 Map 中
+                        rowData.put("KUR", row.get("KUR"));
+                        rowData.put("PROJ_F_CODE", row.get("PROJ_F_CODE"));
+                        rowData.put("MODEL_CD", row.get("MODEL_CD"));
+                        rowData.put("COLOR", row.get("COLOR"));
+                        rowData.put("MANUF_DATE", row.get("MANUF_DATE"));
+
+                        // 動態處理不在固定欄位中的其他欄位
+                        for (String key : row.keySet()) {
+                            if (!isFixedColumn(key)) {
+                                rowData.put(key, row.get(key));
+                            }
+                        }
+
+                        // 將這個新建的 Map 添加到 resultList 中
+                        resultList.add(rowData);
+                    }
+                }
 
 
                 try {
+
+                    generateCSV(resultList, "D:\\test_files\\vecSearchWorkFolder\\searchByExcelDownloadFolder\\" + userIdAndSearchTitle.get("userId") + "_" + System.currentTimeMillis() + ".csv");
 
 
                     return ResponseEntity.ok("{\"status\": \"ok\"}");
@@ -206,6 +241,97 @@ public class SearchByExcelController {
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
+    }
+
+
+    public List<SearchCriteriaEntity> readSearchCriteriaFromExcel(String filePath) throws IOException {
+        List<SearchCriteriaEntity> searchCriteriaList = new ArrayList<>();
+
+        try (FileInputStream fis = new FileInputStream(filePath);
+             Workbook workbook = new XSSFWorkbook(fis)) {
+
+            Sheet sheet = workbook.getSheetAt(0); // Assuming the data is on the first sheet
+
+            for (int rowIndex = 1; rowIndex <= maxSearchByExcelRows; rowIndex++) { // Skip header row
+                Row row = sheet.getRow(rowIndex);
+                if (row != null) {
+                    SearchCriteriaEntity entity = new SearchCriteriaEntity();
+                    entity.setKur(getCellValue(row.getCell(1)));
+                    entity.setProject_jya_code(getCellValue(row.getCell(2)));
+                    entity.setModel_code(getCellValue(row.getCell(3)));
+                    entity.setColor(getCellValue(row.getCell(4)));
+                    entity.setManufacter_date(getCellValue(row.getCell(5)));
+                    searchCriteriaList.add(entity);
+                }
+            }
+        }
+
+        return searchCriteriaList;
+    }
+
+    private String getCellValue(Cell cell) {
+        if (cell == null) {
+            return "";
+        }
+        if (cell.getCellType() == CellType.NUMERIC) {
+            return String.valueOf((int) cell.getNumericCellValue());
+        }
+        return cell.getStringCellValue();
+    }
+
+
+    public void generateCSV(List<Map<String, Object>> resultList, String outputFilePath) throws IOException {
+        // 用於收集所有動態列
+        Set<String> dynamicColumns = new LinkedHashSet<>();
+
+        // 1. 遍歷所有行，找到所有的動態列（排除固定列）
+        for (Map<String, Object> row : resultList) {
+            for (String key : row.keySet()) {
+                if (!isFixedColumn(key)) {
+                    dynamicColumns.add(key);
+                }
+            }
+        }
+
+        // 2. 寫入 CSV 表頭 (固定部分在最左邊)
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilePath))) {
+            // 固定欄位部分
+            String searchSingleKURCSVHeader = "KUR,PROJ_F_CODE,MODEL_CD,COLOR,MANUF_DATE";
+            writer.write(searchSingleKURCSVHeader);
+
+            // 動態欄位部分
+            for (String column : dynamicColumns) {
+                writer.write("," + column);
+            }
+            writer.newLine();
+
+            // 3. 寫入資料
+            for (Map<String, Object> row : resultList) {
+                // 固定欄位部分
+                writer.write(
+                        row.getOrDefault("KUR", "") + "," +
+                                row.getOrDefault("PROJ_F_CODE", "") + "," +
+                                row.getOrDefault("MODEL_CD", "") + "," +
+                                row.getOrDefault("COLOR", "") + "," +
+                                row.getOrDefault("MANUF_DATE", "")
+                );
+
+                // 動態欄位部分
+                for (String column : dynamicColumns) {
+                    writer.write("," + row.getOrDefault(column, "")); // 如果没有值，則默認為空
+                }
+                writer.newLine();
+            }
+        }
+    }
+
+    // 判斷是否是固定列
+    private boolean isFixedColumn(String column) {
+        return column.equals("KUR") ||
+                column.equals("PROJ_F_CODE") ||
+                column.equals("MODEL_CD") ||
+                column.equals("COLOR") ||
+                column.equals("MANUF_DATE");
     }
 
 

@@ -130,7 +130,11 @@ export class SearchByExcelComponent implements OnInit {
     }
   }
 
+  isLoading = false;
+
   onSearch() {
+    // 開始顯示進度條
+    this.isLoading = true;
     if (this.isFileChecked) {
       if (this.file) {
         const userId = this.getUserIdFromToken();
@@ -164,6 +168,8 @@ export class SearchByExcelComponent implements OnInit {
                 panelClass: 'custom-dialog-container',
               });
               this.isSearchEnabled = true;
+              // 請求完成後，隱藏進度條
+              this.isLoading = false;
             }
           },
           (error) => {
@@ -188,7 +194,8 @@ export class SearchByExcelComponent implements OnInit {
                 panelClass: 'custom-dialog-container',
               });
             }
-
+            // 出現錯誤後也隱藏進度條
+            this.isLoading = false;
             this.isSearchEnabled = false;
           }
         );

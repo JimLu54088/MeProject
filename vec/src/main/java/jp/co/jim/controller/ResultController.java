@@ -62,7 +62,7 @@ public class ResultController {
             return ResponseEntity.ok(searchResultList);
 
         } catch (Exception ex) {
-            logger.error(ERROR_LOG_HEADER + "Error while getting search result from DB : " , ex);
+            logger.error(ERROR_LOG_HEADER + "Error while getting search result from DB : ", ex);
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while getting search result from DB!!");
         }
@@ -71,19 +71,19 @@ public class ResultController {
     }
 
 
-    @GetMapping("/deleteSavedsearchResult")
-    public ResponseEntity<?> deleteSavedsearchResult(@RequestParam String user_id, String s_r_id) {
+    @PostMapping("/deleteSavedsearchResult")
+    public ResponseEntity<?> deleteSavedsearchResult(@RequestBody Map<String, String> requestDeleteBody) {
 
 
-        logger.debug(LOG_HEADER + "[deleteSavedsearchResult] received userId : " + user_id + " received s_r_id : " + s_r_id);
+        logger.debug(LOG_HEADER + "[deleteSavedCriteria] received userId : " + requestDeleteBody.get("user_id") + " received s_r_id : " + requestDeleteBody.get("s_r_id") + " received ins_dt : " + requestDeleteBody.get("ins_dt"));
 
         try {
-            service.deleteSavedsearchResult(user_id, s_r_id);
+            service.deleteSavedsearchResult(requestDeleteBody.get("user_id"), requestDeleteBody.get("s_r_id"), requestDeleteBody.get("ins_dt"));
 
             return ResponseEntity.ok("{\"status\": \"ok\"}");
 
         } catch (Exception ex) {
-            logger.error(ERROR_LOG_HEADER + "Error while delete Saved search result from DB : " , ex);
+            logger.error(ERROR_LOG_HEADER + "Error while delete Saved search result from DB : ", ex);
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while delete Saved search result from DB!!");
         }

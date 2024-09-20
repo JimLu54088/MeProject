@@ -33,11 +33,25 @@ export class SearchResultService {
     );
   }
 
-  deleteSavedSearchResultRecord(s_r_id: any): Observable<void> {
+  // deleteSavedSearchResultRecord(s_r_id: any, ins_dt: any): Observable<void> {
+  //   const user_id = this.getUserIdFromToken();
+  //   const url = `${this.deleteApiUrl}?user_id=${user_id}&s_r_id=${s_r_id}&ins_dt=${ins_dt}`; // 假设你需要在 URL 中传递 userId
+  //   console.log('deleteUrl : ' + url);
+  //   return this.http.get<void>(url).pipe(
+  //     catchError((error) => {
+  //       console.error('Error deleting saved search result record', error);
+  //       return throwError(error);
+  //     })
+  //   );
+  // }
+
+  deleteSavedSearchResultRecord(s_r_id: any, ins_dt: any): Observable<void> {
     const user_id = this.getUserIdFromToken();
-    const url = `${this.deleteApiUrl}?user_id=${user_id}&s_r_id=${s_r_id}`; // 假设你需要在 URL 中传递 userId
-    console.log('deleteUrl : ' + url);
-    return this.http.get<void>(url).pipe(
+    const url = this.deleteApiUrl; // 使用 POST，不需要將參數附加到 URL
+    const body = { user_id, s_r_id, ins_dt }; // 將參數放到 body 中
+
+    console.log('delete body :', body);
+    return this.http.post<void>(url, body).pipe(
       catchError((error) => {
         console.error('Error deleting saved search result record', error);
         return throwError(error);

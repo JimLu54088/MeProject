@@ -46,20 +46,23 @@ export class SearchResultComponent implements OnInit {
     this.router.navigate(['/manage/home'], { queryParams });
   }
 
-  deleteSavedSearchResultRecord(s_r_id: any): void {
+  deleteSavedSearchResultRecord(s_r_id: any, ins_dt: any): void {
     if (confirm('Are you sure you want to delete this saved search result?')) {
-      this.searchResultService.deleteSavedSearchResultRecord(s_r_id).subscribe(
-        () => {
-          // 删除成功后在前端更新列表
-          this.savedSearchResultList = this.savedSearchResultList.filter(
-            (responseSearchResultList) =>
-              responseSearchResultList.s_r_id !== s_r_id
-          );
-        },
-        (error) => {
-          console.error('Error deleting criteria', error);
-        }
-      );
+      this.searchResultService
+        .deleteSavedSearchResultRecord(s_r_id, ins_dt)
+        .subscribe(
+          () => {
+            // 删除成功后在前端更新列表
+            this.savedSearchResultList = this.savedSearchResultList.filter(
+              (responseSearchResultList) =>
+                responseSearchResultList.s_r_id !== s_r_id ||
+                responseSearchResultList.ins_dt !== ins_dt
+            );
+          },
+          (error) => {
+            console.error('Error deleting criteria', error);
+          }
+        );
     }
   }
 

@@ -53,7 +53,10 @@
       <td class="criteria-actions">
         <button
           (click)="
-            deleteSavedSearchResultRecord(savedSearchResultEntity.s_r_id)
+            deleteSavedSearchResultRecord(
+              savedSearchResultEntity.s_r_id,
+              savedSearchResultEntity.ins_dt
+            )
           "
         >
           <i class="fa fa-trash"></i>

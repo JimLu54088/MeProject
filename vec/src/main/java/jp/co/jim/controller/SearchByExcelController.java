@@ -6,6 +6,7 @@ import jp.co.jim.common.JwtTokenUtil;
 import jp.co.jim.entity.ErrorDTO;
 import jp.co.jim.entity.SearchCriteriaEntity;
 import jp.co.jim.entity.SearchResultEntity;
+import jp.co.jim.entity.WarningDTO;
 import jp.co.jim.service.LoginService;
 import jp.co.jim.service.SearchResultService;
 import org.apache.logging.log4j.LogManager;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @RestController
@@ -35,7 +38,8 @@ public class SearchByExcelController {
     private static final String ERROR_LOG_HEADER = "[" + SearchByExcelController.class.getName() + "] :: ";
 
     @Autowired
-    private SearchResultService service;
+    private SearchResultService searchResultService;
+
 
     @Autowired
     private LoginService loginService;
@@ -159,12 +163,87 @@ public class SearchByExcelController {
                 }
 
 
+                if (resultList.isEmpty()) {
+
+
+                    logger.warn(WARN_LOG_HEADER + Constants.noRecordFound);
+
+
+                    SearchResultEntity searchResultEntity = new SearchResultEntity();
+
+                    searchResultEntity.setS_r_id(userIdAndSearchTitle.get("searchTitle"));
+                    searchResultEntity.setUser_id(userIdAndSearchTitle.get("userId"));
+                    searchResultEntity.setStatus("1");
+                    searchResultEntity.setErr_msg(Constants.noRecordFound);
+
+
+                    //Insert search result into FB
+                    try {
+                        logger.info(LOG_HEADER + "Insert search result into DB.");
+                        searchResultService.saveSearchResultIntoDB(searchResultEntity);
+                    } catch (Exception e) {
+
+                        logger.error(ERROR_LOG_HEADER + "Error while insert search result into DB : ", e);
+
+                        ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, e.toString());
+
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+
+                    }
+
+
+                    WarningDTO warningResponse = new WarningDTO(Constants.WSW001, Constants.noRecordFound_toFrontEnd);
+
+
+                    return ResponseEntity.ok(warningResponse);
+
+                }
+
+
+                String tempOutPutCsvPath = resultZipFileLocation + userIdAndSearchTitle.get("userId") + "\\" + System.currentTimeMillis() + "_temp.csv";
+                String timestamp = Constants.dateTimeFormatyyyyMMdd__HHmmss.format(new Date());
+                String outPutCsvPath = resultZipFileLocation + userIdAndSearchTitle.get("userId") + "\\" + timestamp + ".csv";
+
+                Path pathOutPutCsvPath = Paths.get(outPutCsvPath);
+                // 提取文件名
+                String strFileNameOnly = pathOutPutCsvPath.getFileName().toString();
+
+
+                // 返回下載鏈接
+                String fileDownloadUrl = "/api/download?fileName=" + strFileNameOnly + "&userId=" + userIdAndSearchTitle.get("userId");
+
+                //Insert search result into FB
+                SearchResultEntity searchResultEntity = new SearchResultEntity();
+
+                searchResultEntity.setS_r_id(userIdAndSearchTitle.get("searchTitle"));
+                searchResultEntity.setUser_id(userIdAndSearchTitle.get("userId"));
+                searchResultEntity.setStatus("0");
+                searchResultEntity.setDwn_lnk(fileDownloadUrl);
+                searchResultEntity.setErr_msg("");
+
+
+                try {
+                    logger.info(WARN_LOG_HEADER + "Insert search result into DB.");
+                    searchResultService.saveSearchResultIntoDB(searchResultEntity);
+                } catch (Exception e) {
+
+                    logger.error(ERROR_LOG_HEADER + "Error while insert search result into DB : ", e);
+
+                    ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, e.toString());
+
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+
+                }
+
+
                 try {
 
-                    generateCSV(resultList, "D:\\test_files\\vecSearchWorkFolder\\searchByExcelDownloadFolder\\" + userIdAndSearchTitle.get("userId") + "_" + System.currentTimeMillis() + ".csv");
+                    generateCSV(resultList, tempOutPutCsvPath);
+
+                    removeDuplicatedLine(tempOutPutCsvPath, outPutCsvPath);
 
 
-                    return ResponseEntity.ok("{\"status\": \"ok\"}");
+                    return ResponseEntity.ok(Collections.singletonMap("downloadUrl", fileDownloadUrl));
                 } catch (Exception ex) {
                     logger.error(ERROR_LOG_HEADER + "Error while getting search result from DB : ", ex);
 
@@ -255,6 +334,9 @@ public class SearchByExcelController {
             for (int rowIndex = 1; rowIndex <= maxSearchByExcelRows; rowIndex++) { // Skip header row
                 Row row = sheet.getRow(rowIndex);
                 if (row != null) {
+                    if ("".equals(getCellValue(row.getCell(1))) || getCellValue(row.getCell(1)) == null) {
+                        continue;
+                    }
                     SearchCriteriaEntity entity = new SearchCriteriaEntity();
                     entity.setKur(getCellValue(row.getCell(1)));
                     entity.setProject_jya_code(getCellValue(row.getCell(2)));
@@ -322,6 +404,10 @@ public class SearchByExcelController {
                 }
                 writer.newLine();
             }
+
+            //Remove duplicated result
+
+
         }
     }
 
@@ -332,6 +418,35 @@ public class SearchByExcelController {
                 column.equals("MODEL_CD") ||
                 column.equals("COLOR") ||
                 column.equals("MANUF_DATE");
+    }
+
+    public void removeDuplicatedLine(String inputFilePath, String outputFilePath) throws IOException {
+
+
+        // 用來追蹤已經寫入的行
+        Set<String> linesSet = new HashSet<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFilePath));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilePath))) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // 如果該行還未處理過，則將其寫入輸出文件
+                if (linesSet.add(line)) {
+                    writer.write(line);
+                    writer.newLine(); // 寫入新行
+                }
+            }
+        } catch (IOException e) {
+            logger.error(ERROR_LOG_HEADER + "Error while remove duplicated line in csv : ", e);
+            throw e;
+
+        } finally {
+            File fielInputFile = new File(inputFilePath);
+            fielInputFile.delete();
+
+
+        }
     }
 
 

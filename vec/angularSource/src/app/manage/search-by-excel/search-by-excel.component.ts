@@ -157,12 +157,14 @@ export class SearchByExcelComponent implements OnInit {
                 },
                 panelClass: 'custom-dialog-container',
               });
+
+              this.isLoading = false;
             } else {
               //Success Response
               this.dialog.open(ErrorDialogComponent, {
                 data: {
                   message:
-                    'Excel check was successful. Please click the search button.', // 使用後端返回的 warningMessage
+                    'This search is complete. You can download the file from the result page.', // 使用後端返回的 warningMessage
                   poptitle: 'SUCG',
                 },
                 panelClass: 'custom-dialog-container',

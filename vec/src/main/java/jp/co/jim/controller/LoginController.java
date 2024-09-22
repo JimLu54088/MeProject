@@ -38,450 +38,406 @@ import java.util.zip.ZipOutputStream;
 @RequestMapping("/api")
 public class LoginController {
 
-    private static final Logger logger = LogManager.getLogger(LoginController.class);
-    private static final String LOG_HEADER = "[" + LoginController.class.getSimpleName() + "] :: ";
+	private static final Logger logger = LogManager.getLogger(LoginController.class);
+	private static final String LOG_HEADER = "[" + LoginController.class.getSimpleName() + "] :: ";
 
-    private static final String WARN_LOG_HEADER = "[" + LoginController.class.getSimpleName() + "] :: ";
+	private static final String WARN_LOG_HEADER = "[" + LoginController.class.getSimpleName() + "] :: ";
 
-    private static final String ERROR_LOG_HEADER = "[" + LoginController.class.getName() + "] :: ";
+	private static final String ERROR_LOG_HEADER = "[" + LoginController.class.getName() + "] :: ";
 
-    @Autowired
-    private LoginService service;
+	@Autowired
+	private LoginService service;
 
-    @Autowired
-    private SearchResultService searchResultService;
+	@Autowired
+	private SearchResultService searchResultService;
 
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
+	@Autowired
+	private JwtTokenUtil jwtTokenUtil;
 
+	@Autowired
+	private Environment environment;
 
-    @Autowired
-    private Environment environment;
+	@Value("${maximum_save_search_criteria}")
+	private int maximum_save_search_criteria;
 
-    @Value("${maximum_save_search_criteria}")
-    private int maximum_save_search_criteria;
+	@Value("${resultZipFileLocation}")
+	private String resultZipFileLocation;
 
-    @Value("${resultZipFileLocation}")
-    private String resultZipFileLocation;
+	@Value("${maximum_result_count}")
+	private int maximum_result_count;
 
-    @Value("${maximum_result_count}")
-    private int maximum_result_count;
+	@Value("${searchSingleKURCSVHeader}")
+	private String searchSingleKURCSVHeader;
 
-    @Value("${searchSingleKURCSVHeader}")
-    private String searchSingleKURCSVHeader;
+	@PostMapping("/Login")
+	public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
 
+		String username = loginData.get("username");
+		String password = loginData.get("password");
 
-    @PostMapping("/Login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
+		int countOfAdminLogin = 0;
 
-        String username = loginData.get("username");
-        String password = loginData.get("password");
+		// Output received reuqestBody
+		Gson gson = new Gson();
+		String jsonLoginData = gson.toJson(loginData);
+		logger.info(LOG_HEADER + "received requestBody for Login: " + jsonLoginData);
 
-        int countOfAdminLogin = 0;
+		// Validate the credentials
+		try {
+			countOfAdminLogin = service.checkAdminLogin(username, password);
+		} catch (Exception exWhileCheckingAdminLogin) {
+			logger.error(ERROR_LOG_HEADER + "Error while checking admin login.", exWhileCheckingAdminLogin);
+		}
 
-        //Output received reuqestBody
-        Gson gson = new Gson();
-        String jsonLoginData = gson.toJson(loginData);
-        logger.info(LOG_HEADER + "received requestBody for Login: " + jsonLoginData);
-
-
-        // Validate the credentials
-        try {
-            countOfAdminLogin = service.checkAdminLogin(username, password);
-        } catch (Exception exWhileCheckingAdminLogin) {
-            logger.error(ERROR_LOG_HEADER + "Error while checking admin login.", exWhileCheckingAdminLogin);
-        }
-
-
-        if (countOfAdminLogin == 1) {
-            // Record successful login action
+		if (countOfAdminLogin == 1) {
+			// Record successful login action
 //            userActionService.saveUserAction(username, "Admin Login successful");
 
+			// 验证通过，生成JWT
+			try {
+				String token = jwtTokenUtil.generateToken(username);
 
-            // 验证通过，生成JWT
-            try {
-                String token = jwtTokenUtil.generateToken(username);
+				// 返回JWT给客户端
+				return ResponseEntity.ok(Map.of("token", token));
+			} catch (Exception e) {
+				logger.error(ERROR_LOG_HEADER + "Token getting failed.", e);
+				throw new RuntimeException("Token getting failed.");
 
-                // 返回JWT给客户端
-                return ResponseEntity.ok(Map.of("token", token));
-            } catch (Exception e) {
-                logger.error(ERROR_LOG_HEADER + "Token getting failed.", e);
-                throw new RuntimeException("Token getting failed.");
+			}
 
-            }
-
-        } else {
-            // Record unsuccessful login action
+		} else {
+			// Record unsuccessful login action
 //            userActionService.saveUserAction(username, "Login failed!");
 
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Admin Login failed!");
-        }
-    }
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Admin Login failed!");
+		}
+	}
 
-    @PostMapping("/searchSingleVec")
-    public ResponseEntity<?> searchSingleVec(@RequestBody Map<String, String> criteriaData) {
+	@PostMapping("/searchSingleVec")
+	public ResponseEntity<?> searchSingleVec(@RequestBody Map<String, String> criteriaData) {
 
+		// Output received reuqestBody
+		Gson gson = new Gson();
+		String jsonCriteriaData = gson.toJson(criteriaData);
+		logger.info(LOG_HEADER + "received requestBody for searchSingleVec: " + jsonCriteriaData);
 
-        //Output received reuqestBody
-        Gson gson = new Gson();
-        String jsonCriteriaData = gson.toJson(criteriaData);
-        logger.info(LOG_HEADER + "received requestBody for searchSingleVec: " + jsonCriteriaData);
+		if (this.areAllValuesEmpty(criteriaData)) {
 
+			logger.warn(WARN_LOG_HEADER + Constants.noCriteriaSpecified);
 
-        if (this.areAllValuesEmpty(criteriaData)) {
+			WarningDTO warningResponse = new WarningDTO(Constants.WSW002, Constants.noCriteriaSpecified);
 
-            logger.warn(WARN_LOG_HEADER + Constants.noCriteriaSpecified);
+			return ResponseEntity.ok(warningResponse);
 
-            WarningDTO warningResponse = new WarningDTO(Constants.WSW002, Constants.noCriteriaSpecified);
+		}
 
+		SearchCriteriaEntity searchEntity = new SearchCriteriaEntity();
 
-            return ResponseEntity.ok(warningResponse);
+		searchEntity.setKur(criteriaData.get("kur"));
+		searchEntity.setProject_jya_code(criteriaData.get("project_jya_code"));
+		searchEntity.setModel_code(criteriaData.get("model_code"));
+		searchEntity.setColor(criteriaData.get("color"));
+		searchEntity.setManufacter_date(criteriaData.get("manufacter_date"));
+		searchEntity.setS_c_id(criteriaData.get("criteriaName"));
+		searchEntity.setUser_id(criteriaData.get("userId"));
 
-        }
+		try {
+			List<Map<String, Object>> resultList = service.searchSingleVEC(searchEntity);
 
+			logger.info(LOG_HEADER + "Search result count:: " + resultList.size());
 
-        SearchCriteriaEntity searchEntity = new SearchCriteriaEntity();
+			if (resultList.isEmpty()) {
 
-        searchEntity.setKur(criteriaData.get("kur"));
-        searchEntity.setProject_jya_code(criteriaData.get("project_jya_code"));
-        searchEntity.setModel_code(criteriaData.get("model_code"));
-        searchEntity.setColor(criteriaData.get("color"));
-        searchEntity.setManufacter_date(criteriaData.get("manufacter_date"));
-        searchEntity.setS_c_id(criteriaData.get("criteriaName"));
-        searchEntity.setUser_id(criteriaData.get("userId"));
+				logger.warn(WARN_LOG_HEADER + Constants.noRecordFound);
 
+				SearchResultEntity searchResultEntity = new SearchResultEntity();
 
-        try {
-            List<Map<String, Object>> resultList = service.searchSingleVEC(searchEntity);
+				searchResultEntity.setS_r_id(Constants.dateTimeFormatyyyyMMdd__HHmmss.format(new Date()));
+				searchResultEntity.setUser_id(criteriaData.get("userId"));
+				searchResultEntity.setStatus("1");
+				searchResultEntity.setErr_msg(Constants.noRecordFound);
 
-            logger.info(LOG_HEADER + "Search result count:: " + resultList.size());
+				// Insert search result into FB
+				try {
+					logger.info(LOG_HEADER + "Insert search result into DB.");
+					searchResultService.saveSearchResultIntoDB(searchResultEntity);
+				} catch (Exception e) {
 
-            if (resultList.isEmpty()) {
+					logger.error(ERROR_LOG_HEADER + "Error while insert search result into DB : ", e);
 
+					ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, e.toString());
 
-                logger.warn(WARN_LOG_HEADER + Constants.noRecordFound);
+					return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 
+				}
 
-                SearchResultEntity searchResultEntity = new SearchResultEntity();
+				WarningDTO warningResponse = new WarningDTO(Constants.WSW001, Constants.noRecordFound_toFrontEnd);
 
-                searchResultEntity.setS_r_id(Constants.dateTimeFormatyyyyMMdd__HHmmss.format(new Date()));
-                searchResultEntity.setUser_id(criteriaData.get("userId"));
-                searchResultEntity.setStatus("1");
-                searchResultEntity.setErr_msg(Constants.noRecordFound);
+				return ResponseEntity.ok(warningResponse);
 
+			}
 
-                //Insert search result into FB
-                try {
-                    logger.info(LOG_HEADER + "Insert search result into DB.");
-                    searchResultService.saveSearchResultIntoDB(searchResultEntity);
-                } catch (Exception e) {
+			if (resultList.size() >= maximum_result_count) {
 
-                    logger.error(ERROR_LOG_HEADER + "Error while insert search result into DB : ", e);
+				logger.warn(WARN_LOG_HEADER + String.format(Constants.searchResultCountExceeds, maximum_result_count));
 
-                    ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, e.toString());
+				SearchResultEntity searchResultEntity = new SearchResultEntity();
 
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+				searchResultEntity.setS_r_id(Constants.dateTimeFormatyyyyMMdd__HHmmss.format(new Date()));
+				searchResultEntity.setUser_id(criteriaData.get("userId"));
+				searchResultEntity.setStatus("1");
+				searchResultEntity.setErr_msg(String.format(Constants.searchResultCountExceeds, maximum_result_count));
 
-                }
+				// Insert search result into FB
+				try {
+					logger.info(WARN_LOG_HEADER + "Insert search result into DB.");
+					searchResultService.saveSearchResultIntoDB(searchResultEntity);
+				} catch (Exception e) {
 
+					logger.error(ERROR_LOG_HEADER + "Error while insert search result into DB : ", e);
 
-                WarningDTO warningResponse = new WarningDTO(Constants.WSW001, Constants.noRecordFound_toFrontEnd);
+					ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, e.getMessage());
 
+					return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 
-                return ResponseEntity.ok(warningResponse);
+				}
 
-            }
+				WarningDTO warningResponse = new WarningDTO(Constants.WSW003,
+						String.format(Constants.searchResultCountExceeds, maximum_result_count));
 
-            if (resultList.size() >= maximum_result_count) {
+				return ResponseEntity.ok(warningResponse);
 
-                logger.warn(WARN_LOG_HEADER + String.format(Constants.searchResultCountExceeds, maximum_result_count));
+			}
 
+			String jsonResultList = gson.toJson(resultList);
+			logger.debug(LOG_HEADER + "jsonResultList : " + jsonResultList);
+
+			// Create personal folder
+			String resultZipFileLocationWithUser = resultZipFileLocation + criteriaData.get("userId") + "\\";
+			// 動態生成當前時間的檔案名
+			Files.createDirectories(Paths.get(resultZipFileLocationWithUser));
+			String timestamp = Constants.dateTimeFormatyyyyMMdd__HHmmss.format(new Date());
+			String csvFileName = resultZipFileLocationWithUser + timestamp + ".csv";
+			String zipFileName = resultZipFileLocationWithUser + timestamp + ".zip";
 
-                SearchResultEntity searchResultEntity = new SearchResultEntity();
+			// 生成 CSV 文件
+			Path csvFile = Paths.get(csvFileName);
+			try (BufferedWriter writer = Files.newBufferedWriter(csvFile)) {
+				// 用於收集所有動態列
+				Set<String> dynamicColumns = new LinkedHashSet<>();
 
-                searchResultEntity.setS_r_id(Constants.dateTimeFormatyyyyMMdd__HHmmss.format(new Date()));
-                searchResultEntity.setUser_id(criteriaData.get("userId"));
-                searchResultEntity.setStatus("1");
-                searchResultEntity.setErr_msg(String.format(Constants.searchResultCountExceeds, maximum_result_count));
+				// 遍歷所有行，找到所有的動態列
+				for (Map<String, Object> row : resultList) {
+					for (String key : row.keySet()) {
+						if (!isFixedColumn(key)) {
+							dynamicColumns.add(key);
+						}
+					}
+				}
 
+				// 寫入 CSV 表頭 (固定部分在最左邊)
+				writer.write(searchSingleKURCSVHeader);
 
-                //Insert search result into FB
-                try {
-                    logger.info(WARN_LOG_HEADER + "Insert search result into DB.");
-                    searchResultService.saveSearchResultIntoDB(searchResultEntity);
-                } catch (Exception e) {
+				// 寫入動態欄位部分
+				for (String column : dynamicColumns) {
+					writer.write("," + column);
+				}
+				writer.newLine();
 
-                    logger.error(ERROR_LOG_HEADER + "Error while insert search result into DB : ", e);
+				// 寫入資料
+				for (Map<String, Object> row : resultList) {
+					// 固定欄位部分
+					writer.write(row.getOrDefault("KUR", "") + "," + row.getOrDefault("PROJ_F_CODE", "") + ","
+							+ row.getOrDefault("MODEL_CD", "") + "," + row.getOrDefault("COLOR", "") + ","
+							+ row.getOrDefault("MANUF_DATE", ""));
 
-                    ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, e.getMessage());
+					// 動態欄位部分
+					for (String column : dynamicColumns) {
+						writer.write("," + row.getOrDefault(column, ""));
+					}
+					writer.newLine();
+				}
+			}
 
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+			// 壓縮 CSV 文件為 ZIP
+			Path pathZipFile = Paths.get(zipFileName);
+			try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(pathZipFile))) {
+				ZipEntry zipEntry = new ZipEntry(csvFile.getFileName().toString());
+				zipOut.putNextEntry(zipEntry);
+				Files.copy(csvFile, zipOut);
+				zipOut.closeEntry();
+			}
 
-                }
+			// 刪除原始 CSV 文件
+			Files.delete(csvFile);
 
+			// 提取文件名
+			String strFileNameOnly = pathZipFile.getFileName().toString();
 
-                WarningDTO warningResponse = new WarningDTO(Constants.WSW003, String.format(Constants.searchResultCountExceeds, maximum_result_count));
+			// 返回下載鏈接
+			String fileDownloadUrl = "/api/download?fileName=" + strFileNameOnly + "&userId="
+					+ criteriaData.get("userId");
 
+			// Insert search result into FB
+			SearchResultEntity searchResultEntity = new SearchResultEntity();
 
-                return ResponseEntity.ok(warningResponse);
+			searchResultEntity.setS_r_id(Constants.dateTimeFormatyyyyMMdd__HHmmss.format(new Date()));
+			searchResultEntity.setUser_id(criteriaData.get("userId"));
+			searchResultEntity.setStatus("0");
+			searchResultEntity.setDwn_lnk(fileDownloadUrl);
+			searchResultEntity.setErr_msg("");
 
-            }
+			try {
+				logger.info(WARN_LOG_HEADER + "Insert search result into DB.");
+				searchResultService.saveSearchResultIntoDB(searchResultEntity);
+			} catch (Exception e) {
 
-            String jsonResultList = gson.toJson(resultList);
-            logger.debug(LOG_HEADER + "jsonResultList : " + jsonResultList);
+				logger.error(ERROR_LOG_HEADER + "Error while insert search result into DB : ", e);
 
-            //Create personal folder
-            String resultZipFileLocationWithUser = resultZipFileLocation + criteriaData.get("userId") + "\\";
-            // 動態生成當前時間的檔案名
-            Files.createDirectories(Paths.get(resultZipFileLocationWithUser));
-            String timestamp = Constants.dateTimeFormatyyyyMMdd__HHmmss.format(new Date());
-            String csvFileName = resultZipFileLocationWithUser + timestamp + ".csv";
-            String zipFileName = resultZipFileLocationWithUser + timestamp + ".zip";
+				ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, e.toString());
 
-            // 生成 CSV 文件
-            Path csvFile = Paths.get(csvFileName);
-            try (BufferedWriter writer = Files.newBufferedWriter(csvFile)) {
-                // 用於收集所有動態列
-                Set<String> dynamicColumns = new LinkedHashSet<>();
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 
-                // 遍歷所有行，找到所有的動態列
-                for (Map<String, Object> row : resultList) {
-                    for (String key : row.keySet()) {
-                        if (!isFixedColumn(key)) {
-                            dynamicColumns.add(key);
-                        }
-                    }
-                }
+			}
 
-                // 寫入 CSV 表頭 (固定部分在最左邊)
-                writer.write(searchSingleKURCSVHeader);
+			return ResponseEntity.ok(Collections.singletonMap("downloadUrl", fileDownloadUrl));
 
-                // 寫入動態欄位部分
-                for (String column : dynamicColumns) {
-                    writer.write("," + column);
-                }
-                writer.newLine();
+		}
 
-                // 寫入資料
-                for (Map<String, Object> row : resultList) {
-                    // 固定欄位部分
-                    writer.write(
-                            row.getOrDefault("KUR", "") + "," +
-                                    row.getOrDefault("PROJ_F_CODE", "") + "," +
-                                    row.getOrDefault("MODEL_CD", "") + "," +
-                                    row.getOrDefault("COLOR", "") + "," +
-                                    row.getOrDefault("MANUF_DATE", "")
-                    );
 
-                    // 動態欄位部分
-                    for (String column : dynamicColumns) {
-                        writer.write("," + row.getOrDefault(column, ""));
-                    }
-                    writer.newLine();
-                }
-            }
+		catch (Exception ex) {
 
+			ex.printStackTrace();
 
-            // 壓縮 CSV 文件為 ZIP
-            Path pathZipFile = Paths.get(zipFileName);
-            try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(pathZipFile))) {
-                ZipEntry zipEntry = new ZipEntry(csvFile.getFileName().toString());
-                zipOut.putNextEntry(zipEntry);
-                Files.copy(csvFile, zipOut);
-                zipOut.closeEntry();
-            }
+			logger.error(ERROR_LOG_HEADER + "Error while search single vec data from DB : ", ex);
 
-            // 刪除原始 CSV 文件
-            Files.delete(csvFile);
+			ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, ex.toString());
 
-            // 提取文件名
-            String strFileNameOnly = pathZipFile.getFileName().toString();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+		}
 
+	}
 
-            // 返回下載鏈接
-            String fileDownloadUrl = "/api/download?fileName=" + strFileNameOnly + "&userId=" + criteriaData.get("userId");
+	@PostMapping("/saveSearchCriteria")
+	public ResponseEntity<?> saveSearchCriteria(@RequestBody Map<String, String> criteriaData) {
 
-            //Insert search result into FB
-            SearchResultEntity searchResultEntity = new SearchResultEntity();
+		// check if records exceeds the limit
+		String user_id = criteriaData.get("userId");
 
-            searchResultEntity.setS_r_id(Constants.dateTimeFormatyyyyMMdd__HHmmss.format(new Date()));
-            searchResultEntity.setUser_id(criteriaData.get("userId"));
-            searchResultEntity.setStatus("0");
-            searchResultEntity.setDwn_lnk(fileDownloadUrl);
-            searchResultEntity.setErr_msg("");
+		service.countOfSavedSearchCriteriaByID(user_id);
 
+		if (service.countOfSavedSearchCriteriaByID(user_id) == maximum_save_search_criteria) {
 
-            try {
-                logger.info(WARN_LOG_HEADER + "Insert search result into DB.");
-                searchResultService.saveSearchResultIntoDB(searchResultEntity);
-            } catch (Exception e) {
+			ErrorDTO errorResponse = new ErrorDTO("WSE002",
+					"Touch the limit of criteria saving. Cannot insert record anymore.");
 
-                logger.error(ERROR_LOG_HEADER + "Error while insert search result into DB : ", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 
-                ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, e.toString());
+		}
 
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+		SearchCriteriaEntity insertEntity = new SearchCriteriaEntity();
 
-            }
+		insertEntity.setKur(criteriaData.get("kur"));
+		insertEntity.setProject_jya_code(criteriaData.get("project_jya_code"));
+		insertEntity.setModel_code(criteriaData.get("model_code"));
+		insertEntity.setColor(criteriaData.get("color"));
+		insertEntity.setManufacter_date(criteriaData.get("manufacter_date"));
+		insertEntity.setS_c_id(criteriaData.get("criteriaName"));
+		insertEntity.setUser_id(criteriaData.get("userId"));
 
+		// Output received reuqestBody
+		Gson gson = new Gson();
+		String strCriteriaData = gson.toJson(criteriaData);
+		logger.debug(LOG_HEADER + "received requestBody for saveSearchCriteria: " + strCriteriaData);
 
-            return ResponseEntity.ok(Collections.singletonMap("downloadUrl", fileDownloadUrl));
+		try {
+			service.insertSearchCriteriaData(insertEntity);
+			return ResponseEntity.ok(Map.of("token", "kkk"));
 
-        } catch (IOException ioe) {
-            logger.error(ERROR_LOG_HEADER + "Error while generate result zip file : ", ioe);
+		} catch (Exception ex) {
+			logger.error(ERROR_LOG_HEADER + "Error while insert Search CriteriaData into DB : ", ex);
 
-            ErrorDTO errorResponse = new ErrorDTO("WSE004", ioe.toString());
+			ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, ex.toString());
 
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+		}
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-        } catch (Exception ex) {
+	}
 
-            ex.printStackTrace();
+	@GetMapping("/getCriteriaList")
+	public ResponseEntity<?> getCriteriaList(@RequestParam String userId) {
 
-            logger.error(ERROR_LOG_HEADER + "Error while search single vec data from DB : ", ex);
+		logger.debug(LOG_HEADER + "[getCriteriaList] received userId : " + userId);
 
-            ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, ex.toString());
+		try {
+			List<SearchCriteriaEntity> criteriaList = service.selectCriteriaDataByID(userId);
 
+			Gson gson = new Gson();
+			String strcriteriaList = gson.toJson(criteriaList);
+			logger.debug(LOG_HEADER + "strcriteriaList : " + strcriteriaList);
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-        }
+			return ResponseEntity.ok(criteriaList);
 
+		} catch (Exception ex) {
+			logger.error(ERROR_LOG_HEADER + "Error while getting saved criteria from DB : ", ex);
 
-    }
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error while getting saved criteria from DB!!");
+		}
 
-    @PostMapping("/saveSearchCriteria")
-    public ResponseEntity<?> saveSearchCriteria(@RequestBody Map<String, String> criteriaData) {
+	}
 
+	@GetMapping("/deleteSavedCriteria")
+	public ResponseEntity<?> deleteSavedCriteria(@RequestParam String user_id, String s_c_id) {
 
-        //check if records exceeds the limit
-        String user_id = criteriaData.get("userId");
+		logger.debug(
+				LOG_HEADER + "[deleteSavedCriteria] received userId : " + user_id + " received s_c_id : " + s_c_id);
 
-        service.countOfSavedSearchCriteriaByID(user_id);
+		try {
+			service.deleteSavedCriteriaByIDAndName(user_id, s_c_id);
 
-        if (service.countOfSavedSearchCriteriaByID(user_id) == maximum_save_search_criteria) {
+			return ResponseEntity.ok("{\"status\": \"ok\"}");
 
-            ErrorDTO errorResponse = new ErrorDTO("WSE002", "Touch the limit of criteria saving. Cannot insert record anymore.");
+		} catch (Exception ex) {
+			logger.error(ERROR_LOG_HEADER + "Error while delete CriteriaData from DB : ", ex);
 
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error while delete Search CriteriaData from DB!!");
+		}
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+	}
 
-        }
+	// Download zip file
+	@GetMapping("/download")
+	public ResponseEntity<Resource> downloadFile(@RequestParam String fileName, String userId) {
+		// 拼接文件路径
+		Path filePath = Paths.get(resultZipFileLocation, userId, fileName);
 
+		logger.debug(LOG_HEADER + "download target file location : " + filePath.toString());
 
-        SearchCriteriaEntity insertEntity = new SearchCriteriaEntity();
+		// 确保文件存在
+		if (!Files.exists(filePath)) {
+			return ResponseEntity.notFound().build();
+		}
 
-        insertEntity.setKur(criteriaData.get("kur"));
-        insertEntity.setProject_jya_code(criteriaData.get("project_jya_code"));
-        insertEntity.setModel_code(criteriaData.get("model_code"));
-        insertEntity.setColor(criteriaData.get("color"));
-        insertEntity.setManufacter_date(criteriaData.get("manufacter_date"));
-        insertEntity.setS_c_id(criteriaData.get("criteriaName"));
-        insertEntity.setUser_id(criteriaData.get("userId"));
+		// 创建 Resource 对象
+		Resource resource = new FileSystemResource(filePath);
 
+		// 返回响应
+		return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"").body(resource);
+	}
 
-        //Output received reuqestBody
-        Gson gson = new Gson();
-        String strCriteriaData = gson.toJson(criteriaData);
-        logger.debug(LOG_HEADER + "received requestBody for saveSearchCriteria: " + strCriteriaData);
+	// 判斷是否為固定欄位
+	private boolean isFixedColumn(String column) {
+		return "KUR".equals(column) || "MODEL_CD".equals(column) || "PROJ_F_CODE".equals(column)
+				|| "COLOR".equals(column) || "MANUF_DATE".equals(column);
+	}
 
-        try {
-            service.insertSearchCriteriaData(insertEntity);
-            return ResponseEntity.ok(Map.of("token", "kkk"));
-
-        } catch (Exception ex) {
-            logger.error(ERROR_LOG_HEADER + "Error while insert Search CriteriaData into DB : ", ex);
-
-            ErrorDTO errorResponse = new ErrorDTO(Constants.WSE001, ex.toString());
-
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-        }
-
-
-    }
-
-    @GetMapping("/getCriteriaList")
-    public ResponseEntity<?> getCriteriaList(@RequestParam String userId) {
-
-
-        logger.debug(LOG_HEADER + "[getCriteriaList] received userId : " + userId);
-
-        try {
-            List<SearchCriteriaEntity> criteriaList = service.selectCriteriaDataByID(userId);
-
-            Gson gson = new Gson();
-            String strcriteriaList = gson.toJson(criteriaList);
-            logger.debug(LOG_HEADER + "strcriteriaList : " + strcriteriaList);
-
-
-            return ResponseEntity.ok(criteriaList);
-
-        } catch (Exception ex) {
-            logger.error(ERROR_LOG_HEADER + "Error while getting saved criteria from DB : ", ex);
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while getting saved criteria from DB!!");
-        }
-
-
-    }
-
-    @GetMapping("/deleteSavedCriteria")
-    public ResponseEntity<?> deleteSavedCriteria(@RequestParam String user_id, String s_c_id) {
-
-
-        logger.debug(LOG_HEADER + "[deleteSavedCriteria] received userId : " + user_id + " received s_c_id : " + s_c_id);
-
-        try {
-            service.deleteSavedCriteriaByIDAndName(user_id, s_c_id);
-
-            return ResponseEntity.ok("{\"status\": \"ok\"}");
-
-        } catch (Exception ex) {
-            logger.error(ERROR_LOG_HEADER + "Error while delete CriteriaData from DB : ", ex);
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while delete Search CriteriaData from DB!!");
-        }
-
-
-    }
-
-    //Download zip file
-    @GetMapping("/download")
-    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName, String userId) {
-        // 拼接文件路径
-        Path filePath = Paths.get(resultZipFileLocation, userId, fileName);
-
-        logger.debug(LOG_HEADER + "download target file location : " + filePath.toString());
-
-
-        // 确保文件存在
-        if (!Files.exists(filePath)) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // 创建 Resource 对象
-        Resource resource = new FileSystemResource(filePath);
-
-        // 返回响应
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-                .body(resource);
-    }
-
-
-    // 判斷是否為固定欄位
-    private boolean isFixedColumn(String column) {
-        return "KUR".equals(column) || "MODEL_CD".equals(column) || "PROJ_F_CODE".equals(column) ||
-                "COLOR".equals(column) || "MANUF_DATE".equals(column);
-    }
-
-    //verify requestBody is empty for each item or not
-    public boolean areAllValuesEmpty(Map<String, String> criteriaData) {
-        return criteriaData.entrySet().stream()
-                .filter(entry -> !entry.getKey().equals("userId")) // 排除 userId 的檢查
-                .allMatch(entry -> entry.getValue() == null || entry.getValue().trim().isEmpty());
-    }
-
+	// verify requestBody is empty for each item or not
+	public boolean areAllValuesEmpty(Map<String, String> criteriaData) {
+		return criteriaData.entrySet().stream().filter(entry -> !entry.getKey().equals("userId")) // 排除 userId 的檢查
+				.allMatch(entry -> entry.getValue() == null || entry.getValue().trim().isEmpty());
+	}
 
 }

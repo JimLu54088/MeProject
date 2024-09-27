@@ -54,8 +54,6 @@ public class LoginController {
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
 
-	@Autowired
-	private Environment environment;
 
 	@Value("${maximum_save_search_criteria}")
 	private int maximum_save_search_criteria;
@@ -304,7 +302,6 @@ public class LoginController {
 
 		}
 
-
 		catch (Exception ex) {
 
 			ex.printStackTrace();
@@ -328,8 +325,7 @@ public class LoginController {
 
 		if (service.countOfSavedSearchCriteriaByID(user_id) == maximum_save_search_criteria) {
 
-			ErrorDTO errorResponse = new ErrorDTO("WSE002",
-					"Touch the limit of criteria saving. Cannot insert record anymore.");
+			ErrorDTO errorResponse = new ErrorDTO(Constants.WSE002, Constants.saveCriteriaTouchLimit);
 
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 
@@ -352,7 +348,7 @@ public class LoginController {
 
 		try {
 			service.insertSearchCriteriaData(insertEntity);
-			return ResponseEntity.ok(Map.of("token", "kkk"));
+			return ResponseEntity.ok(Map.of("success", "success"));
 
 		} catch (Exception ex) {
 			logger.error(ERROR_LOG_HEADER + "Error while insert Search CriteriaData into DB : ", ex);

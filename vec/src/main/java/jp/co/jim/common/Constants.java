@@ -14,6 +14,8 @@ public class Constants {
 
 	// DB Exception
 	public static final String WSE001 = "WSE001";
+	//Touch save criteria limit
+	public static final String WSE002 = "WSE002";
 
 	// Zip generation error
 	public static final String WSE004 = "WSE004";
@@ -41,5 +43,9 @@ public class Constants {
 
 	// Message of search result exceeds WSW003
 	public static final String searchResultCountExceeds = "Count of search result exceeds limit :: %s.";
+
+
+	// Message of search result exceeds WSW003
+		public static final String saveCriteriaTouchLimit = "Touch the limit of criteria saving. Cannot insert record anymore.";
 
 }

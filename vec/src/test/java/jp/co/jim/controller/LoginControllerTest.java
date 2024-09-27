@@ -17,6 +17,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.http.HttpHeaders;
 
 import java.io.*;
 
@@ -25,12 +26,14 @@ import java.lang.reflect.Method;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import jp.co.jim.common.JwtTokenUtil;
 import jp.co.jim.common.ZipUnzipUtil;
 import jp.co.jim.entity.ErrorDTO;
+import jp.co.jim.entity.SearchCriteriaEntity;
 import jp.co.jim.entity.SearchResultEntity;
 import jp.co.jim.entity.WarningDTO;
 import jp.co.jim.service.LoginService;
@@ -61,6 +64,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -69,9 +73,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.unitils.thirdparty.org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,12 +81,8 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.zip.ZipOutputStream;
 
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @RequiredArgsConstructor
@@ -107,14 +104,11 @@ public class LoginControllerTest {
 	private AutoCloseable mockClose;
 
 	private static Path resultZipFileLocation_test;
-	private static Path uploadDirPath;
 
 	private static final String MOCK_APPENDER = "MockAppender";
 
 	private static final String RESULT_ZIP_FILE_LOCATION = "D:\\shell_test_231103\\localtest\\vec_test\\result_zip_file_location\\";
 	private static final String NotExistPath = "D:\\ppppppppppppppppppppppp"; // A path that not exist in PC
-	private static final String MONEY_LOCAL_UPLOAD_DIRECTORY_PATH = "D:\\uploadDirectory\\localtest\\";
-
 	private static final String LOG_HEADER = "[" + LoginController.class.getSimpleName() + "] :: ";
 	private static final String ERROR_LOG_HEADER = "[" + LoginController.class.getName() + "] :: ";
 
@@ -122,8 +116,6 @@ public class LoginControllerTest {
 	public static void createTestDirectory() throws IOException {
 		resultZipFileLocation_test = Files
 				.createDirectories(FileSystems.getDefault().getPath(RESULT_ZIP_FILE_LOCATION));
-		uploadDirPath = Files.createDirectories(FileSystems.getDefault().getPath(MONEY_LOCAL_UPLOAD_DIRECTORY_PATH));
-
 	}
 
 	@BeforeEach
@@ -132,6 +124,8 @@ public class LoginControllerTest {
 		mockClose = MockitoAnnotations.openMocks(this);
 		ReflectionTestUtils.setField(controller, "resultZipFileLocation", RESULT_ZIP_FILE_LOCATION);
 		ReflectionTestUtils.setField(controller, "maximum_result_count", 100000);
+		ReflectionTestUtils.setField(controller, "maximum_save_search_criteria", 8);
+
 		ReflectionTestUtils.setField(controller, "searchSingleKURCSVHeader",
 				"KUR,PROJ_F_CODE,MODEL_CD,COLOR,MANUF_DATE");
 
@@ -140,7 +134,7 @@ public class LoginControllerTest {
 	@AfterAll
 	public static void removeTestDirectory() throws IOException {
 
-//        FileUtils.deleteDirectory(localFileDirPath.toFile());
+        FileUtils.deleteDirectory(resultZipFileLocation_test.toFile());
 //        FileUtils.deleteDirectory(uploadDirPath.toFile());
 
 	}
@@ -149,6 +143,7 @@ public class LoginControllerTest {
 	public void tearDown() throws Exception {
 		mockClose.close();
 		removeAppender();
+		org.apache.commons.io.FileUtils.cleanDirectory(new File(RESULT_ZIP_FILE_LOCATION));
 
 	}
 
@@ -773,6 +768,256 @@ public class LoginControllerTest {
 
 		}
 
+	}
+
+	@Test
+	public void saveSearchCriteriaExceedLimit() throws Exception {
+		StringWriter writer = new StringWriter();
+		addAppender(writer, MOCK_APPENDER, Level.INFO);
+
+		Map<String, String> criteriaData = null;
+
+		criteriaData = Map.of("kur", "UUU", "project_jya_code", "", "model_code", "", "color", "", "manufacter_date",
+				"", "userId", "JJJ");
+
+		when(service.countOfSavedSearchCriteriaByID(any())).thenReturn(8);
+
+		ResponseEntity<?> response = controller.saveSearchCriteria(criteriaData);
+
+		Gson gson = new Gson();
+		String jsonResponse = gson.toJson(response);
+		System.out.println(LOG_HEADER + "jsonResponse: " + jsonResponse);
+
+		// Verify response
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+
+		ErrorDTO responseBody = (ErrorDTO) response.getBody();
+		assertEquals("WSE002", responseBody.getErrorCode());
+		assertEquals("Touch the limit of criteria saving. Cannot insert record anymore.",
+				responseBody.getErrorMessage());
+
+	}
+
+	@Test
+	public void saveSearchCriteriaSuccess() throws Exception {
+		StringWriter writer = new StringWriter();
+		addAppender(writer, MOCK_APPENDER, Level.INFO);
+
+		Map<String, String> criteriaData = null;
+
+		criteriaData = Map.of("kur", "UUU", "project_jya_code", "", "model_code", "", "color", "", "manufacter_date",
+				"", "userId", "JJJ");
+
+		when(service.countOfSavedSearchCriteriaByID(any())).thenReturn(6);
+		doNothing().when(service).insertSearchCriteriaData(any());
+
+		ResponseEntity<?> response = controller.saveSearchCriteria(criteriaData);
+
+		Gson gson = new Gson();
+		String jsonResponse = gson.toJson(response);
+		System.out.println(LOG_HEADER + "jsonResponse: " + jsonResponse);
+
+		// Verify response
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		Map<String, String> responseBody = (Map<String, String>) response.getBody();
+		assertEquals("success", responseBody.get("success"));
+
+	}
+
+	@Test
+	public void Error_while_saving_searchCriteriaIntoDB() throws Exception {
+		StringWriter writer = new StringWriter();
+		addAppender(writer, MOCK_APPENDER, Level.INFO);
+
+		Map<String, String> criteriaData = null;
+
+		criteriaData = Map.of("kur", "UUU", "project_jya_code", "", "model_code", "", "color", "", "manufacter_date",
+				"", "userId", "JJJ");
+
+		when(service.countOfSavedSearchCriteriaByID(any())).thenReturn(6);
+		doThrow(new RuntimeException("Database Error has occured.")).when(service).insertSearchCriteriaData(any());
+
+		ResponseEntity<?> response = controller.saveSearchCriteria(criteriaData);
+
+		Gson gson = new Gson();
+		String jsonResponse = gson.toJson(response);
+		System.out.println(LOG_HEADER + "jsonResponse: " + jsonResponse);
+
+		// Verify response
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+
+		ErrorDTO responseBody = (ErrorDTO) response.getBody();
+		assertEquals("WSE001", responseBody.getErrorCode());
+		assertEquals("java.lang.RuntimeException: Database Error has occured.", responseBody.getErrorMessage());
+
+	}
+
+	@Test
+	public void getCriteriaListSuccess() throws Exception {
+		StringWriter writer = new StringWriter();
+		addAppender(writer, MOCK_APPENDER, Level.INFO);
+
+		String user_id = "test";
+
+		List<SearchCriteriaEntity> criteriaList = new ArrayList<SearchCriteriaEntity>();
+
+		SearchCriteriaEntity entity = new SearchCriteriaEntity();
+		entity.setKur("TTT");
+		entity.setColor("Red");
+		criteriaList.add(entity);
+
+		when(service.selectCriteriaDataByID(any())).thenReturn(criteriaList);
+
+		ResponseEntity<?> response = controller.getCriteriaList(user_id);
+
+		Gson gson = new Gson();
+		String jsonResponse = gson.toJson(response);
+		System.out.println(LOG_HEADER + "jsonResponse: " + jsonResponse);
+
+		// Verify response
+		// 檢查狀態碼
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+
+		// 檢查返回的 body 是否是 List
+		assertTrue(response.getBody() instanceof List<?>);
+
+		// 檢查返回的列表是否包含期望的數據
+		List<?> responseBody = (List<?>) response.getBody();
+		assertEquals(1, responseBody.size());
+
+		// 驗證返回的數據
+		SearchCriteriaEntity resultEntity = (SearchCriteriaEntity) responseBody.get(0);
+		assertEquals("Red", resultEntity.getColor());
+		assertEquals("TTT", resultEntity.getKur());
+	}
+
+	@Test
+	public void getCriteriaListFail() throws Exception {
+		StringWriter writer = new StringWriter();
+		addAppender(writer, MOCK_APPENDER, Level.INFO);
+
+		String user_id = "test";
+
+		doThrow(new RuntimeException("Database Error has occured.")).when(service).selectCriteriaDataByID(any());
+
+		ResponseEntity<?> response = controller.getCriteriaList(user_id);
+
+		Gson gson = new Gson();
+		String jsonResponse = gson.toJson(response);
+		System.out.println(LOG_HEADER + "jsonResponse: " + jsonResponse);
+
+		// Verify response
+		// 檢查狀態碼
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+
+		// 檢查返回的錯誤訊息
+		assertEquals("Error while getting saved criteria from DB!!", response.getBody());
+
+	}
+
+	@Test
+	public void deleteSavedCriteriaSuccess() throws Exception {
+		StringWriter writer = new StringWriter();
+		addAppender(writer, MOCK_APPENDER, Level.INFO);
+
+		String user_id = "test";
+		String s_c_id = "s_c_id";
+
+		doNothing().when(service).deleteSavedCriteriaByIDAndName(any(), any());
+
+		ResponseEntity<?> response = controller.deleteSavedCriteria(user_id, s_c_id);
+
+		Gson gson = new Gson();
+		String jsonResponse = gson.toJson(response);
+		System.out.println(LOG_HEADER + "jsonResponse: " + jsonResponse);
+
+		// Verify response
+		// 檢查狀態碼是否為 OK
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+
+		// 檢查返回的 body 是否正確
+		assertEquals("{\"status\": \"ok\"}", response.getBody());
+	}
+
+	@Test
+	public void deleteSavedCriteriaFail() throws Exception {
+		StringWriter writer = new StringWriter();
+		addAppender(writer, MOCK_APPENDER, Level.INFO);
+
+		String user_id = "test";
+		String s_c_id = "s_c_id";
+
+		doThrow(new RuntimeException("Database Error has occured.")).when(service).deleteSavedCriteriaByIDAndName(any(),
+				any());
+
+		ResponseEntity<?> response = controller.deleteSavedCriteria(user_id, s_c_id);
+
+		Gson gson = new Gson();
+		String jsonResponse = gson.toJson(response);
+		System.out.println(LOG_HEADER + "jsonResponse: " + jsonResponse);
+
+		// Verify response
+		// 檢查狀態碼是否為 INTERNAL_SERVER_ERROR
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+
+		// 檢查返回的錯誤訊息是否正確
+		assertEquals("Error while delete Search CriteriaData from DB!!", response.getBody());
+
+	}
+
+	@Test
+	public void downloadFileSuccess() throws Exception {
+		StringWriter writer = new StringWriter();
+		addAppender(writer, MOCK_APPENDER, Level.INFO);
+
+		String user_id = "test";
+		String fileName = "TEST.zip";
+
+		Path filePath = Paths.get(RESULT_ZIP_FILE_LOCATION, user_id, fileName);
+
+		// 模擬文件存在
+		Files.createDirectories(filePath.getParent());
+		Files.createFile(filePath);
+
+		ResponseEntity<?> response = controller.downloadFile(fileName, user_id);
+
+		// Verify response
+		// 檢查狀態碼
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+
+		// 檢查返回的 resource 類型
+		assertTrue(response.getBody() instanceof FileSystemResource);
+
+		// 檢查 Content-Type 是否為 APPLICATION_OCTET_STREAM
+		assertEquals(MediaType.APPLICATION_OCTET_STREAM, response.getHeaders().getContentType());
+
+		// 檢查 Content-Disposition header
+		assertEquals("attachment; filename=\"" + fileName + "\"",
+				response.getHeaders().getFirst(HttpHeaders.CONTENT_DISPOSITION));
+
+		// 檢查 Content-Type 是否為 APPLICATION_OCTET_STREAM
+		assertEquals(MediaType.APPLICATION_OCTET_STREAM, response.getHeaders().getContentType());
+
+		// 清理測試文件
+		Files.deleteIfExists(filePath);
+		Files.delete(filePath.getParent());
+	}
+
+	@Test
+	public void downloadFileFail() throws Exception {
+		StringWriter writer = new StringWriter();
+		addAppender(writer, MOCK_APPENDER, Level.INFO);
+
+		String user_id = "test";
+		String fileName = "TEST.zip";
+
+		Path filePath = Paths.get(NotExistPath, user_id, fileName);
+
+		ResponseEntity<?> response = controller.downloadFile(fileName, user_id);
+
+		// Verify response
+		// 檢查狀態碼是否為 404 Not Found
+		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 	}
 
 	private void addAppender(StringWriter writer, String name, Level level) {

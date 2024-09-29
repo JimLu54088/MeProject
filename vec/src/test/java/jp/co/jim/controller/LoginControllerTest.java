@@ -134,8 +134,7 @@ public class LoginControllerTest {
 	@AfterAll
 	public static void removeTestDirectory() throws IOException {
 
-        FileUtils.deleteDirectory(resultZipFileLocation_test.toFile());
-//        FileUtils.deleteDirectory(uploadDirPath.toFile());
+		FileUtils.deleteDirectory(resultZipFileLocation_test.toFile());
 
 	}
 
@@ -1137,7 +1136,6 @@ public class LoginControllerTest {
 			baseDir = getExtractFolder() + File.separator + zipFile.getName();
 			unzipFile(zipFile, baseDir);
 
-//			processFiles(baseDir, filePrefix, zipFile, fileInfoMap);
 		}
 		return baseDir;
 	}

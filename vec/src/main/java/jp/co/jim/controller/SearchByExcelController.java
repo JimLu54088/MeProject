@@ -44,13 +44,6 @@ public class SearchByExcelController {
     @Autowired
     private LoginService loginService;
 
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
-
-
-    @Autowired
-    private Environment environment;
-
     @Value("${maximum_save_search_criteria}")
     private int maximum_save_search_criteria;
 

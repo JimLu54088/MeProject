@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.jim.repository.Delete_T_H_Op_repository">
+
+    <delete id="delete_T_hist_table" parameterType="String">
+        <![CDATA[
+        DELETE FROM t_hist_operation WHERE INS_DT < '2006-02-01 00:00:00'
+        ]]>
+    </delete>
+
+
+</mapper>

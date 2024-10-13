@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO" name="server-login">
     <Properties>
-        <Property name="log-path">D:/java_log</Property>
+        <Property name="log-path">D:/java_log/loginScreen</Property>
         <Property name="file-size">200 KB</Property>
         <Property name="file-interval">1</Property>
     </Properties>
@@ -26,10 +26,10 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="com.jim" level="INFO">
+        <Logger name="com.jim" level="DEBUG">
             <AppenderRef ref="file-log-default"/>
         </Logger>
-        <Root level="INFO">
+        <Root level="DEBUG">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="file-log-default"/>
         </Root>

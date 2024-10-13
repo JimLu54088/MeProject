@@ -18,4 +18,6 @@ public class Constants {
     public static final SimpleDateFormat dateTimeFormatyyyyMMdd_HHmmss = new SimpleDateFormat("yyyyMMdd_HHmmss");
     //yyyy-MM-dd HH:mm:ss.SSS
     public static final SimpleDateFormat dateTimeFormatyyyyMMdd_HHmmssSSS = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    //yyyy-MM-dd HH:mm:ss
+    public static final SimpleDateFormat dateTimeFormatyyyyMMddHHmmss = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 }

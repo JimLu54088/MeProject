@@ -23,6 +23,9 @@ public class Delete_T_HIST_OPERATION {
     @Autowired
     private Delete_T_H_Op_service service;
 
+    @Autowired
+    private UserActionService userActionService;
+
     private static final Logger logger = LogManager.getLogger(Delete_T_HIST_OPERATION.class);
     private static final String LOG_HEADER = "[" + Delete_T_HIST_OPERATION.class.getSimpleName() + "] :: ";
     private static final String ERROR_LOG_HEADER = "[" + Delete_T_HIST_OPERATION.class.getName() + "] :: ";
@@ -30,12 +33,28 @@ public class Delete_T_HIST_OPERATION {
     @GetMapping("/deleteHistAndLog")
     public ResponseEntity<String> deleteHistAndLog() {
 
-        logger.info(LOG_HEADER + "Get into deleteHistAndLog");
 
-        service.delete_T_hist_table();
+        try {
+            service.delete_T_hist_tableAndOldLog();
 
 
-        return ResponseEntity.ok("DGPasswordChange successfully.");
+            userActionService.saveUserAction("Somebody", "Delete hist table and old log successfully.");
+
+
+            return ResponseEntity.ok("Delete hist table and old log successfully.");
+
+
+        } catch (Exception ex) {
+
+
+            logger.error(ERROR_LOG_HEADER + "Delete hist table and old log failed. " + ex);
+            userActionService.saveUserAction("Somebody", "Delete hist table and old failed.");
+            return ResponseEntity.status(500).body("Delete hist table and old log failed. " + ex.getMessage());
+
+
+        }
+
+
     }
 
 

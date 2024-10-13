@@ -6,7 +6,7 @@
 
     <delete id="delete_T_hist_table" parameterType="String">
         <![CDATA[
-        DELETE FROM t_hist_operation WHERE INS_DT < '2006-02-01 00:00:00'
+        DELETE FROM ${tableName} WHERE INS_DT < '${deleteDate}' LIMIT ${commitInterval}
         ]]>
     </delete>
 

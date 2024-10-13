@@ -108,13 +108,13 @@ public class Delete_T_H_Op_service {
 
         logger.debug(LOG_HEADER + "delete old log path" + " :: " + logPath);
 
-        LocalDateTime tenDaysAgo = getDate(retentionPeriod).toInstant()
+        LocalDateTime xxxDaysAgo = getDate(retentionPeriod).toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();
 
         AtomicBoolean fileDeleted = new AtomicBoolean(false);  // 使用 AtomicBoolean 記錄是否有檔案被刪除
 
-        logger.debug(LOG_HEADER + "tenDaysAgo" + " :: " + tenDaysAgo);
+        logger.debug(LOG_HEADER + retentionPeriod +" DaysAgo" + " :: " + xxxDaysAgo);
 
         Path pathLogpath = Paths.get(logPath);
 
@@ -128,7 +128,7 @@ public class Delete_T_H_Op_service {
                     LocalDateTime fileModifiedTime = LocalDateTime.ofInstant(lastModifiedTime.toInstant(), ZoneId.systemDefault());
 
                     // 檢查檔案副檔名和修改時間是否超過 10 天
-                    if (fileModifiedTime.isBefore(tenDaysAgo) &&
+                    if (fileModifiedTime.isBefore(xxxDaysAgo) &&
                             (file.toString().endsWith(".log") || file.toString().endsWith(".gz"))) {
                         // 刪除檔案
                         Files.delete(file);
@@ -144,9 +144,9 @@ public class Delete_T_H_Op_service {
 
 
             if (fileDeleted.get()) {
-                logger.info(LOG_HEADER + "Delete old Logs before " + tenDaysAgo + " in " + logPath + " successfully!!");
+                logger.info(LOG_HEADER + "Delete old Logs before " + xxxDaysAgo + " in " + logPath + " successfully!!");
             } else {
-                logger.info("No logs older than " + tenDaysAgo + " were found for deletion.");
+                logger.info(LOG_HEADER + "No log older than " + xxxDaysAgo + " was found for deletion.");
             }
 
 

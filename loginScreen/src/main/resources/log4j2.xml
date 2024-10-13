@@ -26,10 +26,10 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="com.jim" level="DEBUG">
+        <Logger name="com.jim" level="INFO">
             <AppenderRef ref="file-log-default"/>
         </Logger>
-        <Root level="DEBUG">
+        <Root level="INFO">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="file-log-default"/>
         </Root>

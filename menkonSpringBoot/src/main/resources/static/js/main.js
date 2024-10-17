@@ -5,12 +5,18 @@ $(document).ready(function() {
                const formData = new FormData();
                const fileInput = document.getElementById('fileInput');
                formData.append('file', fileInput.files[0]);
+			   
+			   // 顯示轉圈圖標
+               document.getElementById('spinner').style.display = 'block';
+               document.getElementById('uploadStatus').textContent = '';
 
                fetch('/files/upload', {
                    method: 'POST',
                    body: formData
                })
                .then(response => {
+				 // 隱藏轉圈圖標
+                 document.getElementById('spinner').style.display = 'none';
 
                // Add logging to see the status code
                console.log('Response status:', response.status);
@@ -39,6 +45,9 @@ $(document).ready(function() {
                })
                .catch(error => {
                    console.error('Error:', error);
+				   // 隱藏轉圈圖標並顯示錯誤
+                   document.getElementById('spinner').style.display = 'none';
+                   document.getElementById('uploadStatus').textContent = error.message;
                if (error.message === 'File too large') {
                    alert('File too large. Please select a smaller file.');
                } else {

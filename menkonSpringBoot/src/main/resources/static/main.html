@@ -15,6 +15,13 @@
         <form class="upload-form" id="uploadForm" enctype="multipart/form-data">
             <input type="file" id="fileInput" name="file" required>
             <button type="submit">Upload</button>
+			<!-- 轉圈圖標 -->
+            <div id="spinner" style="display: none;">
+            <img src="spinner.gif" alt="Loading...">
+            </div>
+
+            <!-- 上傳狀態 -->
+            <p id="uploadStatus"></p>
         </form>
         <div class="link-container" id="linkContainer">
             <p>Download your file using the link below:</p>

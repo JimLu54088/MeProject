@@ -133,83 +133,85 @@ export class SearchByExcelComponent implements OnInit {
   isLoading = false;
 
   onSearch() {
-    // 開始顯示進度條
-    this.isLoading = true;
-    if (this.isFileChecked) {
-      if (this.file) {
-        const userId = this.getUserIdFromToken();
+    if (this.isSearchEnabled) {
+      // 開始顯示進度條
+      this.isLoading = true;
+      if (this.isFileChecked) {
+        if (this.file) {
+          const userId = this.getUserIdFromToken();
 
-        const payload = {
-          searchTitle: this.searchTitle,
-          userId,
-        };
+          const payload = {
+            searchTitle: this.searchTitle,
+            userId,
+          };
 
-        // 发送 POST 请求到后端
-        this.http.post('/api/searchByExcel', payload).subscribe(
-          (response: any) => {
-            console.log('Search completed:', response);
-            // 如果後端返回 warningMessage
-            if (response.warningMessage) {
-              this.dialog.open(ErrorDialogComponent, {
-                data: {
-                  message: response.warningMessage, // 使用後端返回的 warningMessage
-                  poptitle: 'WARN',
-                },
-                panelClass: 'custom-dialog-container',
-              });
+          // 发送 POST 请求到后端
+          this.http.post('/api/searchByExcel', payload).subscribe(
+            (response: any) => {
+              console.log('Search completed:', response);
+              // 如果後端返回 warningMessage
+              if (response.warningMessage) {
+                this.dialog.open(ErrorDialogComponent, {
+                  data: {
+                    message: response.warningMessage, // 使用後端返回的 warningMessage
+                    poptitle: 'WARN',
+                  },
+                  panelClass: 'custom-dialog-container',
+                });
 
+                this.isLoading = false;
+              } else {
+                //Success Response
+                this.dialog.open(ErrorDialogComponent, {
+                  data: {
+                    message:
+                      'This search is complete. You can download the file from the result page.', // 使用後端返回的 warningMessage
+                    poptitle: 'SUCG',
+                  },
+                  panelClass: 'custom-dialog-container',
+                });
+                this.isSearchEnabled = true;
+                // 請求完成後，隱藏進度條
+                this.isLoading = false;
+              }
+            },
+            (error) => {
+              console.error('Error Search By excel:', error);
+              if (error.error.errorCode) {
+                console.log('errror code : ' + error.error.errorCode);
+                console.log('error message : ' + error.error.errorMessage);
+                this.dialog.open(ErrorDialogComponent, {
+                  data: {
+                    message: error.error.errorMessage, // 使用後端返回的 errorMessage
+                    poptitle: 'ERROR',
+                  },
+                  panelClass: 'custom-dialog-container',
+                });
+              } else {
+                //Unexpeted error
+                this.dialog.open(ErrorDialogComponent, {
+                  data: {
+                    message: 'Unexpected error.',
+                    poptitle: 'ERROR',
+                  },
+                  panelClass: 'custom-dialog-container',
+                });
+              }
+              // 出現錯誤後也隱藏進度條
               this.isLoading = false;
-            } else {
-              //Success Response
-              this.dialog.open(ErrorDialogComponent, {
-                data: {
-                  message:
-                    'This search is complete. You can download the file from the result page.', // 使用後端返回的 warningMessage
-                  poptitle: 'SUCG',
-                },
-                panelClass: 'custom-dialog-container',
-              });
-              this.isSearchEnabled = true;
-              // 請求完成後，隱藏進度條
-              this.isLoading = false;
+              this.isSearchEnabled = false;
             }
-          },
-          (error) => {
-            console.error('Error Search By excel:', error);
-            if (error.error.errorCode) {
-              console.log('errror code : ' + error.error.errorCode);
-              console.log('error message : ' + error.error.errorMessage);
-              this.dialog.open(ErrorDialogComponent, {
-                data: {
-                  message: error.error.errorMessage, // 使用後端返回的 errorMessage
-                  poptitle: 'ERROR',
-                },
-                panelClass: 'custom-dialog-container',
-              });
-            } else {
-              //Unexpeted error
-              this.dialog.open(ErrorDialogComponent, {
-                data: {
-                  message: 'Unexpected error.',
-                  poptitle: 'ERROR',
-                },
-                panelClass: 'custom-dialog-container',
-              });
-            }
-            // 出現錯誤後也隱藏進度條
-            this.isLoading = false;
-            this.isSearchEnabled = false;
-          }
-        );
-      } else {
-        this.dialog.open(ErrorDialogComponent, {
-          data: {
-            message: 'No file specified.',
-            poptitle: 'ERROR',
-          },
-          panelClass: 'custom-dialog-container',
-        });
-        this.isSearchEnabled = false;
+          );
+        } else {
+          this.dialog.open(ErrorDialogComponent, {
+            data: {
+              message: 'No file specified.',
+              poptitle: 'ERROR',
+            },
+            panelClass: 'custom-dialog-container',
+          });
+          this.isSearchEnabled = false;
+        }
       }
     }
   }

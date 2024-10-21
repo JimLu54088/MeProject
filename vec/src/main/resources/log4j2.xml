@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO" name="server-login">
 	<Properties>
-		<Property name="log-path">D:/java_log</Property>
+		<Property name="log-path">D:/java_log/vecLog</Property>
 		<Property name="file-size">200 KB</Property>
 		<Property name="file-interval">1</Property>
 	</Properties>
@@ -24,10 +24,10 @@
 		</Console>
 	</Appenders>
 	<Loggers>
-		<Logger name="com.jim" level="DEBUG">
+		<Logger name="com.jim" level="INFO">
 			<AppenderRef ref="file-log-default"/>
 		</Logger>
-		<Root level="DEBUG">
+		<Root level="INFO">
 			<AppenderRef ref="Console"/>
 			<AppenderRef ref="file-log-default"/>
 		</Root>

@@ -23,6 +23,9 @@ $(document).ready(function () {
                 } else if (response.status === "DGRP002") {
                     alert(response.message);
                     window.location.href = "/DGChangePasswordScreen.html";
+                } else if (response.status === "DGRP003") {
+                    alert(response.message);
+                    window.location.href = "/DGlogin.html";
                 }
             },
             error: function (error) {

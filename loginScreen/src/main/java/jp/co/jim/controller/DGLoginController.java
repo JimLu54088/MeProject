@@ -54,14 +54,11 @@ public class DGLoginController {
                 response = new DGLoginResponse(Constants.DGRP002, "First time login. Please change password.");
 
                 // Record successful login action
-                userActionService.saveUserAction(username, "User Login successful");
+//                userActionService.saveUserAction(username, "User Login successful");
                 return ResponseEntity.ok(response);
 
             } else if (result.equals(Constants.DGRP003)) {
-                token = jwtTokenUtil.generateToken(username);
-                response = new DGLoginResponse(Constants.DGRP003, "LoginFailed", token);
-                // Record successful login action
-                userActionService.saveUserAction(username, "User Login successful");
+                response = new DGLoginResponse(Constants.DGRP003, "The password is expired. Please contact administrator.");
                 return ResponseEntity.ok(response);
             } else {
                 // Record successful login action

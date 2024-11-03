@@ -29,4 +29,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                                               @Param("minPrice") Integer minPrice,
                                               @Param("maxPrice") Integer maxPrice,
                                               @Param("sort") String sort);
+
+
+
+
+
+    @Query("SELECT DISTINCT category FROM Product")
+    public List<String> getAllProductCategory();
+
+
+
+
+
 }

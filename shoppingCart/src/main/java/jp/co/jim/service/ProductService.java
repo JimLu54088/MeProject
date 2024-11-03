@@ -55,4 +55,11 @@ public class ProductService {
         //回傳內容、分頁資訊（頁碼、一頁有幾筆資料）、符合過濾條件的產品數量
         return new PageImpl<>(pageContent, pageable, products.size());
     }
+
+    public List<String> getAllProductCategory() {
+        List<String> allProductCategory = productRepository.getAllProductCategory();
+
+        return  allProductCategory;
+    }
+
 }

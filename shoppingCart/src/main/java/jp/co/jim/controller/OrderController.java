@@ -29,7 +29,7 @@ public class OrderController {
     }
 
     //建立Session，並建立新的訂單。
-    @PostMapping("/create_session")
+    @GetMapping("/create_session")
     public ResponseEntity<Order> createCheckoutSession(@RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJWT(jwt);
         Long userId = user.getId();
@@ -40,7 +40,7 @@ public class OrderController {
     }
 
     //找尋用戶的全部訂單
-    @PostMapping("/find_order")
+    @GetMapping("/find_order")
     public ResponseEntity<List<Order>> findOrderByUserId(@RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJWT(jwt);
         return ResponseEntity.ok(orderService.findOrderByUserId(user.getId()));

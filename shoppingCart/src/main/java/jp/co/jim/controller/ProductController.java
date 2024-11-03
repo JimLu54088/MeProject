@@ -21,6 +21,18 @@ public class ProductController {
     }
 
     //建立商品
+    @PostMapping("/getCategoryInFilter")
+    public ResponseEntity<?> getCategoryInFilter() {
+        List<String> productCategory = new ArrayList<>();
+        productCategory = productService.getAllProductCategory();
+
+        return new ResponseEntity<>(productCategory, HttpStatus.OK);
+    }
+
+
+
+
+    //建立商品
     @PostMapping("/")
     public ResponseEntity<List<Product>> addProducts(@RequestBody Product[] products) {
         List<Product> createdProducts = new ArrayList<>();

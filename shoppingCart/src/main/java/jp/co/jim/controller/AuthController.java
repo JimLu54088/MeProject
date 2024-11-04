@@ -1,5 +1,6 @@
 package jp.co.jim.controller;
 
+import jakarta.annotation.PostConstruct;
 import jp.co.jim.bean.utils.EmailUtil;
 import jp.co.jim.config.JWTProvider;
 import jp.co.jim.entity.Cart;
@@ -20,6 +21,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 
@@ -37,6 +39,9 @@ public class AuthController {
     @Value("${templatesDirectory}")
     private String templatesDirectory;
 
+    @Value("${emailSubjectForSignUp}")
+    private String emailSubjectForSignUp;
+
     @Autowired
     private TemplateEngine templateEngine;
 
@@ -47,6 +52,11 @@ public class AuthController {
         this.cartService = cartService;
     }
 
+    @PostConstruct
+    public void init() {
+        setTemplateResolver();
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> createUserHandler(@RequestBody User user) throws Exception {
         //處理用戶註冊
@@ -55,9 +65,14 @@ public class AuthController {
         //使用JWTProvider產生token
         String token = jwtProvider.generateToken(user.getEmail());
 
+        //Get userId from Email
+        String userId = userService.findUserByEmail(user.getEmail()).getId().toString();
+        System.out.println("userid is ::" + userId);
+
         AuthResponse authResponse = new AuthResponse();
         authResponse.setJwt(token);
         authResponse.setMessage("Signup Success");
+        authResponse.setUserId(userId);
 
         //建立用戶時，也建立購物車
         Cart cart = cartService.createCart(userService.findUserByEmail(user.getEmail()));
@@ -65,16 +80,18 @@ public class AuthController {
         //send email
         Context context = new Context();
 
-        setTemplateResolver();
-        context.setVariable("messages", "tttt");
+//        setTemplateResolver();
+        context.setVariable("emailAddress", user.getEmail());
+        context.setVariable("userID",userId);
 
         if(null == smtpDetails || smtpDetails.isEmpty()){
             throw new RuntimeException("smtp Details information not found in config.");
         }
         String toEmail = user.getEmail();
-        String subject = "Shopping Cart 登録完了のお知らせ";
-        String mailTemplatePath = "test";
-//        String emailContent ="完了";
+        String subject = new String(emailSubjectForSignUp.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        System.out.println("email subject for signup :: " + subject);
+        String mailTemplatePath = "signUp";
+
         String emailContent = templateEngine.process(mailTemplatePath, context);
         EmailUtil.sendEmail(toEmail, subject, emailContent, smtpDetails, null);
 

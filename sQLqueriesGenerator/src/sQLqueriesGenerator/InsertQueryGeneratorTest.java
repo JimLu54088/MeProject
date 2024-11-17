@@ -139,7 +139,7 @@ public class InsertQueryGeneratorTest {
 		InputStream originalSystemIn = System.in;
 		System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
 
-		imp.createInsertQuery(String.valueOf(test_excelFile_path), tempoutputFilePath);
+		imp.createInsertQuery(String.valueOf(test_excelFile_path), tempoutputFilePath, 3);
 
 		String[] expectedLines = {
 				"INSERT INTO `t_hist_operation` (`ROW_ID`, `USER_ID`, `USER_OPERATION_DETAILS`) VALUES ('8', 'abc', 'Admin Login successful');",
@@ -183,7 +183,7 @@ public class InsertQueryGeneratorTest {
 
 		createTestExcelFile(test_excelFile_path);
 
-		String[] args = { test_excelFile_path.toString(), LOCAL_TEST_FOLDER };
+		String[] args = { test_excelFile_path.toString(), LOCAL_TEST_FOLDER, "3" };
 
 		// 模擬用戶輸入
 		String simulatedInput = "t_hist_operation\n3\n";
@@ -224,7 +224,7 @@ public class InsertQueryGeneratorTest {
 
 		createTestExcelFile(test_excelFile_path);
 
-		String[] args = { test_excelFile_path.toString(), LOCAL_TEST_FOLDER + "\\sub1" };
+		String[] args = { test_excelFile_path.toString(), LOCAL_TEST_FOLDER + "\\sub1", "3" };
 
 		// 模擬用戶輸入
 		String simulatedInput = "t_hist_operation\n3\n";
@@ -252,7 +252,7 @@ public class InsertQueryGeneratorTest {
 
 		createTestExcelFile(test_excelFile_path);
 
-		String[] args = { test_excelFile_path.toString(), LOCAL_TEST_FOLDER };
+		String[] args = { test_excelFile_path.toString(), LOCAL_TEST_FOLDER, "3" };
 
 		// 模擬用戶輸入
 		String simulatedInput = "t_hist_operation\n3\n";
@@ -285,7 +285,7 @@ public class InsertQueryGeneratorTest {
 
 		setExcelAllCellsToString(test_excelFile_path);
 
-		String[] args = { test_excelFile_path.toString(), LOCAL_TEST_FOLDER };
+		String[] args = { test_excelFile_path.toString(), LOCAL_TEST_FOLDER, "3" };
 
 		// 模擬用戶輸入
 		String simulatedInput = "t_hist_operation\n3\n";
@@ -312,7 +312,7 @@ public class InsertQueryGeneratorTest {
 
 		setExcelAllCellsToString(test_excelFile_path);
 
-		String[] args = { test_excelFile_path.toString(), LOCAL_TEST_FOLDER };
+		String[] args = { test_excelFile_path.toString(), LOCAL_TEST_FOLDER, "3" };
 
 		// 模擬用戶輸入
 		String simulatedInput = "t_hist_operation\n3\n";
@@ -338,7 +338,7 @@ public class InsertQueryGeneratorTest {
 
 //		setExcelAllCellsToString(test_excelFile_path);
 
-		String[] args = { test_excelFile_path.toString(), LOCAL_TEST_FOLDER };
+		String[] args = { test_excelFile_path.toString(), LOCAL_TEST_FOLDER, "3" };
 
 		// 模擬用戶輸入
 		String simulatedInput = "t_hist_operation\n3\n";
@@ -536,7 +536,7 @@ public class InsertQueryGeneratorTest {
 			headerCell3.setCellValue("USER_OPERATION_DETAILS");
 
 			// 創建數據行
-			Object[][] data = { { "8", "abc"}, { "9", "abc"}, { "10", "abc", "Admin Login successful" } };
+			Object[][] data = { { "8", "abc" }, { "9", "abc" }, { "10", "abc", "Admin Login successful" } };
 
 			int rowNum = 1;
 			for (Object[] rowData : data) {

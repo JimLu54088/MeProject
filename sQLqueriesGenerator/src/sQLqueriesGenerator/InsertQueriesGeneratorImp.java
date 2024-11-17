@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 public class InsertQueriesGeneratorImp {
 
-	public void createInsertQuery(String excelFilePath, String tempoutputFilePath) throws IOException {
+	public void createInsertQuery(String excelFilePath, String tempoutputFilePath, int intLastRow) throws IOException {
 
 		try (FileInputStream fis = new FileInputStream(excelFilePath);
 				Workbook workbook = new XSSFWorkbook(fis);
@@ -32,7 +32,7 @@ public class InsertQueriesGeneratorImp {
 			int columnCount = scanner.nextInt();
 
 			// 遍历每一行（从第二行开始，跳过表头）
-			for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+			for (int i = 1; i <= intLastRow; i++) {
 				Row row = sheet.getRow(i);
 
 				// Actually don't need this, because we won't have blank row.

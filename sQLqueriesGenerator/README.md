@@ -11,9 +11,18 @@ For example, D:\\myjava\\ttt is not a path in your PC, then you can set it. If D
 
 parameter will be like
 
-D:\\myjava\\insertQuerytest.xlsx D:\\myjava
+D:\\myjava\\insertQuerytest.xlsx D:\\myjava 5
 
 excelFilePath = args[0];
 outputSQLDirRoot = args[1];
+lastRow = args[2];
+
+lastRow is the count you want to generate SQL. For example the target count of rows is 4 (actually there are 5 rows in excel file), the lastRow parameter should be 4.
+
+In excel file, the format is like
+from most left and most up(A1)
+
+col1	col2	col3	col4
+value1	value2	value3	value14
 
 

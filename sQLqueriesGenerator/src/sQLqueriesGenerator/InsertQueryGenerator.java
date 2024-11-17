@@ -16,14 +16,18 @@ public class InsertQueryGenerator {
     private static String excelFilePath = ""; // 修改為你的Excel文件路徑
     private static String outputSQLDirRoot = "";
 
+    private static String lastRow = "";
+
 
     public static void main(String[] args) throws IOException {
 
+        int intLastRow;
+
         try {
 
-            if (args.length != 2) {
+            if (args.length != 3) {
                 System.err.println(
-                        "ERROR: excelFilePath and outputSQLDirRoot is required.");
+                        "ERROR: excelFilePath, outputSQLDirRoot, lastRow is required.");
                 System.exit(-1);
             }
 
@@ -36,6 +40,10 @@ public class InsertQueryGenerator {
 
 
             outputSQLDirRoot = args[1];
+
+            lastRow = args[2];
+
+            intLastRow = Integer.parseInt(lastRow);
 
 
             Path diroutputSQLDirRoot = Paths.get(outputSQLDirRoot);
@@ -55,7 +63,7 @@ public class InsertQueryGenerator {
         String tempoutputFilePath = outputSQLDirRoot + "\\output_wrk.sql";
 
 
-        imp.createInsertQuery(excelFilePath, tempoutputFilePath);
+        imp.createInsertQuery(excelFilePath, tempoutputFilePath, intLastRow);
 
         // Replace 'NULL' to NULL
         String outputFilePath = imp.replaceSQNullSQToNull(outputSQLDirRoot, tempoutputFilePath);

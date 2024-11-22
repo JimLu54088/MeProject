@@ -33,3 +33,16 @@ bun build
 ```sh
 bun lint
 ```
+
+
+Run project
+
+In VS Code 
+$ npm run dev
+
+url:
+http://localhost:5173/
+
+ID:- aaaaa@gmail.com
+
+PASSWD:- 12345678

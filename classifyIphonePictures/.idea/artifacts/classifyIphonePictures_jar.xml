@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="classifyIphonePictures:jar">
+    <output-path>$PROJECT_DIR$/classes/artifacts/classifyIphonePictures_jar</output-path>
+    <root id="archive" name="classifyIphonePictures.jar">
+      <element id="module-output" name="classifyIphonePictures" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../external_jar/metadata-extractor-2.18.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../external_jar/xmpcore-6.1.11.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

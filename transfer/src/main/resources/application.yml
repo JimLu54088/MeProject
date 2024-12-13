@@ -1,0 +1,43 @@
+spring:
+  profiles:
+#    active: h2
+    active: mysql
+  datasource:
+    schema: classpath:sql/schema.sql
+    url: jdbc:mariadb://localhost:3306/transfer?useUnicode=true&characterEncoding=UTF-8
+    username: XXXX
+    password: XXXX
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    show-sql: false
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create-drop
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: '*'
+  endpoint:
+    env:
+      enabled: true
+    mappings:
+      enabled: true
+    beans:
+      enabled: true
+    health:
+      enabled: true
+      show-details: always
+    configprops:
+      enabled: true
+    info:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  info:
+    git:
+      mode: full

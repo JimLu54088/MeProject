@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>影片播放網站</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #video-list { margin-bottom: 20px; }
+        .video-item { margin: 5px 0; }
+        video { width: 100%; max-width: 800px; margin: 20px 0; }
+        #subtitle-container { margin-top: 10px; }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h1>影片播放網站</h1>
+<div id="video-list"></div>
+<!-- 影片名稱顯示區域 -->
+<div id="current-video" style="margin: 10px 0; font-weight: bold; font-size: 18px;">
+    現在播放：<span id="current-video-title">尚未選擇影片</span>
+</div>
+<video id="video-player" controls>
+    Your browser does not support the video tag.
+</video>
+<div id="subtitle-container">
+    <label for="subtitle-select">選擇字幕：</label>
+    <select id="subtitle-select">
+        <option value="">無字幕</option>
+    </select>
+</div>
+<br>
+
+<script>
+    $(document).ready(function () {
+        // 載入影片列表
+        $.get('/api/videos', function (data) {
+            const videoList = $('#video-list');
+            data.forEach(filename => {
+                videoList.append(
+                    `<div class="video-item">
+                        <a href="#" class="video-link" data-filename="${filename}">${filename}</a>
+                    </div>`
+                );
+            });
+
+            // 點擊影片連結播放
+            $('.video-link').click(function (e) {
+                e.preventDefault();
+                const filename = $(this).data('filename');
+                $('#video-player').attr('src', `/api/videos/stream/${filename}`);
+                // 更新「現在播放」區域
+                $('#current-video-title').text(filename);
+                $('#subtitle-select').val('');
+                removeExistingSubtitles();
+            });
+        });
+
+        // 加載字幕列表
+        $.get('/api/subtitles', function (data) {
+            const subtitleSelect = $('#subtitle-select');
+            data.forEach(subtitle => {
+                subtitleSelect.append(
+                    `<option value="${subtitle}">${subtitle}</option>`
+                );
+            });
+        });
+
+        // 切換字幕
+        $('#subtitle-select').change(function () {
+            const selectedSubtitle = $(this).val();
+            const videoPlayer = $('#video-player')[0];
+
+            // 移除現有字幕
+            removeExistingSubtitles();
+
+            // 加載新字幕
+            if (selectedSubtitle) {
+                const track = document.createElement('track');
+                track.kind = 'subtitles';
+                track.label = '中文字幕';
+                track.srclang = 'zh';
+                track.src = `/api/subtitles/${selectedSubtitle}`;
+                track.default = true;
+                videoPlayer.appendChild(track);
+            }
+        });
+
+        // Helper function to remove existing subtitles
+        function removeExistingSubtitles() {
+            const videoPlayer = $('#video-player')[0];
+            const existingTracks = videoPlayer.querySelectorAll('track');
+            existingTracks.forEach(track => track.remove());
+        }
+    });
+</script>
+</body>
+</html>

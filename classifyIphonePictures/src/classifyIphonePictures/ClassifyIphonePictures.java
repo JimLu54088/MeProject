@@ -38,9 +38,11 @@ public class ClassifyIphonePictures {
             String taken_from_iPhone_onlyDir = PropertyLoader.gerProperty("taken_from_iPhone_only");
             //Time different in hour
             String timeDiff_in_hour = PropertyLoader.gerProperty("time_diff_in_hour");
+            String strNonPhotoPath = PropertyLoader.gerProperty("nonPhotoPath");
 
             System.out.println("download_from_iCloudDir :: " + download_from_iCloudDir);
             System.out.println("taken_from_iPhone_onlyDir :: " + taken_from_iPhone_onlyDir);
+            System.out.println("nonPhotoPath :: " + strNonPhotoPath);
             System.out.println("time_diff_in_hour :: " + timeDiff_in_hour);
 
             int int_TimeDiff_in_hour = Integer.parseInt(timeDiff_in_hour);
@@ -66,6 +68,11 @@ public class ClassifyIphonePictures {
                                     // 複製檔案並重新命名
                                     Files.copy(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
                                     System.out.println("Copy and rename file: " + file.getFileName() + " -> " + newFileName);
+                                }else{
+                                    //copy non-photo to another folder
+                                    Path nonPhotoPath = Path.of(strNonPhotoPath, file.getFileName().toString());
+                                    Files.copy(file, nonPhotoPath, StandardCopyOption.REPLACE_EXISTING);
+                                    System.out.println(file.getFileName() + " moved to " + strNonPhotoPath);
                                 }
                             } catch (Exception e) {
                                 System.err.println("Error while processing file: " + file.getFileName() + " - " + e.getMessage());
@@ -134,6 +141,7 @@ public class ClassifyIphonePictures {
                 }
             } else {
                 System.out.println("File " + file.getName() + " doesn't contain EXIF information.");
+
             }
         } catch (Exception e) {
             System.err.println("Cannot read Metadata: " + file.getName() + " - " + e.getMessage());

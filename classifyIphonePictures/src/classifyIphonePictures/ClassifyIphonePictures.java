@@ -3,11 +3,13 @@ package classifyIphonePictures;
 import classifyIphonePictures.common.PropertyLoader;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -39,11 +41,15 @@ public class ClassifyIphonePictures {
             //Time different in hour
             String timeDiff_in_hour = PropertyLoader.gerProperty("time_diff_in_hour");
             String strNonPhotoPath = PropertyLoader.gerProperty("nonPhotoPath");
+            String strEXIFVersion0221folder = PropertyLoader.gerProperty("strEXIFVersion0221folder");
+            String targetVersion = PropertyLoader.gerProperty("targetVersion");
 
             System.out.println("download_from_iCloudDir :: " + download_from_iCloudDir);
             System.out.println("taken_from_iPhone_onlyDir :: " + taken_from_iPhone_onlyDir);
             System.out.println("nonPhotoPath :: " + strNonPhotoPath);
             System.out.println("time_diff_in_hour :: " + timeDiff_in_hour);
+            System.out.println("strEXIFVersion0221folder :: " + strEXIFVersion0221folder);
+            System.out.println("line exif version :: " + targetVersion);
 
             int int_TimeDiff_in_hour = Integer.parseInt(timeDiff_in_hour);
 
@@ -68,11 +74,19 @@ public class ClassifyIphonePictures {
                                     // 複製檔案並重新命名
                                     Files.copy(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
                                     System.out.println("Copy and rename file: " + file.getFileName() + " -> " + newFileName);
-                                }else{
+                                } else {
                                     //copy non-photo to another folder
                                     Path nonPhotoPath = Path.of(strNonPhotoPath, file.getFileName().toString());
-                                    Files.copy(file, nonPhotoPath, StandardCopyOption.REPLACE_EXISTING);
-                                    System.out.println(file.getFileName() + " moved to " + strNonPhotoPath);
+                                    Path exifVersion0221Path = Path.of(strEXIFVersion0221folder, file.getFileName().toString());
+                                    //check exif version is 0221 or not, it maybe line photos
+                                    boolean isEXIF0221 = checkEXIFversion(file.toFile(), targetVersion);
+                                    if (isEXIF0221) {
+                                        Files.copy(file, exifVersion0221Path, StandardCopyOption.REPLACE_EXISTING);
+                                        System.out.println(file.getFileName() + " contains exif version 0221, moved to " + strEXIFVersion0221folder);
+                                    } else {
+                                        Files.copy(file, nonPhotoPath, StandardCopyOption.REPLACE_EXISTING);
+                                        System.out.println(file.getFileName() + " moved to " + strNonPhotoPath);
+                                    }
                                 }
                             } catch (Exception e) {
                                 System.err.println("Error while processing file: " + file.getFileName() + " - " + e.getMessage());
@@ -109,8 +123,8 @@ public class ClassifyIphonePictures {
                     String cameraModel = exifDirectory.getString(ExifSubIFDDirectory.TAG_MODEL); // 相機型號
                     Date captureDate = exifDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL); // 拍攝日期
 
-                    System.out.println("  Camera maker: " + (cameraMake != null ? cameraMake : "unknown"));
-                    System.out.println("  Camera type: " + (cameraModel != null ? cameraModel : "unknown"));
+//                    System.out.println("  Camera maker: " + (cameraMake != null ? cameraMake : "unknown"));
+//                    System.out.println("  Camera type: " + (cameraModel != null ? cameraModel : "unknown"));
                     System.out.println("  capture date: " + (captureDate != null ? captureDate : "unknown"));
 
                     //For Screen shots images
@@ -194,6 +208,43 @@ public class ClassifyIphonePictures {
     private static String getFileExtension(String fileName) {
         int lastIndex = fileName.lastIndexOf('.');
         return (lastIndex > 0) ? fileName.substring(lastIndex + 1) : "";
+    }
+
+    private static boolean checkEXIFversion(File file, String targetVersion) {
+        try {
+            Metadata metadata = ImageMetadataReader.readMetadata(file);
+            ExifIFD0Directory exifDirectory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+
+            String exifVersion = getExifVersion(file);
+            return exifVersion.equals(targetVersion);
+        } catch (Exception e) {
+            System.err.println("讀取 EXIF 失敗: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static String getExifVersion(File imageFile) {
+        try {
+            Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
+
+            // 從 ExifSubIFDDirectory 讀取 EXIF 版本
+            ExifSubIFDDirectory subIfdDir = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+            if (subIfdDir != null && subIfdDir.containsTag(ExifSubIFDDirectory.TAG_EXIF_VERSION)) {
+                return parseExifVersion(subIfdDir.getByteArray(ExifSubIFDDirectory.TAG_EXIF_VERSION));
+            }
+
+        } catch (Exception e) {
+            System.err.println("讀取 EXIF 失敗: " + e.getMessage());
+        }
+        return null;
+    }
+
+    // 轉換 byte[] 為 String
+    public static String parseExifVersion(byte[] versionBytes) {
+        if (versionBytes != null) {
+            return new String(versionBytes, StandardCharsets.US_ASCII).trim();
+        }
+        return null;
     }
 
 

@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="PGPEncryptDecryptTool:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/PGPEncryptDecryptTool_jar</output-path>
+    <root id="archive" name="PGPEncryptDecryptTool.jar">
+      <element id="module-output" name="PGPEncryptDecryptTool" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../external_jar/pgp/bcpg-jdk18on-1.76.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../external_jar/pgp/bcprov-jdk18on-1.76.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

@@ -56,15 +56,16 @@ public class PGPEncryptionUtil {
      * 讀取 .asc or .pgp 公鑰，回傳 PGPPublicKey
      */
     public static PGPPublicKey readPublicKey(File publicKeyFile) throws IOException, PGPException {
-        InputStream keyIn = new BufferedInputStream(new FileInputStream(publicKeyFile));
-        PGPPublicKeyRingCollection keyRingCollection = new PGPPublicKeyRingCollection(
-                PGPUtil.getDecoderStream(keyIn),
-                new JcaKeyFingerprintCalculator());
+        try (InputStream keyIn = new BufferedInputStream(new FileInputStream(publicKeyFile))) {
+            PGPPublicKeyRingCollection keyRingCollection = new PGPPublicKeyRingCollection(
+                    PGPUtil.getDecoderStream(keyIn),
+                    new JcaKeyFingerprintCalculator());
 
-        for (PGPPublicKeyRing keyRing : keyRingCollection) {
-            for (PGPPublicKey key : keyRing) {
-                if (key.isEncryptionKey()) {
-                    return key;
+            for (PGPPublicKeyRing keyRing : keyRingCollection) {
+                for (PGPPublicKey key : keyRing) {
+                    if (key.isEncryptionKey()) {
+                        return key;
+                    }
                 }
             }
         }

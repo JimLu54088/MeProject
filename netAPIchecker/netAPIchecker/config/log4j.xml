@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO" name="user-password-expiredDate-notification-batch">
+
+    <Properties>
+        <!-- 使用正斜線或雙反斜線 -->
+        <Property name="log-path">D:/java_log/apiCheckerLog</Property>
+        <Property name="file-size">500 MB</Property>
+        <Property name="file-interval">1</Property>
+        <Property name="rollover-strategy-age">30d</Property>
+    </Properties>
+
+    <Appenders>
+        <!-- 滾動檔案輸出 -->
+        <RollingFile name="file-log-default"
+                     fileName="${log-path}/APIchecker.log"
+                     filePattern="${log-path}/APIchecker-%d{yyyy-MM-dd}.%i.log.gz">
+            <PatternLayout pattern="%d{DEFAULT} [%t] %-5level %c - %msg{nolookups}%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="${file-size}"/>
+                <TimeBasedTriggeringPolicy interval="${file-interval}" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${log-path}">
+                    <IfFileName glob="APIchecker-*.log.gz"/>
+                    <IfLastModified age="${rollover-strategy-age}"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <!-- Console 輸出 -->
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{DEFAULT} [%t] %-5level %c - %msg{nolookups}%n"/>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <!-- 針對 jp.com.jim package 的檔案輸出 -->
+        <Logger name="jp.com.jim" level="INFO" additivity="false">
+            <AppenderRef ref="file-log-default"/>
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <!-- Root 也輸出到檔案，保險起見 -->
+        <Root level="INFO">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file-log-default"/>
+        </Root>
+    </Loggers>
+</Configuration>

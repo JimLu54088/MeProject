@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO" name="user-password-expiredDate-notification-batch">
+    <Properties>
+        <Property name="log-path">D:\java_log\self-video-player-cloud</Property>
+        <Property name="file-size">500 MB</Property>
+        <Property name="file-interval">1</Property>
+        <Property name="rollover-strategy-age">30d</Property>
+    </Properties>
+
+    <Appenders>
+        <RollingFile name="file-log-default" fileName="${log-path}/server.log"
+                     filePattern="${log-path}/server.log-%d{yyyy-MM-dd}.%i.log.gz">
+            <Filters>
+                <NoMarkerFilter onMatch="ACCEPT" onMismatch="NEUTRAL"/>
+            </Filters>
+            <PatternLayout>
+                <pattern>%d{DEFAULT} [%t] %-5level %c - %msg{nolookups}%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="${file-size}"/>
+                <TimeBasedTriggeringPolicy interval="${file-interval}" modulate="true" />
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${log-path}">
+                    <IfFileName glob="template.log-*.log.gz" />
+                    <IfLastModified age="${rollover-strategy-age}" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{DEFAULT} [%t] %-5level %c - %msg{nolookups}%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="jp.co">
+            <appender-ref ref="file-log-default" level="INFO"/>
+        </Logger>
+        <Logger name="org.hibernate" level="ERROR">
+            <appender-ref ref="file-log-default"/>
+        </Logger>
+        <Logger name="org.hibernate.stat" level="ERROR">
+            <appender-ref ref="file-log-default" level="ERROR"/>
+        </Logger>
+        <Logger name="org.hibernate.engine" level="ERROR">
+            <appender-ref ref="file-log-default" level="ERROR"/>
+        </Logger>
+        <Logger name="org.hibernate.sql">
+            <appender-ref ref="file-log-default" level="ERROR"/>
+        </Logger>
+
+        <Root level="INFO">
+            <appender-ref ref="console" level="INFO"/>
+        </Root>
+    </Loggers>
+</Configuration>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>下載影片頁面</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      max-width: 400px;
+      gap: 15px;
+    }
+    label {
+      font-weight: bold;
+    }
+    input[type="text"] {
+      padding: 8px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>下載影片</h1>
+  <form id="downloadForm">
+    <div>
+      <label for="videoUrl">影片網址：</label>
+      <input type="text" id="videoUrl" name="videoUrl" placeholder="輸入影片網址" required>
+    </div>
+    <div>
+      <label for="videoName">影片名稱：</label>
+      <input type="text" id="videoName" name="videoName" placeholder="輸入影片名稱" required>
+    </div>
+    <button type="submit">送出</button>
+  </form>
+
+  <script>
+  const form = document.getElementById('downloadForm');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault(); // 防止表單自動刷新
+
+    const videoUrl = document.getElementById('videoUrl').value;
+    const videoName = document.getElementById('videoName').value;
+
+    try {
+      // POST 送資料到後端 Controller
+      const response = await fetch('/api/videoDownload/download', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ videoUrl, videoName })
+      });
+
+      if (response.ok) {
+        // 送出成功後跳回 home.html
+		alert('影片下載中 請稍後');
+        window.location.href = 'home.html';
+      } else {
+        alert('送出失敗');
+      }
+    } catch (error) {
+      console.error('錯誤：', error);
+      alert('發生錯誤');
+    }
+  });
+</script>
+
+</body>
+</html>
